@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import { createGame, getGameById } from '../services/gameService';
+import { createNewGame, getGameById } from '../services/gameService';
 
 // Create a new match
-// NOT ASYNC Because is not making any operations to external services
+// not async YET because is not making any operations to external services
 export const createGame = (req: Request, res: Response) => { 
     const {roomId} = req.body;
 
