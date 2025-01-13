@@ -10,7 +10,7 @@ export const createGame = (req: Request, res: Response) => {
         return res.status(400).json({message: 'The ID of the room is obligatory!!'});   
     }
     const game = createNewGame(roomId);
-    res.status(201).json({message: 'Match succesfully created, have fun!'});
+    res.status(201).json({message: 'Match succesfully created, have fun!', game});
 };
 
 // Get info of the match
