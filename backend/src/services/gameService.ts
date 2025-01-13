@@ -1,3 +1,5 @@
+import { Player, createPlayer, addCharsToPlayer, eliminatePlayer} from './playerService';
+
 // Simulation of data base  in memory
 const games : {[key: string]: any} = {};
 

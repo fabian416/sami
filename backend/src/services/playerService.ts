@@ -1,6 +1,6 @@
 // Interface to describe a player
 
-interface Player{
+export interface Player{
     id: string;
     totalChars: number;
     isIA: boolean;
@@ -18,11 +18,10 @@ export const createPlayer = (playerId: string): Player => {
 };
 // Increment the amount of chars while he is sendind messages
 // If he reach 20 it does not keep counting
-export const addCharsToPlayers = (player: Player, charCount: number) => { 
+export const addCharsToPlayer = (player: Player, charCount: number) => { 
     player.totalChars += charCount;
 }
 
 export const eliminatePlayer = (player: Player) => {
     player.isEliminated = true;
 }
-
