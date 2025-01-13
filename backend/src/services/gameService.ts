@@ -2,7 +2,7 @@
 const games : {[key: string]: any} = {};
 
 // Create a new Match
-export const createNewMatcg = (roomId: string) => {
+export const createNewGame = (roomId: string) => {
     const newGame = {
         roomId,
         players: [],
