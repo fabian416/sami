@@ -9,6 +9,7 @@ export const createNewGame = (roomId: string) => {
         status: 'waiting',
         rounds: 0,
     };
+
     games[roomId] = newGame;
     return newGame;
 };
@@ -30,11 +31,10 @@ export const startRound = (roomId: string) => {
     // Apply the rules
     // clean votes after voting phase
     // verify if someone got kicked out, etc
-
     return game;
 }
 
-const endRound = (roomId: string) =>  {
+export const endRound = (roomId: string) =>  {
     const game = games[roomId];
     if(!game) {
         return null;
