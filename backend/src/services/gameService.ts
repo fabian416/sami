@@ -42,14 +42,14 @@ export const joinGame = (roomId: string, playerId: string): boolean => {
 
     // we're ready to start the round and call the function
     if (game.players.length === 5) {
-        startRound(roomId);
+        startGame(roomId);
     }
 
     // if everything succed we return true
     return true;
 }
 
-export const startRound = (roomId: string) => { 
+export const startGame = (roomId: string) => { 
     const game = games[roomId];
     if (!game) {
         return null; // Will need to show a proper error
