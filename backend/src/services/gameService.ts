@@ -73,6 +73,15 @@ export const startGame = (roomId: string) => {
     return game;
 }
 
+export const recordVote = (roomId: string, voterId: string, votedId: string): boolean => { 
+    const game = games[roomId];
+    if (!game) return false;
+
+    const voterPlayer = game.players.find((p: Player) => p.id === voterId);
+
+    return true;
+}
+
 function endConversationPhase(roomId: string) { 
     const game = games[roomId];
     if (!game) return;

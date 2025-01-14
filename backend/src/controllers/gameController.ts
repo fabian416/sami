@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { createNewGame, getGameById } from '../services/gameService';
+import { createNewGame, getGameById, recordVote } from '../services/gameService';
 
 // Create a new match
 // not async YET because is not making any operations to external services
@@ -26,6 +26,7 @@ export const castVote = (req: Request, res: Response) => {
     }
     return res.status(200).json({message: 'Success registering the Vote'});
 }
+
 
 // Get info of the match
 export const getGame = (req:Request, res:Response) => {
