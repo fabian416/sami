@@ -66,7 +66,7 @@ export const startGame = (roomId: string) => {
     game.round = 1;
     setTimeout(() => {
         endConversationPhase(roomId);
-    }, 3 * 60 * 1000);
+    }, 2 * 60 * 1000);
     // Apply the rules
     // clean votes after voting phase
     // verify if someone got kicked out, etc
@@ -109,24 +109,66 @@ function endConversationPhase(roomId: string) {
 function endVotingPhase(roomId: string) {
     const game = games[roomId];
     if (!game) return;
-      // 1. Contar votos (que fuiste recibiendo por WS o API).
-  // 2. Eliminar al más votado.
-  // 3. Verificar si es la IA => termina el juego o pasa a la siguiente ronda.
+    // 1. Vote Count
+    const voteCount : { [votedId: string]: number} = {};
 
+    // iterate every voter in game.votes after the 20 secs period
+    for (const voterId in game.votes) { 
+        const targetId = game.votes[voterId];
+        if(!voteCount[targetId]) { 
+            voteCount[targetId] =0
+        }
+        voteCount[targetId]++;
+    }
+    // 2. Identify the most voted
+    let maxVotes = -1;
+    let maxVotedPlayerId: string | null = null;
+
+    for (const votedId in voteCount) { 
+        if (voteCount[votedId] > maxVotes) {
+            maxVotedPlayerId = votedId;
+        }
+    }
+    
+    if (maxVotedPlayerId) {
+        // Kick out the most voted
+        const votedPlayer = game.players.find((p:Player) => p.id === maxVotedPlayerId);
+        if (votedPlayer) { 
+            votedPlayer.isEliminated = true;
+
+            // 3 Verify if was the IA
+            if (votedPlayer.isIA) { 
+                // Human wins
+                game.status = 'finished';
+                // It could set a flag like outcome = HUMANS_WIN
+                return;
+            }
+        }
+    }
+
+    // If it wasn't the IA or was a empate the game continue
+    if (game.round === 1) { 
+        nextRound(roomId);
+    } else { 
+        // if it was the second round and humans didn't found the IA, IA wins
+        game.status = 'finished';
+    }
+
+    // If there is anyone with more votes
+    // 3. Verificar si es la IA => termina el juego o pasa a la siguiente ronda.
 }
 
-
-export const endRound = (roomId: string) =>  {
+function nextRound(roomId: string) { 
     const game = games[roomId];
-    if(!game) {
-        return null;
-    }
-    // Apply the end of the round 
-    // Calculate results
-    // delete players
-    // Change status from waiting to finished
-    game.status = 'finished';
-    return game;
+    if (!game) return;
+
+    game.round++;
+    // reset total chars to 0 
+    game.players.forEach((p: Player) => (p.totalChars = 0));
+
+    // Second conversation
+    setTimeout(() => endConversationPhase(roomId), 2 * 60 * 1000);
+
 }
 
 // Get a Match by his ID
