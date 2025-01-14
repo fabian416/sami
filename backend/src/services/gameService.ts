@@ -11,15 +11,16 @@ interface Game {
     votes: { [playerId: string]: string} // Mapping who vote who
 }
 // Simulation and store of data base  in memory
-const games : {[key: string]: any} = {};
+const games : {[key: string]: Game} = {};
 
 // Create a new Match
 export const createNewGame = (roomId: string) => {
     const newGame = {
         roomId,
-        players: [],
-        status: 'waiting',
-        rounds: 0,
+        players: [] as Player[],
+        status: 'waiting' as const ,
+        round: 0,
+        votes: {}
     };
 
     games[roomId] = newGame;

@@ -1,7 +1,7 @@
 import http from 'http';
 import { Server } from 'socket.io';
 import app from './app';
-import { CONNREFUSED } from 'dns';
+import { recordVote, createNewGame, joinGame, startGame } from './services/gameService';
 
 const PORT = process.env.PORT || 5000;
 
@@ -18,27 +18,63 @@ const io = new Server(server, {
 io.on('connection', (socket) => {
     console.log("Jugador conectado", socket.id);
     
-    socket.on('createRoom', (data) => {
-        console.log("Creando la sala", data.roomId);
-        socket.join(data.roomId);
-        io.to(data.roomId).emit('roomCreated', { roomId: data.roomId});
+    // 1. Crear Partida
+    socket.on('createGame', (data) => {
+        const { roomId } = data;
+        const game = createNewGame(roomId);
+        // Podrías unir al socket a la sala
+        socket.join(roomId);
+        // Avisar a ese socket (o a la sala) que la partida se creó
+        io.to(roomId).emit('gameCreated', { message: 'Game created', game });
     });
 
-    socket.on('joinRoom', (data) => {
-        console.log("Jugador uniendose a la sala: ", data.roomId);
-        socket.join(data.roomId);
-        io.to(data.roomId).emit('playerJoined', {playerId: socket.id});
+      // 2. Unir jugador a partida
+    socket.on('joinGame', (data) => {
+        const { roomId, playerId } = data;
+        const success = joinGame(roomId, playerId);
+        if (!success) {
+        socket.emit('error', { message: 'No se pudo unir a la partida' });
+        return;
+        }
+        // Si se une con éxito, unimos el socket a la sala
+        socket.join(roomId);
+        io.to(roomId).emit('playerJoined', { playerId, roomId });
+    });
+
+    // 3. Iniciar el juego (startGame)
+    socket.on('startGame', (data) => {
+        const { roomId } = data;
+        const game = startGame(roomId);
+        if (!game) {
+        socket.emit('error', { message: 'No se pudo iniciar la partida' });
+        return;
+        }
+        io.to(roomId).emit('gameStarted', { game });
+    });
+        
+    // 4. Recibir Votos
+    socket.on('castVote', (data) => {
+        const { roomId, voterId, votedId } = data;
+        const success = recordVote(roomId, voterId, votedId);
+        if (!success) {
+        socket.emit('error', { message: 'No se pudo registrar el voto' });
+        return;
+        }
+        // Emit a generic msg without revealing who voted who
+        io.to(roomId).emit('voteCast', { message: 'A vote was cast' });
+
     });
 
     socket.on('message', (data) => {
         console.log("message", data.roomId, data.message);
         io.to(data.roomId).emit('newMessage', data);
     })
-    
+
     socket.on('disconnect', () => {
         console.log("Jugador Desconectado", socket.id)
     });
-});
+
+}
 
 server.listen(PORT, () => {
     console.log("Servidor corriendo en http://localhost:", PORT);
