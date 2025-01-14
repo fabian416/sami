@@ -25,3 +25,7 @@ export const addCharsToPlayer = (player: Player, charCount: number) => {
 export const eliminatePlayer = (player: Player) => {
     player.isEliminated = true;
 }
+
+export const assignIARole = (player: Player) => {
+    player.isIA = true; 
+};

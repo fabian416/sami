@@ -1,5 +1,6 @@
-import e from 'express';
-import { Player, createPlayer, addCharsToPlayer, eliminatePlayer} from './playerService';
+import express from 'express';
+import { Player, createPlayer,assignIARole, addCharsToPlayer, eliminatePlayer} from './playerService';
+import { timeStamp } from 'console';
 
 
 interface Game { 
@@ -7,8 +8,8 @@ interface Game {
     players: Player[];
     status: 'waiting' | 'active' | 'finished';
     round: number;
+    votes: { [playerId: string]: string} // Mapping who vote who
 }
-
 // Simulation and store of data base  in memory
 const games : {[key: string]: any} = {};
 
@@ -40,34 +41,63 @@ export const joinGame = (roomId: string, playerId: string): boolean => {
     const newPlayer = createPlayer(playerId);
     game.players.push(newPlayer);
 
-    // we're ready to start the round and call the function
+    // we're ready to add SAMI and start the game and call the function
     if (game.players.length === 5) {
+        // Add SAMI as the sixth one
+        const samiPlayer = createPlayer("SAMI-AGENT");
+        game.players.push(samiPlayer);
+        // Total of 6 players 
         startGame(roomId);
     }
-
+    
     // if everything succed we return true
     return true;
 }
 
 export const startGame = (roomId: string) => { 
     const game = games[roomId];
-    if (!game) {
-        return null; // Will need to show a proper error
-    }
+    if (!game) return null; // Will need to show a proper error
+
+    const randomIndex = Math.floor(Math.random() * 6);
+    assignIARole(game.players[randomIndex]);
 
     // Logic to start the round
-    if (game.status === 'waiting') {
-        game.status === 'active';
-    } else if (game.satus === 'active') {
-        // Next round
-        game.round +=1;
-    }
-
+    game.status = 'active'
+    game.round = 1;
+    setTimeout(() => {
+        endConversationPhase(roomId);
+    }, 3 * 60 * 1000);
     // Apply the rules
     // clean votes after voting phase
     // verify if someone got kicked out, etc
     return game;
 }
+
+function endConversationPhase(roomId: string) { 
+    const game = games[roomId];
+    if (!game) return;
+
+    // 1 Delete players who didn't reach 20 chars
+    game.players.forEach((p:Player) => {
+        if (p.totalChars < 20 ) {
+            p.isEliminated = true;
+        }
+    });
+    // 2 Initiate Vote Phase ( Example of 20 seconds)
+    setTimeout(() => { 
+        endVotingPhase(roomId)
+    }, 20 * 1000);
+}
+
+function endVotingPhase(roomId: string) {
+    const game = games[roomId];
+    if (!game) return;
+      // 1. Contar votos (que fuiste recibiendo por WS o API).
+  // 2. Eliminar al más votado.
+  // 3. Verificar si es la IA => termina el juego o pasa a la siguiente ronda.
+
+}
+
 
 export const endRound = (roomId: string) =>  {
     const game = games[roomId];
