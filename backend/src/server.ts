@@ -1,7 +1,7 @@
 import http from 'http';
 import { Server } from 'socket.io';
 import app from './app';
-import { recordVote, createNewGame, joinGame, startGame } from './services/gameService';
+import { recordVote, createNewGame, joinGame, startGame, games } from './services/gameService';
 
 const PORT = process.env.PORT || 5000;
 
@@ -57,13 +57,25 @@ io.on('connection', (socket) => {
         const { roomId, voterId, votedId } = data;
         const success = recordVote(roomId, voterId, votedId);
         if (!success) {
-        socket.emit('error', { message: 'No se pudo registrar el voto' });
-        return;
+          socket.emit('error', { message: 'No se pudo registrar el voto' });
+          return;
         }
-        // Emit a generic msg without revealing who voted who
-        io.to(roomId).emit('voteCast', { message: 'A vote was cast' });
-
-    });
+      
+        // Contar cuántos votos tiene 'votedId' ahora
+        const game = games[roomId];
+        let votesForTarget = 0;
+        for (const vId in game.votes) {
+          if (game.votes[vId] === votedId) {
+            votesForTarget++;
+          }
+        }
+      
+        // Emitir un evento "anonymous" a todos
+        io.to(roomId).emit('voteUpdate', {
+          votedId,
+          totalVotes: votesForTarget,
+        });
+      });
 
     socket.on('message', (data) => {
         console.log("message", data.roomId, data.message);
@@ -74,7 +86,7 @@ io.on('connection', (socket) => {
         console.log("Jugador Desconectado", socket.id)
     });
 
-}
+});
 
 server.listen(PORT, () => {
     console.log("Servidor corriendo en http://localhost:", PORT);
