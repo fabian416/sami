@@ -2,6 +2,7 @@ import http from 'http';
 import { Server } from 'socket.io';
 import app from './app';
 import { recordVote, createNewGame, joinGame, startGame, games } from './services/gameService';
+import { addCharsToPlayer } from './services/playerService';
 
 const PORT = process.env.PORT || 5000;
 
@@ -77,10 +78,19 @@ io.on('connection', (socket) => {
         });
       });
 
-    socket.on('message', (data) => {
-        console.log("message", data.roomId, data.message);
-        io.to(data.roomId).emit('newMessage', data);
-    })
+      socket.on('message', (data) => {
+        const { roomId, message, playerId } = data;
+        
+        // 1. Registrar los caracteres escritos por este jugador
+        //    asumiendo que addCharsToPlayer necesita (roomId, playerId, charCount)
+        addCharsToPlayer(roomId, playerId, message.length);
+        
+        // 2. Loguear o mostrar el mensaje
+        console.log("message", roomId, message);
+      
+        // 3. Reenviar el mensaje a todos en la sala
+        io.to(roomId).emit('newMessage', data);
+      });
 
     socket.on('disconnect', () => {
         console.log("Jugador Desconectado", socket.id)

@@ -1,5 +1,5 @@
 import express from 'express';
-import { Player, createPlayer,assignIARole, addCharsToPlayer, eliminatePlayer} from './playerService';
+import { Player, createPlayer,assignIARole, eliminatePlayer} from './playerService';
 import { timeStamp } from 'console';
 
 
@@ -11,7 +11,7 @@ interface Game {
     votes: { [playerId: string]: string} // Mapping who vote who
 }
 // Simulation and store of data base  in memory
-const games : {[key: string]: Game} = {};
+export const games : {[key: string]: Game} = {};
 
 // Create a new Match
 export const createNewGame = (roomId: string) => {
@@ -98,7 +98,7 @@ function endConversationPhase(roomId: string) {
     // 1 Delete players who didn't reach 20 chars
     game.players.forEach((p:Player) => {
         if (p.totalChars < 20 ) {
-            p.isEliminated = true;
+            eliminatePlayer(p)
         }
     });
     // 2 Initiate Vote Phase ( Example of 20 seconds)
@@ -135,7 +135,7 @@ function endVotingPhase(roomId: string) {
         // Kick out the most voted
         const votedPlayer = game.players.find((p:Player) => p.id === maxVotedPlayerId);
         if (votedPlayer) { 
-            votedPlayer.isEliminated = true;
+            eliminatePlayer(votedPlayer)
 
             // 3 Verify if was the IA
             if (votedPlayer.isIA) { 
