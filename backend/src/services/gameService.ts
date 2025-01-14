@@ -77,8 +77,16 @@ export const recordVote = (roomId: string, voterId: string, votedId: string): bo
     const game = games[roomId];
     if (!game) return false;
 
+    // Verify the voter wasn't eliminated
     const voterPlayer = game.players.find((p: Player) => p.id === voterId);
+    if (!voterPlayer || voterPlayer.isEliminated) return false;
+   
+    // Verify the voter exist 
+    const votedPlayer = game.players.find((p:Player) => p.id === votedId);
+    if (!votedPlayer || votedPlayer.isEliminated) return false;
 
+    //Register the Vote
+    game.votes[voterId] = votedId;
     return true;
 }
 
