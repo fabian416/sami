@@ -4,7 +4,7 @@ import app from './app';
 import { recordVote, createNewGame, joinGame, startGame, games } from './services/gameService';
 import { addCharsToPlayer } from './services/playerService';
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
 const server = http.createServer(app);
 // Socket configuration.IO for the server
