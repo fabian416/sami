@@ -1,20 +1,58 @@
 {
-  "name": "sami",
-  "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build:backend": "cd backend && npm run build",
-    "build:frontend": "cd frontend && npm run build",
-    "dev:backend": "cd backend && npm run dev",
-    "dev:frontend": "cd frontend && npm run dev",
-    "start:all": "npm run dev:backend & npm run dev:frontend"
+  "name": "se-2",
+  "version": "0.0.1",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ]
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "scripts": {
+    "account": "yarn foundry:account",
+    "account:generate": "yarn foundry:generate",
+    "account:import": "yarn foundry:account-import",
+    "backend:build": "yarn workspace backend run build",
+    "backend:dev": "yarn workspace backend run dev",
+    "chain": "yarn foundry:chain",
+    "compile": "yarn foundry:compile",
+    "deploy": "yarn foundry:deploy",
+    "fork": "yarn foundry:fork",
+    "format": "yarn next:format && yarn foundry:format",
+    "foundry:account": "yarn workspace @se-2/foundry account",
+    "foundry:account-import": "yarn workspace @se-2/foundry account:import",
+    "foundry:chain": "yarn workspace @se-2/foundry chain",
+    "foundry:compile": "yarn workspace @se-2/foundry compile",
+    "foundry:deploy": "yarn workspace @se-2/foundry deploy",
+    "foundry:deploy-verify": "yarn workspace @se-2/foundry deploy:verify",
+    "foundry:flatten": "yarn workspace @se-2/foundry flatten",
+    "foundry:fork": "yarn workspace @se-2/foundry fork",
+    "foundry:format": "yarn workspace @se-2/foundry format",
+    "foundry:generate": "yarn workspace @se-2/foundry account:generate",
+    "foundry:lint": "yarn workspace @se-2/foundry lint",
+    "foundry:test": "yarn workspace @se-2/foundry test",
+    "foundry:verify": "yarn workspace @se-2/foundry verify",
+    "generate": "yarn foundry:generate",
+    "postinstall": "husky install",
+    "lint": "yarn nextjs:lint && yarn foundry:lint",
+    "next:build": "yarn workspace @se-2/nextjs build",
+    "next:check-types": "yarn workspace @se-2/nextjs check-types",
+    "next:format": "yarn workspace @se-2/nextjs format",
+    "next:lint": "yarn workspace @se-2/nextjs lint",
+    "next:serve": "yarn workspace @se-2/nextjs serve",
+    "precommit": "lint-staged",
+    "start": "yarn workspace @se-2/nextjs dev",
+    "test": "yarn foundry:test",
+    "vercel": "yarn workspace @se-2/nextjs vercel",
+    "vercel:login": "yarn workspace @se-2/nextjs vercel:login",
+    "vercel:yolo": "yarn workspace @se-2/nextjs vercel:yolo",
+    "verify": "yarn foundry:verify"
+  },
   "devDependencies": {
-    "@types/express": "^4.17.21"
+    "husky": "~8.0.3",
+    "lint-staged": "~13.2.2"
+  },
+  "packageManager": "yarn@3.2.3",
+  "engines": {
+    "node": ">=18.18.0"
   }
 }
