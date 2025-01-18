@@ -46,17 +46,13 @@ export const Footer = () => {
       <div className="w-full">
         <ul className="menu menu-horizontal w-full">
           <div className="flex justify-center items-center gap-2 text-sm w-full">
-            <div className="text-center">
-              <a href="https://github.com/scaffold-eth/se-2" target="_blank" rel="noreferrer" className="link">
-                Fork me
-              </a>
-            </div>
+            <span>About</span>
             <span>·</span>
-            <div className="flex justify-center items-center gap-2">
-              <p className="m-0 text-center">
-                Built with <HeartIcon className="inline-block h-4 w-4" /> at
-              </p>
-              <a
+            <span>Support</span>
+            <span>·</span>
+
+            <div className="flex justify-center items-center gap-1">
+              {/* <a
                 className="flex justify-center items-center gap-1"
                 href="https://buidlguidl.com/"
                 target="_blank"
@@ -64,14 +60,18 @@ export const Footer = () => {
               >
                 <BuidlGuidlLogo className="w-3 h-5 pb-1" />
                 <span className="link">BuidlGuidl</span>
-              </a>
+              </a> */}
+              <p className="m-0 text-center">
+                Built with <HeartIcon className="inline-block h-4 w-4" /> by
+              </p>
+              <span>Los pibes</span>
             </div>
-            <span>·</span>
-            <div className="text-center">
+
+            {/* <div className="text-center">
               <a href="https://t.me/joinchat/KByvmRe5wkR-8F_zz6AjpA" target="_blank" rel="noreferrer" className="link">
                 Support
               </a>
-            </div>
+            </div> */}
           </div>
         </ul>
       </div>
