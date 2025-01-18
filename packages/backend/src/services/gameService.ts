@@ -1,7 +1,4 @@
-import express from 'express';
 import { Player, createPlayer,assignIARole, eliminatePlayer} from './playerService';
-import { timeStamp } from 'console';
-
 
 interface Game { 
     roomId: string;
@@ -12,6 +9,22 @@ interface Game {
 }
 // Simulation and store of data base  in memory
 export const games : {[key: string]: Game} = {};
+
+// Main function to handle the creation or join to a new match
+export const createOrJoin = (playerId: string) : { roomId: string; success: boolean} => {
+    // Search available match
+    let game = findAvailableGame();
+
+    // If no available match, create a new one
+    if  (!game) { 
+        const newRoomId = `room-${Object.keys(games).length + 1}`;
+        game = createNewGame(newRoomId);
+    }
+
+    // Join the player to the match
+    const success = joinGame(game.roomId, playerId) ; 
+    return {roomId: game.roomId, success}
+}
 
 // Create a new Match
 export const createNewGame = (roomId: string) => {
@@ -118,57 +131,49 @@ function endConversationPhase(roomId: string) {
     }, 20 * 1000);
 }
 
-function endVotingPhase(roomId: string) {
+export const endVotingPhase = (roomId: string) => {
     const game = games[roomId];
     if (!game) return;
     // 1. Vote Count
-    const voteCount : { [votedId: string]: number} = {};
+    const voteCount: { [votedId: string]: number } = {};
 
     // iterate every voter in game.votes after the 20 secs period
-    for (const voterId in game.votes) { 
+    for (const voterId in game.votes) {
         const targetId = game.votes[voterId];
-        if(!voteCount[targetId]) { 
-            voteCount[targetId] =0
+        if (!voteCount[targetId]) {
+            voteCount[targetId] = 0;
         }
         voteCount[targetId]++;
     }
+
     // 2. Identify the most voted
     let maxVotes = -1;
     let maxVotedPlayerId: string | null = null;
 
-    for (const votedId in voteCount) { 
+    for (const votedId in voteCount) {
         if (voteCount[votedId] > maxVotes) {
             maxVotedPlayerId = votedId;
         }
     }
-    
-    if (maxVotedPlayerId) {
-        // Kick out the most voted
-        const votedPlayer = game.players.find((p:Player) => p.id === maxVotedPlayerId);
-        if (votedPlayer) { 
-            eliminatePlayer(votedPlayer)
 
-            // 3 Verify if was the IA
-            if (votedPlayer.isIA) { 
-                // Human wins
+    if (maxVotedPlayerId) {
+        const votedPlayer = game.players.find((p: Player) => p.id === maxVotedPlayerId);
+        if (votedPlayer) {
+            eliminatePlayer(votedPlayer);
+
+            if (votedPlayer.isIA) {
                 game.status = 'finished';
-                // It could set a flag like outcome = HUMANS_WIN
                 return;
             }
         }
     }
 
-    // If it wasn't the IA or was a empate the game continue
-    if (game.round === 1) { 
+    if (game.round === 1) {
         nextRound(roomId);
-    } else { 
-        // if it was the second round and humans didn't found the IA, IA wins
+    } else {
         game.status = 'finished';
     }
-
-    // If there is anyone with more votes
-    // 3. Verificar si es la IA => termina el juego o pasa a la siguiente ronda.
-}
+};
 
 function nextRound(roomId: string) { 
     const game = games[roomId];
