@@ -46,6 +46,8 @@ This command deploys a test smart contract to the local network. The contract is
 
 4. On a third terminal, start your backend by running first:
 
+> NOTE: You can skip this step now, backend is not yet implemented.
+
 ```
 yarn backend:build
 ```
@@ -56,7 +58,7 @@ And then running:
 yarn backend:dev
 ```
 
-4. On a fourth terminal, start your NextJS app:
+5. On a fourth terminal, start your NextJS app:
 
 ```
 yarn start
