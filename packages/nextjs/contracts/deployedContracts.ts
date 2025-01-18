@@ -6,36 +6,202 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
 const deployedContracts = {
   31337: {
-    YourContract: {
+    Sami: {
       address: "0x700b6a60ce7eaaea56f065753d8dcb9653dbad35",
       abi: [
         {
           type: "constructor",
           inputs: [
             {
-              name: "_owner",
-              type: "address",
-              internalType: "address",
+              name: "_fee",
+              type: "uint256",
+              internalType: "uint256",
             },
           ],
           stateMutability: "nonpayable",
         },
         {
-          type: "receive",
+          type: "function",
+          name: "createGame",
+          inputs: [],
+          outputs: [],
           stateMutability: "payable",
         },
         {
           type: "function",
-          name: "greeting",
+          name: "fee",
           inputs: [],
           outputs: [
             {
               name: "",
-              type: "string",
-              internalType: "string",
+              type: "uint256",
+              internalType: "uint256",
             },
           ],
           stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "finishGame",
+          inputs: [
+            {
+              name: "_gameId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "_winners",
+              type: "address[]",
+              internalType: "address[]",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "games",
+          inputs: [
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [
+            {
+              name: "gameId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "gameFinished",
+              type: "bool",
+              internalType: "bool",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "gamesCreated",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "getNumberOfPlayers",
+          inputs: [
+            {
+              name: "_gameId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "getNumberOfWinners",
+          inputs: [
+            {
+              name: "_gameId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "getPlayers",
+          inputs: [
+            {
+              name: "_gameId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "address[]",
+              internalType: "address[]",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "getPot",
+          inputs: [
+            {
+              name: "_gameId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "getWinners",
+          inputs: [
+            {
+              name: "_gameId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "address[]",
+              internalType: "address[]",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "joinGame",
+          inputs: [
+            {
+              name: "_gameId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [],
+          stateMutability: "payable",
         },
         {
           type: "function",
@@ -52,61 +218,16 @@ const deployedContracts = {
         },
         {
           type: "function",
-          name: "premium",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "bool",
-              internalType: "bool",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "setGreeting",
+          name: "setFee",
           inputs: [
             {
-              name: "_newGreeting",
-              type: "string",
-              internalType: "string",
+              name: "_fee",
+              type: "uint256",
+              internalType: "uint256",
             },
           ],
           outputs: [],
-          stateMutability: "payable",
-        },
-        {
-          type: "function",
-          name: "totalCounter",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "userGreetingCounter",
-          inputs: [
-            {
-              name: "",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-          outputs: [
-            {
-              name: "",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          stateMutability: "view",
+          stateMutability: "nonpayable",
         },
         {
           type: "function",
@@ -117,28 +238,10 @@ const deployedContracts = {
         },
         {
           type: "event",
-          name: "GreetingChange",
+          name: "GameCreated",
           inputs: [
             {
-              name: "greetingSetter",
-              type: "address",
-              indexed: true,
-              internalType: "address",
-            },
-            {
-              name: "newGreeting",
-              type: "string",
-              indexed: false,
-              internalType: "string",
-            },
-            {
-              name: "premium",
-              type: "bool",
-              indexed: false,
-              internalType: "bool",
-            },
-            {
-              name: "value",
+              name: "gameId",
               type: "uint256",
               indexed: false,
               internalType: "uint256",
@@ -146,9 +249,28 @@ const deployedContracts = {
           ],
           anonymous: false,
         },
+        {
+          type: "event",
+          name: "GameFinished",
+          inputs: [
+            {
+              name: "gameId",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+            {
+              name: "winners",
+              type: "address[]",
+              indexed: false,
+              internalType: "address[]",
+            },
+          ],
+          anonymous: false,
+        },
       ],
       inheritedFunctions: {},
-      deploymentFile: "run-1737167475.json",
+      deploymentFile: "run-1737212991.json",
       deploymentScript: "Deploy.s.sol",
     },
   },
