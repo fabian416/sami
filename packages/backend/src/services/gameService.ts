@@ -55,6 +55,17 @@ export const joinGame = (roomId: string, playerId: string): boolean => {
     return true;
 }
 
+export const findAvailableGame = ():  Game | null => {
+    for (const roomId in games) {
+        const game = games[roomId];
+        if (game.status === "waiting" && game.players.length < 5) {
+            return game;
+        }
+    }
+    return null; // No matches availables
+}
+
+
 export const startGame = (roomId: string) => { 
     const game = games[roomId];
     if (!game) return null; // Will need to show a proper error
