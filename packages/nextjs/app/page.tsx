@@ -30,7 +30,7 @@ const Home: NextPage = () => {
           <div className="flex justify-center items-center gap-12 flex-col sm:flex-row">
             <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
               <BugAntIcon className="h-8 w-8 fill-secondary" />
-              <p>Have a quick chat with strangers and try to discover who's an AI agent. Harder than you think!</p>
+              <p>Have a quick chat with strangers and try to discover who&apos;s an AI agent. Harder than you think!</p>
             </div>
             <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
               <CurrencyDollarIcon className="h-8 w-8 fill-secondary" />
