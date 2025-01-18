@@ -1,10 +1,10 @@
 import { Router } from "express";
-import { createGame, getGame } from '../controllers/gameController';
+import {  getGame } from '../controllers/gameController';
 
 const router = Router();
 
 // Create a new match
-router.post('/create', createGame);
+// router.post('/create', createGame);
 
 // Get info of a specific match
 
