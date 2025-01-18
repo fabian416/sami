@@ -7,24 +7,29 @@ export const createGame = (req: Request, res: Response) => {
     const {roomId} = req.body;
 
     if (!roomId) {
-        return res.status(400).json({message: 'The ID of the room is obligatory!!'});   
+        res.status(400).json({message: 'The ID of the room is obligatory!!'});   
+        return;
     }
     const game = createNewGame(roomId);
-    return res.status(201).json({message: 'Match succesfully created, have fun!', game});
+    res.status(201).json({message: 'Match succesfully created, have fun!', game});
+    return;
 };
 
 export const castVote = (req: Request, res: Response) => {
     const {roomId, voterId, votedId} = req.body;
     // Validation
     if (!roomId || !voterId || !votedId) {
-        return res.status(400).json({message: 'Incomplete data'});
+        res.status(400).json({message: 'Incomplete data'});
+        return;
     }
 
     const success = recordVote(roomId, voterId, votedId);
     if (!success){
-        return res.status(400).json({message: 'Failed to register the Vote'});
+        res.status(400).json({message: 'Failed to register the Vote'});
+        return;
     }
-    return res.status(200).json({message: 'Success registering the Vote'});
+    res.status(200).json({message: 'Success registering the Vote'});
+    return;
 }
 
 
@@ -34,8 +39,10 @@ export const getGame = (req:Request, res:Response) => {
     const game = getGameById(id);
 
     if (!game) {
-        return res.status(404).json({message: 'Match not founf'});
+        res.status(404).json({message: 'Match not founf'});
+        return;
     }
 
-    return res.status(200).json(game);
+    res.status(200).json(game);
+    return;
 };
