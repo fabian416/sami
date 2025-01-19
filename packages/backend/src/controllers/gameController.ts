@@ -1,37 +1,109 @@
 import { Request, Response } from 'express';
-import { createNewGame, getGameById, recordVote } from '../services/gameService';
+import {  endVotingPhase, getGameById, recordVote, createOrJoin, startGame, games } from '../services/gameService';
+import { Server, Socket
+ } from 'socket.io';
+import { addCharsToPlayer } from '../services/playerService';
 
-// Create a new match
-// not async YET because is not making any operations to external services
-export const createGame = (req: Request, res: Response) => { 
-    const {roomId} = req.body;
+// Create or join a new match
+export const createOrJoinGame = (data: any, socket: Socket, io: Server) => {
+    const { playerId } = data;
 
-    if (!roomId) {
-        res.status(400).json({message: 'The ID of the room is obligatory!!'});   
+    // Delegate to service
+    const { roomId, success } = createOrJoin(playerId);
+
+    if (!success) {
+        socket.emit('error', { message: 'No se pudo unir o crear una partida' });
         return;
     }
-    const game = createNewGame(roomId);
-    res.status(201).json({message: 'Match succesfully created, have fun!', game});
-    return;
+
+    // Notify the client a player joined
+    socket.join(roomId);
+    io.to(roomId).emit('playerJoined', { playerId, roomId });
+
+    // If the match is full, strat the game
+    const game = games[roomId];
+    if (game.players.length === 6) {
+        startGame(roomId);
+        io.to(roomId).emit('gameStarted', { game });
+    }
 };
 
-export const castVote = (req: Request, res: Response) => {
-    const {roomId, voterId, votedId} = req.body;
-    // Validation
+export const startVotePhase = (data: any, io: Server) => {
+    const { roomId } = data;
+
+    const game = getGameById(roomId);
+    if (!game) {
+        io.to(roomId).emit('error', { message: 'Game not found' });
+        return;
+    }
+
+    io.to(roomId).emit('startVotePhase', { message: 'Voting phase has started' });
+    setTimeout(() => endVotingPhase(roomId), 20 * 1000);
+};
+
+export const castVote = (data: any, socket: Socket, io: Server) => {
+    const { roomId, voterId, votedId } = data;
+
     if (!roomId || !voterId || !votedId) {
-        res.status(400).json({message: 'Incomplete data'});
+        socket.emit('error', { message: 'Incomplete data' });
         return;
     }
 
     const success = recordVote(roomId, voterId, votedId);
-    if (!success){
-        res.status(400).json({message: 'Failed to register the Vote'});
+    if (!success) {
+        socket.emit('error', { message: 'Failed to register the Vote' });
         return;
     }
-    res.status(200).json({message: 'Success registering the Vote'});
-    return;
-}
 
+    const game = games[roomId];
+    if (game) {
+        let votesForTarget = 0;
+        for (const voter in game.votes) {
+            if (game.votes[voter] === votedId) {
+                votesForTarget++;
+            }
+        }
+
+        io.to(roomId).emit('voteUpdate', {
+            votedId,
+            totalVotes: votesForTarget,
+        });
+    }
+};
+
+export const handleMessage = (data: any, socket: Socket, io: Server) => {
+    const { roomId, message, playerId } = data;
+
+    // Validate if the instance exists
+    const game = games[roomId];
+    if (!game) {
+        socket.emit("error", { message: "La sala no existe" });
+        return;
+    }
+
+    // Verify if the game has started
+    if (game.status !== "active") {
+        socket.emit("error", { message: "La partida no ha comenzado" });
+        return;
+    }
+
+    // Update the count of the chars a player did
+    addCharsToPlayer(roomId, playerId, message.length);
+
+    // Register the message in the server test purposes only
+    console.log(`Mensaje de ${playerId} en sala ${roomId}: ${message}`);
+
+    // Resend the message to all the other players
+    io.to(roomId).emit("newMessage", data);
+};
+
+export const handleGameOver = (roomId: string, winner: 'humans' | 'ia', io: Server) => {
+    // Notify clients about the game result
+    io.to(roomId).emit('gameOver', {
+        message: winner === 'humans' ? 'Humans win!' : 'SAMI wins!',
+        winner,
+    });
+};  
 
 // Get info of the match
 export const getGame = (req:Request, res:Response) => {
