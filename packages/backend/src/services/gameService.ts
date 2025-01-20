@@ -49,7 +49,7 @@ export const joinGame = (roomId: string, playerId: string): boolean => {
 
     const existingPlayer = game.players.find((p: Player) => p.id === playerId);
     if (existingPlayer) {
-    return true;
+    return false;
     }
 
     const newPlayer = createPlayer(playerId);
