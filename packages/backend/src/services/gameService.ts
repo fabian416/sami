@@ -131,7 +131,7 @@ export const recordVote = (roomId: string, voterId: string, votedPlayerId: strin
         return false;
     }
 
-    // Verificar que el votante existe en el juego y no ha sido eliminado
+    // Verify the voter exists in the game and has not been eliminated
     const voter = game.players.find((player) => player.id === voterId);
     if (!voter) {
         console.warn(`[recordVote] Voter ${voterId} does not exist in room: ${roomId}`);
@@ -142,7 +142,7 @@ export const recordVote = (roomId: string, voterId: string, votedPlayerId: strin
         return false;
     }
 
-    // Verificar que el jugador votado existe en el juego y no ha sido eliminado
+    // Verify the voted player exists in the game and has not been eliminated
     const votedPlayer = game.players.find((player) => player.id === votedPlayerId);
     if (!votedPlayer) {
         console.warn(`[recordVote] Voted player ${votedPlayerId} does not exist in room: ${roomId}`);
@@ -153,7 +153,7 @@ export const recordVote = (roomId: string, voterId: string, votedPlayerId: strin
         return false;
     }
 
-    // Registrar el voto
+    // Register vote
     game.votes[voterId] = votedPlayerId;
     console.log(`[recordVote] Voter ${voterId} voted for ${votedPlayerId} in room: ${roomId}`);
     return true;
@@ -165,7 +165,7 @@ function endConversationPhase(roomId: string) {
 
     console.log(`Ending conversation phase for room: ${roomId}`);
 
-   // Desactivar la eliminación por no alcanzar los 20 caracteres
+   // Deactivate the elimination of min 20 charracters test purposes
     /*
     game.players.forEach((p: Player) => {
         if (p.totalChars < 20) {
@@ -182,24 +182,25 @@ function endConversationPhase(roomId: string) {
     gameServiceEmitter.emit('startVoting', roomId); 
 
     setTimeout(() => { 
-        // TODO CONTINUA AQUI LUEGO DE LOS 25 SEGUNDOS Y EL REGISTRO DE VOTOS.
+        //  Continue after 25 seconds and the register of the votes
         endVotingPhase(roomId)
     }, 25 * 1000);
 }
+
 export const endVotingPhase = (roomId: string) => {
     const game = games[roomId];
-    if (!game || game.status !== 'voting') return;  // Asegura que el juego está en la fase de votación
+    if (!game || game.status !== 'voting') return;  // Make sure game is in 'voting' phase
 
     console.log(`Ending voting phase for room: ${roomId}`);
 
-    // 1. Conteo de votos
+    // 1. Count votes
     const voteCount: { [votedId: string]: number } = {};
     for (const voterId in game.votes) {
         const targetId = game.votes[voterId];
         voteCount[targetId] = (voteCount[targetId] || 0) + 1;
     }
 
-    // 2. Identificar al más votado
+    // 2. Identify the most voted
     let maxVotes = -1;
     let maxVotedPlayerId = null;
     for (const [votedId, count] of Object.entries(voteCount)) {
@@ -209,7 +210,7 @@ export const endVotingPhase = (roomId: string) => {
         }
     }
 
-    // Procesar el resultado de la votación
+    // Process the result of the votation
     if (maxVotedPlayerId) {
         const votedPlayer = game.players.find(p => p.id === maxVotedPlayerId);
         if (votedPlayer) {
@@ -229,11 +230,11 @@ export const endVotingPhase = (roomId: string) => {
         }
     }
 
-    // Decidir qué sigue después de la votación
+    // Decide what continue after the votation
     if (game.round === 1) {
-        game.round++;  // Avanzar a la siguiente ronda
+        game.round++;  // Go into the next round, round 2
         game.status = 'active';  // Cambiar el estado para seguir jugando
-        setTimeout(() => startConversationPhase(roomId), 1000);  // Iniciar otra fase de conversación
+        setTimeout(() => startConversationPhase(roomId), 1000);  // Initiate another phase of conversation after 1 second
     } else {
         console.log('Maximum rounds reached or no clear decision. Game over.');
         game.status = 'finished';  // Finalizar el juego después de las rondas máximas
