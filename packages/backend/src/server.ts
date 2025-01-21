@@ -17,9 +17,18 @@ const io = new Server(server, {
 io.on('connection', (socket) => {
     console.log("Player connected :)", socket.id);
 
+    // Initialize
     socket.on('createOrJoinGame', (data) => {
-      console.log(`createOrJoinGame: Received data:`, data)
-      gameController.createOrJoinGame(data, socket, io);
+        console.log(`createOrJoinGame: Received data:`, data);
+    
+        try {
+            gameController.createOrJoinGame(data, socket, io);
+        } catch (error) {
+            console.error(`createOrJoinGame: An error occurred`, error);
+    
+            // Emitir un error al cliente para informarle del problema
+            socket.emit('error', { message: 'An unexpected error occurred while processing your request.' });
+        }
     });
 
     socket.on('startVotePhase', (data) => {
@@ -43,8 +52,16 @@ io.on('connection', (socket) => {
     });
 
     socket.on("message", (data) => {
-      console.log(`message: Received data:`, data);
-      gameController.handleMessage(data, socket, io);
+    console.log(`message: Received data:`, data);
+    
+    try {
+        gameController.handleMessage(data, socket, io);
+    } catch (error) {
+        console.error(`message: An error occurred`, error);
+
+        // Emitir un error al cliente, si es necesario
+        socket.emit("error", { message: "An error occurred while processing the message." });
+    }
     });
 
     socket.on('disconnect', () => {
