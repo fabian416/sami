@@ -1,28 +1,29 @@
 "use client";
 
+import { useState } from "react";
 import type { NextPage } from "next";
 import { BugAntIcon, ClockIcon, CurrencyDollarIcon } from "@heroicons/react/24/outline";
+import { ChooseGame } from "~~/components/ChooseGame";
+import { PlayGame } from "~~/components/PlayGame";
 
 const Home: NextPage = () => {
+  const [choosingGame, setChoosingGame] = useState(true);
+  const showGame = () => {
+    setChoosingGame(false);
+  };
   return (
     <>
-      <div className="flex items-center flex-col flex-grow pt-10">
-        <div className="px-5">
-          <h1 className="text-center">
-            <span className="block text-2xl mb-2">Welcome to</span>
-            <span className="block text-4xl font-bold">SAMI</span>
-          </h1>
-          <div className="card bg-base-100 w-96 shadow-xl mt-4">
-            <div className="card-body">
-              <h2 className="card-title">Enter game!</h2>
-              <p>Pay a 2 USDC fee to participate in the next round of SAMI!</p>
-              <div className="card-actions justify-end">
-                <button className="btn btn-primary">Pay 2 USDC</button>
-              </div>
-            </div>
-          </div>
+      <div className="flex justify-center items-center flex-col flex-grow py-3">
+        <div className="flex justify-center items-center flex-col flex-grow w-5/6 h-w rounded-2xl border-slate-700 ring-4">
+          {choosingGame ? <ChooseGame showGame={showGame} /> : <PlayGame />}
         </div>
+      </div>
+    </>
+  );
+};
 
+{
+  /*
         <div className="flex-grow bg-base-300 w-full mt-16 px-8 py-4">
           <h1 className="text-center">
             <span className="block text-2xl font-bold mb-4">About the game</span>
@@ -41,10 +42,7 @@ const Home: NextPage = () => {
               <p>Each round lasts 90 seconds. Then, everyone votes who they think the AI is.</p>
             </div>
           </div>
-        </div>
-      </div>
-    </>
-  );
-};
+        </div>*/
+}
 
 export default Home;

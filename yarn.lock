@@ -3643,6 +3643,7 @@ __metadata:
     express: ^4.21.2
     nodemon: ^3.1.9
     socket.io: ^4.8.1
+    socket.io-client: ^4.8.1
     ts-node: ^10.9.2
     typescript: ^5.7.3
   languageName: unknown
@@ -10032,7 +10033,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"socket.io-client@npm:^4.5.1":
+"socket.io-client@npm:^4.5.1, socket.io-client@npm:^4.8.1":
   version: 4.8.1
   resolution: "socket.io-client@npm:4.8.1"
   dependencies:
