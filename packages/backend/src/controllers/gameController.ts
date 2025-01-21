@@ -12,7 +12,7 @@ export const createOrJoinGame = (data: any, socket: Socket, io: Server) => {
     const { roomId, success } = createOrJoin(playerId);
 
     if (!success) {
-        socket.emit('error', { message: 'No se pudo unir o crear una partida' });
+        socket.emit('error', { message: 'There was an error creating or joining into the match' });
         return;
     }
 
