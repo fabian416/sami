@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bars3Icon, BugAntIcon } from "@heroicons/react/24/outline";
+import { ModalInstructions } from "./ModalInstructions";
+import { AcademicCapIcon, Bars3Icon } from "@heroicons/react/24/outline";
 import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useOutsideClick } from "~~/hooks/scaffold-eth";
 
@@ -54,11 +55,28 @@ export const HeaderMenuLinks = () => {
  */
 export const Header = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const burgerMenuRef = useRef<HTMLDivElement>(null);
   useOutsideClick(
     burgerMenuRef,
     useCallback(() => setIsDrawerOpen(false), []),
   );
+
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
+  useEffect(() => {
+    const firstTime = localStorage.getItem("firstTime");
+    if (!firstTime) {
+      openModal();
+      localStorage.setItem("firstTime", "true");
+    }
+  }, []);
 
   return (
     <div className="sticky lg:static top-0 navbar bg-base-100 min-h-0 flex-shrink-0 justify-between z-20 shadow-md shadow-secondary px-0 sm:px-2">
@@ -85,6 +103,11 @@ export const Header = () => {
             </ul>
           )}
         </div>
+
+        <button className="btn btn-primary btn-sm" onClick={openModal}>
+          <AcademicCapIcon className="h-1/2" />
+        </button>
+
         <Link href="/" passHref className="hidden lg:flex items-center gap-2 ml-4 mr-6 shrink-0">
           <div className="flex relative w-8 h-8">
             <Image alt="SE2 logo" className="cursor-pointer" fill src="/sami.png" />
@@ -102,6 +125,8 @@ export const Header = () => {
         <RainbowKitCustomConnectButton />
         <FaucetButton />
       </div>
+
+      {isModalOpen && <ModalInstructions closeModal={closeModal} />}
     </div>
   );
 };
