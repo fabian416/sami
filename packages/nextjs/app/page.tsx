@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import type { NextPage } from "next";
-import { BugAntIcon, ClockIcon, CurrencyDollarIcon } from "@heroicons/react/24/outline";
-import { ChooseGame } from "~~/components/ChooseGame";
-import { PlayGame } from "~~/components/PlayGame";
+// import { BugAntIcon, ClockIcon, CurrencyDollarIcon } from "@heroicons/react/24/outline";
+import { ChooseGame } from "~~/components/sami/ChooseGame";
+import { PlayGame } from "~~/components/sami/PlayGame";
 
 const Home: NextPage = () => {
   const [choosingGame, setChoosingGame] = useState(true);
