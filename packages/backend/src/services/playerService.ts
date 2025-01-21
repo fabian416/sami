@@ -10,11 +10,11 @@ export interface Player{
 }
 
 // Create a new player
-export const createPlayer = (playerId: string): Player => { 
+export const createPlayer = (playerId: string, isIA = false): Player => { 
     return  {
         id: playerId,
         totalChars: 0,
-        isIA: false,
+        isIA,
         isEliminated: false
     };
 };
@@ -38,3 +38,4 @@ export const eliminatePlayer = (player: Player) => {
 export const assignIARole = (player: Player) => {
     player.isIA = true; 
 };
+

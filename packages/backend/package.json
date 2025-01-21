@@ -6,7 +6,12 @@
     "start": "node dist/server.js",
     "dev": "ts-node src/server.ts",
     "build": "tsc",
-    "test": "ts-node src/test.ts"
+    "test": "ts-node src/test.ts",
+    "test1": "ts-node src/test1.ts",
+    "test2": "ts-node src/test2.ts",
+    "test3": "ts-node src/test3.ts",
+    "test4": "ts-node src/test4.ts",
+    "test5": "ts-node src/test5.ts"
   },
   "keywords": [],
   "author": "",

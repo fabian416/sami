@@ -6,7 +6,7 @@ const PORT = process.env.PORT || 5001;
 
 const server = http.createServer(app);
 // Socket configuration.IO for the server
-const io = new Server(server, {
+export const io = new Server(server, {
     cors: {
         origin: '*', // Allowing connections from any origin
         methods: ['GET', 'POST'],
@@ -29,16 +29,6 @@ io.on('connection', (socket) => {
             // Emitir un error al cliente para informarle del problema
             socket.emit('error', { message: 'An unexpected error occurred while processing your request.' });
         }
-    });
-
-    socket.on('startVotePhase', (data) => {
-      console.log(`[startVotePhase] Received data:`, JSON.stringify(data));
-      try {
-          gameController.startVotePhase(data, io);
-          console.log(`[startVotePhase] Voting phase started successfully for room: ${data.roomId}`);
-      } catch (error) {
-          console.error(`[startVotePhase] Error starting voting phase for room: ${data.roomId}`, error);
-      }
     });
   
     socket.on('castVote', (data) => {

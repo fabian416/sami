@@ -15,7 +15,7 @@ socket.on("connect", () => {
   console.log("Connected:", socket.id);
 
   // Crear o unirse a un juego
-  const playerId = `Player0`;
+  const playerId = `Player1`;
   socket.emit("createOrJoinGame", { playerId });
 
   console.log(`You are logged in as ${playerId}. Waiting for the game to start...`);
@@ -43,16 +43,9 @@ socket.on("connect", () => {
     });
 
   socket.on("startVotePhase", (data: any) => {
-    console.log("Voting phase started:", data.message);
+    console.log("Voting phase started:", data);
     console.log("Enter the index of the player you want to vote for:");
-
-    // Mostrar los jugadores disponibles
-    data.players.forEach((player: any) => {
-        console.log(`Index: ${player.index}, Player ID: ${player.id}`);
-    });
-
-    // Llamar a startVoteInput con los datos correctos
-    startVoteInput(playerId, data.roomId, data.players);
+    startVoteInput(playerId, data.roomId); // Iniciar la fase de votación
   });
 
   socket.on("voteUpdate", (data: any) => {
@@ -80,18 +73,17 @@ function startMessageInput(playerId: string, roomId: string) {
   });
 }
 
-function startVoteInput(playerId: string, roomId: string, players: { id: string, index: number }[]) {
+// Función para gestionar la votación
+function startVoteInput(playerId: string, roomId: string) {
   rl.on("line", (input) => {
-      const votedIndex = parseInt(input.trim());
-      const votedPlayer = players.find(player => player.index === votedIndex);
-
-      if (!votedPlayer) {
-          console.log(`Invalid vote. Please enter a valid number between 0 and ${players.length - 1}.`);
-      } else {
-          console.log(`You voted for player: ${votedPlayer.id}`);
-          // Emitir el voto al servidor
-          socket.emit("castVote", { roomId, voterId: playerId, voteIndex: votedIndex });
-          rl.pause(); // Pausar la entrada hasta que sea necesario nuevamente
-      }
+    const votedIndex = parseInt(input.trim());
+    if (isNaN(votedIndex)) {
+      console.log("Please enter a valid number for voting.");
+    } else {
+      console.log(`You voted for player at index ${votedIndex}.`);
+      // Emitir el voto al servidor
+      socket.emit("castVote", { roomId, voterId: playerId, votedId: votedIndex });
+      rl.pause(); // Pausar la entrada hasta que sea necesario nuevamente
+    }
   });
 }
