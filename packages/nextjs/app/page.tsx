@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import type { NextPage } from "next";
-import { ChooseGame } from "~~/components/ChooseGame";
-import { PlayGame } from "~~/components/PlayGame";
+import { ChooseGame } from "~~/components/sami/ChooseGame";
+import { PlayGame } from "~~/components/sami/PlayGame";
 
 const Home: NextPage = () => {
   const [choosingGame, setChoosingGame] = useState(true);

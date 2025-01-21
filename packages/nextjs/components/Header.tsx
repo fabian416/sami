@@ -16,12 +16,10 @@ type HeaderMenuLink = {
 };
 
 export const menuLinks: HeaderMenuLink[] = [
-  /*
-  {
-    label: "Home",
-    href: "/",
-  }
-    */
+  // {
+  //   label: "Home",
+  //   href: "/",
+  // }
 ];
 
 export const HeaderMenuLinks = () => {
