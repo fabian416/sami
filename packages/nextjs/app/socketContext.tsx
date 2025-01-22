@@ -9,6 +9,8 @@ interface SocketContextType {
   isConnected: boolean;
   playerId: string | null;
   setPlayerId: (id: string) => void;
+  roomId?: string | null;
+  setRoomId: (id: string) => void;
 }
 
 // Crea el contexto
@@ -22,6 +24,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [playerId, setPlayerId] = useState<string | null>(null);
+  const [roomId, setRoomId] = useState<string | null>(null);
 
   useEffect(() => {
     // Inicializar el socket
@@ -53,7 +56,9 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }, []);
 
   return (
-    <SocketContext.Provider value={{ socket, isConnected, playerId, setPlayerId }}>{children}</SocketContext.Provider>
+    <SocketContext.Provider value={{ socket, isConnected, playerId, roomId, setPlayerId, setRoomId }}>
+      {children}
+    </SocketContext.Provider>
   );
 };
 

@@ -1,33 +1,32 @@
 import { useEffect, useState } from "react";
 import { useSocket } from "~~/app/socketContext";
 
+interface Player {
+  id: string;
+  totalChars: number;
+  isIA: boolean;
+  isEliminated: boolean;
+}
+
 export const ChooseGame = ({ showGame }: any) => {
   const [loading, setLoading] = useState(false);
-  const { socket, isConnected, setPlayerId } = useSocket();
+  const { socket, isConnected, setPlayerId, setRoomId } = useSocket();
 
   useEffect(() => {
     if (!socket) return;
 
-    const handleGameStarted = (data: any) => {
+    const handleGameStarted = (data: { roomId: string; players: Player[] }) => {
+      setRoomId(data.roomId); // Almacena el roomId en el contexto
       console.log("Game started:", data);
-      showGame(); // Transition to the game screen
-    };
-
-    const handleGameState = (data: any) => {
-      console.log("Game state received:", data);
-      if (data.players.length === 6 && data.status === "active") {
-        showGame(); // Transition to the game screen if the game is already started
-      }
+      showGame(); // Cambiar a la pantalla del juego
     };
 
     socket.on("gameStarted", handleGameStarted);
-    socket.on("gameState", handleGameState);
 
     return () => {
       socket.off("gameStarted", handleGameStarted);
-      socket.off("gameState", handleGameState);
     };
-  }, [socket, showGame]);
+  }, [socket, showGame, setRoomId]);
 
   const handleEnterGame = () => {
     if (!isConnected || !socket) {
@@ -39,15 +38,20 @@ export const ChooseGame = ({ showGame }: any) => {
     setPlayerId(randomPlayerId);
 
     setLoading(true);
-    socket.emit("createOrJoinGame", { playerId: randomPlayerId }, (response: any) => {
-      setLoading(false);
-      if (response.success) {
-        console.log("Joined game:", response.roomId);
-      } else {
-        console.error("Failed to join game:", response.message);
-        alert("Error joining the game. Please try again.");
-      }
-    });
+    socket.emit(
+      "createOrJoinGame",
+      { playerId: randomPlayerId },
+      (response: { message(arg0: string, message: any): unknown; success: boolean; roomId?: string }) => {
+        setLoading(false);
+        if (response.success && response.roomId) {
+          console.log("Joined game:", response.roomId);
+          setRoomId(response.roomId); // Almacena el roomId en el contexto tras unirse
+        } else {
+          console.error("Failed to join game:", response.message);
+          alert("Error joining the game. Please try again.");
+        }
+      },
+    );
   };
 
   return (
