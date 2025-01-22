@@ -1,6 +1,38 @@
+import { useEffect, useState } from "react";
 import { PaperAirplaneIcon } from "@heroicons/react/24/solid";
+import { useSocket } from "~~/app/socketContext";
 
 export const PlayGame = () => {
+  const { socket } = useSocket();
+  const [messages, setMessages] = useState<string[]>([]);
+  const [input, setInput] = useState("");
+
+  useEffect(() => {
+    if (!socket) return;
+
+    // Listen for chat messages
+    socket.on("message", (data: any) => {
+      setMessages(prev => [...prev, `${data.playerId}: ${data.message}`]);
+    });
+
+    // Listen for voting phase start
+    socket.on("startVotePhase", () => {
+      console.log("Voting phase started!");
+    });
+
+    // Cleanup listeners on unmount
+    return () => {
+      socket.off("message");
+      socket.off("startVotePhase");
+    };
+  }, [socket]);
+
+  const sendMessage = () => {
+    if (!socket || !input.trim()) return;
+    socket.emit("message", { message: input });
+    setInput(""); // Clear input field
+  };
+
   return (
     <div className="grid grid-cols-2 w-full h-[calc(100vh-8rem)] rounded-2xl backdrop-brightness-95">
       <div className="flex items-center justify-center overflow-hidden rounded-2xl">
