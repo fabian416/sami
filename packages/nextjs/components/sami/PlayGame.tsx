@@ -29,10 +29,10 @@ export const PlayGame = () => {
   useEffect(() => {
     if (!socket) return;
 
-    socket.on("gameStarted", (data: { roomId: string; players: Player[] }) => {
-      console.log("Game started:", data); // Confirmar que se recibe el evento
-      setRoomId(data.roomId); // Actualizar el estado de roomId
-      setPlayers(data.players); // Actualizar los jugadores
+    socket.on("gameStarted", (data: { game: { roomId: string; players: Player[] } }) => {
+      console.log("Game started:", data);
+      setRoomId(data.game.roomId); // Acceder a data.game.roomId
+      setPlayers(data.game.players); // Acceder a data.game.players
     });
 
     // Escuchar mensajes nuevos
