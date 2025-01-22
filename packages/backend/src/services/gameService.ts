@@ -118,7 +118,7 @@ export const startGame = (roomId: string) => {
     });
     // Espera medio segundo antes de emitir el evento gameStarted
     setTimeout(() => {
-        io.to(roomId).emit("gameStarted", { roomId, players: game.players, status: game.status });
+        gameServiceEmitter.emit("gameStarted", { roomId, game });
         gameServiceEmitter.emit('startConversation', { roomId });
         // Comenzar la fase de conversación
         setTimeout(() => {
