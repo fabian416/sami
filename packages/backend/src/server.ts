@@ -43,7 +43,6 @@ io.on('connection', (socket) => {
 
     socket.on("message", (data) => {
     console.log(`message: Received data:`, data);
-    
     try {
         gameController.handleMessage(data, socket, io);
     } catch (error) {

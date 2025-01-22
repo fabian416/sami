@@ -40,7 +40,10 @@ gameServiceEmitter.on('startVoting', (roomId: string) => {
 
 gameServiceEmitter.on("gameStarted", ({ roomId, game }) => {
     console.log(`Game started for room: ${roomId}`);
-    io.to(roomId).emit("gameStarted", { game });
+    io.to(roomId).emit("gameStarted", { 
+        roomId: game.roomId, 
+        players: game.players 
+    });
 });
 
 gameServiceEmitter.on('gameOver', ({ roomId, winner }) => {

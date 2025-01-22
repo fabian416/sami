@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PaperAirplaneIcon } from "@heroicons/react/24/solid";
 import { useSocket } from "~~/app/socketContext";
 
@@ -16,19 +16,28 @@ interface Player {
 export const PlayGame = () => {
   const { socket, isConnected, playerId } = useSocket();
 
-  // Define los tipos explícitos para los estados
+  // Define los estados explícitos
   const [messages, setMessages] = useState<Message[]>([]);
   const [players, setPlayers] = useState<Player[]>([]);
   const [roomId, setRoomId] = useState<string>("");
   const [currentPhase, setCurrentPhase] = useState<"conversation" | "voting" | "finished">("conversation");
   const [winner, setWinner] = useState<string | null>(null);
 
+  // Define la referencia para el input
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
   useEffect(() => {
     if (!socket) return;
 
+    socket.on("gameStarted", (data: { roomId: string; players: Player[] }) => {
+      console.log("Game started:", data); // Confirmar que se recibe el evento
+      setRoomId(data.roomId); // Actualizar el estado de roomId
+      setPlayers(data.players); // Actualizar los jugadores
+    });
+
     // Escuchar mensajes nuevos
     socket.on("newMessage", (data: Message) => {
-      setMessages(prev => [...prev, data]); // Actualizar mensajes
+      setMessages(prev => [...prev, data]);
     });
 
     // Escuchar inicio de conversación
@@ -40,20 +49,21 @@ export const PlayGame = () => {
     // Escuchar inicio de votación
     socket.on("startVotePhase", (data: { players: Player[]; roomId: string; message: string }) => {
       setCurrentPhase("voting");
-      setPlayers(data.players); // Actualizar jugadores
-      setRoomId(data.roomId); // Establecer roomId
+      setPlayers(data.players);
+      setRoomId(data.roomId);
       console.log(data.message);
     });
 
     // Escuchar fin del juego
     socket.on("gameOver", (data: { winner: string; message: string }) => {
       setCurrentPhase("finished");
-      setWinner(data.winner); // Establecer ganador
+      setWinner(data.winner);
       console.log(data.message);
     });
 
     return () => {
       // Limpiar los listeners
+      socket.off("gameStarted");
       socket.off("newMessage");
       socket.off("startConversationPhase");
       socket.off("startVotePhase");
@@ -62,11 +72,23 @@ export const PlayGame = () => {
   }, [socket]);
 
   const sendMessage = (message: string) => {
-    if (socket && roomId && playerId) {
-      socket.emit("message", { roomId, message, playerId }); // Usar playerId del contexto
+    console.log("roomId:", roomId, "playerId:", playerId);
+    if (!socket) {
+      console.error("Socket is not defined.");
+      return;
     }
-  };
+    if (!roomId) {
+      console.error("Room ID is not defined.");
+      return;
+    }
+    if (!playerId) {
+      console.error("Player ID is not defined.");
+      return;
+    }
 
+    console.log(`Emitting message: ${message}, Player ID: ${playerId}, Room ID: ${roomId}`);
+    socket.emit("message", { roomId, playerId, message });
+  };
   return (
     <div className="grid grid-cols-2 w-full h-[calc(100vh-8rem)] rounded-2xl backdrop-brightness-95">
       <div className="flex items-center justify-center overflow-hidden rounded-2xl">
@@ -87,19 +109,25 @@ export const PlayGame = () => {
         </div>
         <div className="flex w-full mt-4">
           <input
+            ref={inputRef}
             type="text"
             className="flex-1 p-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Type your message..."
             onKeyDown={e => {
-              if (e.key === "Enter" && e.currentTarget.value) {
-                sendMessage(e.currentTarget.value);
-                e.currentTarget.value = "";
+              if (e.key === "Enter" && inputRef.current?.value.trim()) {
+                sendMessage(inputRef.current.value.trim());
+                inputRef.current.value = ""; // Limpiar input
               }
             }}
           />
           <button
             className="p-2 bg-blue-500 text-white rounded-r-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            onClick={() => sendMessage("Test message")}
+            onClick={() => {
+              if (inputRef.current?.value.trim()) {
+                sendMessage(inputRef.current.value.trim());
+                inputRef.current.value = ""; // Limpiar input
+              }
+            }}
           >
             <PaperAirplaneIcon className="h-5 w-5" />
           </button>
