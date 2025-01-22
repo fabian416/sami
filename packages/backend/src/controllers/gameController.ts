@@ -38,6 +38,10 @@ gameServiceEmitter.on('startVoting', (roomId: string) => {
     });
 });
 
+gameServiceEmitter.on("gameStarted", ({ roomId, game }) => {
+    console.log(`Game started for room: ${roomId}`);
+    io.to(roomId).emit("gameStarted", { game });
+});
 
 gameServiceEmitter.on('gameOver', ({ roomId, winner }) => {
     console.log(`Game over for room: ${roomId}, winner: ${winner}`);
@@ -50,25 +54,19 @@ gameServiceEmitter.on('gameOver', ({ roomId, winner }) => {
 export const createOrJoinGame = (data: any, socket: Socket, io: Server) => {
     const { playerId } = data;
 
-    // Delegate to service
-    const { roomId, success } = createOrJoin(playerId);
+    // Delegate to the service, passing `socket` and `io`
+    const { roomId, success } = createOrJoin(playerId, socket, io);
 
     if (!success) {
-        socket.emit('error', { message: 'There was an error creating or joining into the match' });
-        console.log(`Error joining the player ${playerId} into the room ${roomId}:`);
+        socket.emit('error', { message: 'There was an error creating or joining the match' });
+        console.log(`Error joining the player ${playerId} into the room ${roomId}`);
         return;
     }
 
     // Notify the client a player joined
     socket.join(roomId);
     io.to(roomId).emit('playerJoined', { playerId, roomId });
-
-    const game = games[roomId];
-    if (game.players.length === 6) {
-        io.to(roomId).emit('gameStarted', { game });
-    }
 };
-
 export const castVote = (data: any, socket: Socket, io: Server) => {
     const { roomId, voterId, voteIndex } = data;
 

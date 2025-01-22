@@ -1,5 +1,7 @@
+import { Server, Socket } from 'socket.io';
 import { Player, createPlayer,assignIARole, eliminatePlayer} from './playerService';
 import { EventEmitter } from 'events';
+import { io } from '../server';
 
 class GameServiceEmitter extends EventEmitter {}
 
@@ -18,7 +20,7 @@ interface Game {
 export const games : {[key: string]: Game} = {};
 
 // Main function to handle the creation or join to a new match
-export const createOrJoin = (playerId: string) : { roomId: string; success: boolean} => {
+export const createOrJoin = (playerId: string, socket: Socket, io: Server): { roomId: string; success: boolean } => {
     // Search available match
     let game = findAvailableGame();
 
@@ -29,7 +31,7 @@ export const createOrJoin = (playerId: string) : { roomId: string; success: bool
     }
 
     // Join the player to the match
-    const success = joinGame(game.roomId, playerId) ; 
+    const success = joinGame(game.roomId, playerId);
     return {roomId: game.roomId, success}
 }
 
@@ -47,7 +49,7 @@ export const createNewGame = (roomId: string) => {
     return newGame;
 };
 
-export const joinGame = (roomId: string, playerId: string): boolean => { 
+export const joinGame = (roomId: string, playerId: string,): boolean => {
     // Get instance of the created game
     const game = games[roomId];
     if (!game) return false;
@@ -114,10 +116,15 @@ export const startGame = (roomId: string) => {
     game.players.forEach((player, index) => {
         console.log(`Index: ${index}, ID: ${player.id}, Role: ${player.isIA ? 'IA' : 'Human'}`);
     });
-
+    // Espera medio segundo antes de emitir el evento gameStarted
     setTimeout(() => {
-        endConversationPhase(roomId);
-    }, 2 * 60 * 1000);
+        io.to(roomId).emit("gameStarted", { roomId, players: game.players, status: game.status });
+        gameServiceEmitter.emit('startConversation', { roomId });
+        // Comenzar la fase de conversación
+        setTimeout(() => {
+            endConversationPhase(roomId);
+        }, 2 * 60 * 1000); // Configurar la duración de la fase de conversación
+    }, 500); // Retraso de 500 milisegundos
     // Apply the rules
     // clean votes after voting phase
     // verify if someone got kicked out, etc
