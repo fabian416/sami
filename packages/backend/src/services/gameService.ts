@@ -1,6 +1,7 @@
 import { Server, Socket } from 'socket.io';
 import { Player, createPlayer,assignIARole, eliminatePlayer} from './playerService';
 import { EventEmitter } from 'events';
+import { v4 as uuidv4 } from 'uuid';
 import { io } from '../server';
 
 class GameServiceEmitter extends EventEmitter {}
@@ -20,7 +21,7 @@ interface Game {
 export const games : {[key: string]: Game} = {};
 
 // Main function to handle the creation or join to a new match
-export const createOrJoin = (playerId: string, socket: Socket, io: Server): { roomId: string; success: boolean } => {
+export const createOrJoin = (playerId: string): { roomId: string; success: boolean } => {
     // Search available match
     let game = findAvailableGame();
 
@@ -68,9 +69,9 @@ export const joinGame = (roomId: string, playerId: string,): boolean => {
     game.players.push(newPlayer);
 
     // If the game reaches 5 players, add SAMI and start the game
-    if (game.players.length === 5) {
-        const samiPlayer = createPlayer("SAMI-AGENT", true);
-        samiPlayer.isIA = true;
+    if (game.players.length === 3) { // 5) {
+        const samiID = uuidv4();
+        const samiPlayer = createPlayer(samiID, true);
         game.players.push(samiPlayer); // Add SAMI as the sixth player
 
         // Start the game
@@ -123,7 +124,8 @@ export const startGame = (roomId: string) => {
         // Comenzar la fase de conversación
         setTimeout(() => {
             endConversationPhase(roomId);
-        }, 2 * 60 * 1000); // Configurar la duración de la fase de conversación
+        }, 15 * 1000)
+        //2 * 60 * 1000); // Configurar la duración de la fase de conversación
     }, 500); // Retraso de 500 milisegundos
     // Apply the rules
     // clean votes after voting phase
@@ -191,7 +193,8 @@ function endConversationPhase(roomId: string) {
     setTimeout(() => { 
         //  Continue after 25 seconds and the register of the votes
         endVotingPhase(roomId)
-    }, 25 * 1000);
+    }, //2 * 30 * 1000)
+    15 * 1000);
 }
 
 export const endVotingPhase = (roomId: string) => {
@@ -222,10 +225,6 @@ export const endVotingPhase = (roomId: string) => {
         const votedPlayer = game.players.find(p => p.id === maxVotedPlayerId);
         if (votedPlayer) {
             eliminatePlayer(votedPlayer);
-            console.log(`Player ${votedPlayer.id} eliminated as a result of the vote.`);
-
-            // Emit an event to inform clients
-            gameServiceEmitter.emit('playerEliminated', { roomId, playerId: votedPlayer.id });
 
             // Check if the player eliminated was the IA
             if (votedPlayer.isIA) {
@@ -234,6 +233,10 @@ export const endVotingPhase = (roomId: string) => {
                 gameServiceEmitter.emit('gameOver', { roomId, winner: 'humans' });
                 return;
             }
+
+            console.log(`Player ${votedPlayer.id} eliminated as a result of the vote.`);
+            // Emit an event to inform clients
+            gameServiceEmitter.emit('playerEliminated', { roomId, playerId: votedPlayer.id });
         }
     }
 
@@ -262,7 +265,9 @@ function startConversationPhase(roomId: string) {
     // Logic for the conversation phase (e.g., allow players to chat for two minutes)
     setTimeout(() => {
         endConversationPhase(roomId);
-    }, 2 * 60 * 1000); // Establece la duración de la fase de conversación
+    }, 
+     15 * 1000);   
+    //2 * 60 * 1000); // Establece la duración de la fase de conversación
 }
 
 // Get a Match by his ID

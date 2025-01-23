@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 import { useSocket } from "~~/app/socketContext";
 
 interface Player {
@@ -10,12 +11,15 @@ interface Player {
 
 export const ChooseGame = ({ showGame }: any) => {
   const [loading, setLoading] = useState(false);
-  const { socket, isConnected, setPlayerId, setRoomId } = useSocket();
+  const { socket, isConnected, playerId, setPlayerId, setPlayerIndex, setRoomId } = useSocket();
 
   useEffect(() => {
     if (!socket) return;
+    if (!playerId) return;
 
     const handleGameStarted = (data: { roomId: string; players: Player[] }) => {
+      const index: any = data.players.findIndex(player => player.id === playerId);
+      setPlayerIndex(index);
       setRoomId(data.roomId); // Almacena el roomId en el contexto
       console.log("Game started:", data);
       showGame(); // Cambiar a la pantalla del juego
@@ -26,7 +30,7 @@ export const ChooseGame = ({ showGame }: any) => {
     return () => {
       socket.off("gameStarted", handleGameStarted);
     };
-  }, [socket, showGame, setRoomId]);
+  }, [socket, showGame, setRoomId, playerId]);
 
   const handleEnterGame = () => {
     if (!isConnected || !socket) {
@@ -34,14 +38,14 @@ export const ChooseGame = ({ showGame }: any) => {
       return;
     }
 
-    const randomPlayerId = `Player${Math.floor(Math.random() * 1000)}`;
+    const randomPlayerId = uuidv4();
     setPlayerId(randomPlayerId);
 
     setLoading(true);
     socket.emit(
       "createOrJoinGame",
       { playerId: randomPlayerId },
-      (response: { message(arg0: string, message: any): unknown; success: boolean; roomId?: string }) => {
+      (response: { message(arg0: string, message: any): unknown; success: boolean; roomId: string }) => {
         setLoading(false);
         if (response.success && response.roomId) {
           console.log("Joined game:", response.roomId);
@@ -55,8 +59,8 @@ export const ChooseGame = ({ showGame }: any) => {
   };
 
   return (
-    <div className="flex flex-direction-row justify-evenly w-full">
-      <div className="card bg-base-100 w-96 shadow-xl mt-4 mx-2">
+    <div className="flex md:flex-row flex-col justify-evenly items-center w-full">
+      <div className="card bg-base-100 max-w-sm md:w-96 shadow-xl mt-4 mx-2">
         <div className="card-body">
           <h2 className="card-title">Enter game!</h2>
           <p>Pay a 2 USDC fee to participate in the next round of SAMI!</p>
@@ -65,7 +69,7 @@ export const ChooseGame = ({ showGame }: any) => {
           </div>
         </div>
       </div>
-      <div className="card dark:bg-cyan-700 light:bg-white-100 w-96 shadow-xl mt-4 mx-2">
+      <div className="card dark:bg-cyan-700 light:bg-white-100 max-w-sm md:w-96 shadow-xl mt-4 mx-2">
         <div className="card-body">
           <h2 className="card-title">Enter free game!</h2>
           <p>Participate free in the next round of SAMI!</p>

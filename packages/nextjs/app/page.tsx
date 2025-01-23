@@ -13,7 +13,7 @@ const Home: NextPage = () => {
   return (
     <>
       <div className="flex justify-center items-center flex-col flex-grow pt-3 pb-1">
-        <div className="flex justify-center items-center flex-col flex-grow w-5/6 h-w rounded-2xl border-slate-700 ring-4">
+        <div className="flex justify-center items-center flex-col flex-grow w-5/6 rounded-2xl border-slate-700 ring-4">
           {choosingGame ? <ChooseGame showGame={showGame} /> : <PlayGame />}
         </div>
       </div>
