@@ -103,7 +103,7 @@ export const PlayGame = () => {
       {currentPhase === "finished" && <ModalFinished winner={winner} />}
       {isEliminatedModalOpen && isPlayerEliminated && <ModalEliminated closeModal={handleCloseEliminatedModal} />}
 
-      <div className="flex-grow grid grid-cols-2 rounded-2xl backdrop-brightness-95 flex-col md:h-[calc(100vh-8rem)]">
+      <div className="flex-grow grid grid-cols-2 gap-3 rounded-2xl backdrop-brightness-95 flex-col md:h-[calc(100vh-8rem)]">
         {!isMobile && (
           <div className="flex items-center justify-center overflow-hidden rounded-2xl">
             <img src="sami-team.webp" className="object-cover" alt="Game Banner" />

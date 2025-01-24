@@ -1,8 +1,13 @@
-import { Server, Socket } from 'socket.io';
-import { Player, createPlayer,assignIARole, eliminatePlayer} from './playerService';
-import { EventEmitter } from 'events';
-import { v4 as uuidv4 } from 'uuid';
-import { io } from '../server';
+import { Server, Socket } from "socket.io";
+import {
+  Player,
+  createPlayer,
+  assignIARole,
+  eliminatePlayer,
+} from "./playerService";
+import { EventEmitter } from "events";
+import { v4 as uuidv4 } from "uuid";
+import { io } from "../server";
 
 class GameServiceEmitter extends EventEmitter {}
 
@@ -72,11 +77,12 @@ export const joinGame = (roomId: string, playerId: string): boolean => {
   const newPlayer = createPlayer(playerId, false);
   game.players.push(newPlayer);
 
-    // If the game reaches 5 players, add SAMI and start the game
-    if (game.players.length === 3) { // 5) {
-        const samiID = uuidv4();
-        const samiPlayer = createPlayer(samiID, true);
-        game.players.push(samiPlayer); // Add SAMI as the sixth player
+  // If the game reaches 5 players, add SAMI and start the game
+  if (game.players.length === 3) {
+    // 5) {
+    const samiID = uuidv4();
+    const samiPlayer = createPlayer(samiID, true);
+    game.players.push(samiPlayer); // Add SAMI as the sixth player
 
     // Start the game
     startGame(roomId);
@@ -115,26 +121,28 @@ export const startGame = (roomId: string) => {
   game.status = "active";
   game.round = 1;
 
-    console.log(`Game started for room: ${roomId}`);
-    console.log(`Players in the game:`);
-    game.players.forEach((player, index) => {
-        console.log(`Index: ${index}, ID: ${player.id}, Role: ${player.isIA ? 'IA' : 'Human'}`);
-    });
-    // Espera medio segundo antes de emitir el evento gameStarted
+  console.log(`Game started for room: ${roomId}`);
+  console.log(`Players in the game:`);
+  game.players.forEach((player, index) => {
+    console.log(
+      `Index: ${index}, ID: ${player.id}, Role: ${player.isIA ? "IA" : "Human"}`
+    );
+  });
+  // Espera medio segundo antes de emitir el evento gameStarted
+  setTimeout(() => {
+    gameServiceEmitter.emit("gameStarted", { roomId, game });
+    gameServiceEmitter.emit("startConversation", { roomId });
+    // Comenzar la fase de conversación
     setTimeout(() => {
-        gameServiceEmitter.emit("gameStarted", { roomId, game });
-        gameServiceEmitter.emit('startConversation', { roomId });
-        // Comenzar la fase de conversación
-        setTimeout(() => {
-            endConversationPhase(roomId);
-        }, 15 * 1000)
-        //2 * 60 * 1000); // Configurar la duración de la fase de conversación
-    }, 500); // Retraso de 500 milisegundos
-    // Apply the rules
-    // clean votes after voting phase
-    // verify if someone got kicked out, etc
-    return game;
-}
+      endConversationPhase(roomId);
+    }, 15 * 1000);
+    //2 * 60 * 1000); // Configurar la duración de la fase de conversación
+  }, 500); // Retraso de 500 milisegundos
+  // Apply the rules
+  // clean votes after voting phase
+  // verify if someone got kicked out, etc
+  return game;
+};
 
 export const recordVote = (
   roomId: string,
@@ -209,11 +217,13 @@ function endConversationPhase(roomId: string) {
   gameServiceEmitter.emit("conversationEnded", { roomId });
   gameServiceEmitter.emit("startVoting", roomId);
 
-    setTimeout(() => { 
-        //  Continue after 25 seconds and the register of the votes
-        endVotingPhase(roomId)
+  setTimeout(
+    () => {
+      //  Continue after 25 seconds and the register of the votes
+      endVotingPhase(roomId);
     }, //2 * 30 * 1000)
-    15 * 1000);
+    15 * 1000
+  );
 }
 
 export const endVotingPhase = (roomId: string) => {
@@ -239,25 +249,30 @@ export const endVotingPhase = (roomId: string) => {
     }
   }
 
-    // Process the result of the votation
-    if (maxVotedPlayerId) {
-        const votedPlayer = game.players.find(p => p.id === maxVotedPlayerId);
-        if (votedPlayer) {
-            eliminatePlayer(votedPlayer);
+  // Process the result of the votation
+  if (maxVotedPlayerId) {
+    const votedPlayer = game.players.find((p) => p.id === maxVotedPlayerId);
+    if (votedPlayer) {
+      eliminatePlayer(votedPlayer);
 
-            // Check if the player eliminated was the IA
-            if (votedPlayer.isIA) {
-                console.log('IA was eliminated. Game over.');
-                game.status = 'finished';
-                gameServiceEmitter.emit('gameOver', { roomId, winner: 'humans' });
-                return;
-            }
+      // Check if the player eliminated was the IA
+      if (votedPlayer.isIA) {
+        console.log("IA was eliminated. Game over.");
+        game.status = "finished";
+        gameServiceEmitter.emit("gameOver", { roomId, winner: "humans" });
+        return;
+      }
 
-            console.log(`Player ${votedPlayer.id} eliminated as a result of the vote.`);
-            // Emit an event to inform clients
-            gameServiceEmitter.emit('playerEliminated', { roomId, playerId: votedPlayer.id });
-        }
+      console.log(
+        `Player ${votedPlayer.id} eliminated as a result of the vote.`
+      );
+      // Emit an event to inform clients
+      gameServiceEmitter.emit("playerEliminated", {
+        roomId,
+        playerId: votedPlayer.id,
+      });
     }
+  }
 
   // Decide what continue after the votation
   if (game.round === 1) {
@@ -281,12 +296,11 @@ function startConversationPhase(roomId: string) {
 
   game.votes = {}; // Reset votes for the new round
 
-    // Logic for the conversation phase (e.g., allow players to chat for two minutes)
-    setTimeout(() => {
-        endConversationPhase(roomId);
-    }, 
-     15 * 1000);   
-    //2 * 60 * 1000); // Establece la duración de la fase de conversación
+  // Logic for the conversation phase (e.g., allow players to chat for two minutes)
+  setTimeout(() => {
+    endConversationPhase(roomId);
+  }, 15 * 1000);
+  //2 * 60 * 1000); // Establece la duración de la fase de conversación
 }
 
 // Get a Match by his ID
