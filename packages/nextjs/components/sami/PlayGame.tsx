@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { ModalEliminated } from "./ModalEliminated";
 import { ModalFinished } from "./ModalFinished";
 import { ModalForVoting } from "./ModalForVoting";
@@ -43,7 +44,7 @@ export const PlayGame = () => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const { socket, isConnected, playerIndex, playerId, roomId, isPlayerEliminated } = useSocket();
+  const { socket, playerIndex, playerId, roomId, isPlayerEliminated } = useSocket();
 
   useEffect(() => {
     if (!socket) return;
@@ -106,7 +107,7 @@ export const PlayGame = () => {
       <div className="flex-grow grid grid-cols-2 gap-3 rounded-2xl backdrop-brightness-95 flex-col md:h-[calc(100vh-8rem)]">
         {!isMobile && (
           <div className="flex items-center justify-center overflow-hidden rounded-2xl">
-            <img src="sami-team.webp" className="object-cover" alt="Game Banner" />
+            <Image src="/sami-team.webp" className="object-cover" alt="Game Banner" width={500} height={500} />
           </div>
         )}
         <div

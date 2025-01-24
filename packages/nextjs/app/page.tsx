@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import type { NextPage } from "next";
-import ParticleBackground from "~~/components/background";
 import { ChooseGame } from "~~/components/sami/ChooseGame";
 import { PlayGame } from "~~/components/sami/PlayGame";
 
