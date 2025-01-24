@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { NoSymbolIcon, UserGroupIcon } from "@heroicons/react/24/outline";
 
 export const ModalFinished = ({ winner }: any) => {
   return (

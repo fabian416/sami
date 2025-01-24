@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Player } from "./PlayGame";
 import { COLORS } from "./PlayGame";
-import { BugAntIcon, ClockIcon, CurrencyDollarIcon, XCircleIcon } from "@heroicons/react/24/outline";
 import { useSocket } from "~~/app/socketContext";
 
 export const ModalForVoting = ({
@@ -38,7 +37,7 @@ export const ModalForVoting = ({
     return () => {
       socket.off("playerEliminated", handlePlayerElimited);
     };
-  }, [socket, playerId]);
+  }, [socket, playerId, players, setIsEliminatedModalOpen, setIsPlayerEliminated, setMessages]);
 
   const handleVote = (votedPlayerIndex: number, votedPlayerId: string) => {
     if (!isConnected || !socket) {

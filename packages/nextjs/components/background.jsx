@@ -1,11 +1,8 @@
-import React, { useEffect, useRef } from 'react';
-import * as THREE from 'three';
-import { useTheme } from "next-themes";
+import React, { useEffect, useRef } from "react";
+import * as THREE from "three";
 
 const ParticleBackground = () => {
   const mountRef = useRef(null);
-  const { resolvedTheme } = useTheme();
-  const isDarkMode = resolvedTheme === "dark";
 
   useEffect(() => {
     const mount = mountRef.current;
@@ -14,39 +11,36 @@ const ParticleBackground = () => {
     const scene = new THREE.Scene();
 
     // Crear la cámara
-    const camera = new THREE.PerspectiveCamera(
-      40,
-      mount.clientWidth / mount.clientHeight,
-      0.1,
-      10000
-    );
+    const camera = new THREE.PerspectiveCamera(40, mount.clientWidth / mount.clientHeight, 0.1, 10000);
     camera.position.z = 5;
 
     // Crear el renderer
     const renderer = new THREE.WebGLRenderer();
-    if (isDarkMode) {
-        renderer.setClearColor(0x000000, 1); // Fondo negro
+    if (resolvedTheme === "dark") {
+      renderer.setClearColor(0x000000, 1); // Fondo negro
     } else {
-        renderer.setClearColor(0xffffff, 1); // Fondo blanco
+      renderer.setClearColor(0xffffff, 1); // Fondo blanco
     }
     renderer.setSize(mount.clientWidth, mount.clientHeight);
     mount.appendChild(renderer.domElement);
 
-     // Generar una textura circular manualmente
-     const generateCircleTexture = () => {
+    // Generar una textura circular manualmente
+    const generateCircleTexture = () => {
       const size = 50; // Tamaño de la textura
-      const canvas = document.createElement('canvas');
+      const canvas = document.createElement("canvas");
       canvas.width = size;
       canvas.height = size;
-      const context = canvas.getContext('2d');
+      const context = canvas.getContext("2d");
 
       // Dibujar un círculo
       context.beginPath();
       context.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
-      context.fillStyle = isDarkMode ? "white" : "black";
+      context.fillStyle = resolvedTheme === "dark" ? "white" : "black";
       context.fill();
       return new THREE.CanvasTexture(canvas);
     };
+
+    // Your existing code for adding objects to the scene
 
     const circleTexture = generateCircleTexture();
 
@@ -65,10 +59,7 @@ const ParticleBackground = () => {
     for (let i = 0; i < particleCount * 3; i++) {
       positions[i] = (Math.random() - 0.5) * 10; // Partículas distribuidas aleatoriamente
     }
-    particlesGeometry.setAttribute(
-      'position',
-      new THREE.BufferAttribute(positions, 3)
-    );
+    particlesGeometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
 
     const particles = new THREE.Points(particlesGeometry, particlesMaterial);
     scene.add(particles);
@@ -85,22 +76,25 @@ const ParticleBackground = () => {
 
     animate();
 
-    // Limpieza al desmontar el componente
+    // Cleanup on unmount
     return () => {
       mount.removeChild(renderer.domElement);
     };
   }, [resolvedTheme]);
 
-  return <div ref={mountRef} 
-    style={{
+  return (
+    <div
+      ref={mountRef}
+      style={{
         position: "absolute",
         top: 0,
         left: 0,
         width: "100%",
         height: "100%",
         zIndex: -1,
-    }}
-   />;
+      }}
+    />
+  );
 };
 
 export default ParticleBackground;

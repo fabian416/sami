@@ -30,7 +30,7 @@ export const ChooseGame = ({ showGame }: any) => {
     return () => {
       socket.off("gameStarted", handleGameStarted);
     };
-  }, [socket, showGame, setRoomId, playerId]);
+  }, [socket, showGame, setRoomId, playerId, setPlayerIndex]);
 
   const handleEnterGame = () => {
     if (!isConnected || !socket) {
