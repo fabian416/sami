@@ -13,7 +13,7 @@ export const ModalInstructions = ({ closeModal }: any) => {
       className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
       onClick={handleBackdropClick}
     >
-      <div className="flex-grow bg-base-300 rounded-2xl items-center justify-center mx-4 md:mx-16 overflow-scroll">
+      <div className="flex-grow bg-base-300 rounded-2xl items-center justify-center mx-4 md:mx-16">
         <CloseButton closeModal={closeModal} />
         <div className="flex justify-between items-center md:mb-8 mb-4">
           <div className="flex-grow text-center">

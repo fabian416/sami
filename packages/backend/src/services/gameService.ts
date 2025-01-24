@@ -127,8 +127,8 @@ export const startGame = (roomId: string) => {
         // Comenzar la fase de conversación
         setTimeout(() => {
             endConversationPhase(roomId);
-        }, 15 * 1000)
-        //2 * 60 * 1000); // Configurar la duración de la fase de conversación
+        }, //15 * 1000)
+        1 * 60 * 1000); // Configurar la duración de la fase de conversación
     }, 500); // Retraso de 500 milisegundos
     // Apply the rules
     // clean votes after voting phase

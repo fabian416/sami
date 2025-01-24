@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { ModalEliminated } from "./ModalEliminated";
 import { ModalFinished } from "./ModalFinished";
 import { ModalForVoting } from "./ModalForVoting";
+import { isMobile } from "react-device-detect";
 import { PaperAirplaneIcon } from "@heroicons/react/24/solid";
 import { useSocket } from "~~/app/socketContext";
 
@@ -17,14 +18,20 @@ export interface Player {
 }
 
 export const PlayGame = () => {
-  const { socket, isConnected, playerIndex, playerId, roomId, isPlayerEliminated } = useSocket();
-
   const [messages, setMessages] = useState<Message[]>([]);
   const [players, setPlayers] = useState<Player[]>([]);
   const [currentPhase, setCurrentPhase] = useState<"conversation" | "voting" | "finished">("conversation");
   const [winner, setWinner] = useState<string | null>(null);
   const [isEliminatedModalOpen, setIsEliminatedModalOpen] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Cuando los mensajes cambian, desplazamos al fondo
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  const { socket, isConnected, playerIndex, playerId, roomId, isPlayerEliminated } = useSocket();
 
   useEffect(() => {
     if (!socket) return;
@@ -83,18 +90,21 @@ export const PlayGame = () => {
       )}
       {currentPhase === "finished" && <ModalFinished winner={winner} />}
       {isEliminatedModalOpen && isPlayerEliminated && <ModalEliminated closeModal={handleCloseEliminatedModal} />}
-      <div className="grid grid-cols-2 w-full h-[calc(100vh-8rem)] rounded-2xl backdrop-brightness-95">
-        <div className="flex items-center justify-center overflow-hidden rounded-2xl">
-          <img src="sami-team.webp" className="object-cover" alt="Game Banner" />
-        </div>
+
+      <div className="flex-grow grid grid-cols-2 rounded-2xl backdrop-brightness-95 flex-col md:h-[calc(100vh-8rem)]">
+        {!isMobile && (
+          <div className="flex items-center justify-center overflow-hidden rounded-2xl">
+            <img src="sami-team.webp" className="object-cover" alt="Game Banner" />
+          </div>
+        )}
         <div
           className={
             isPlayerEliminated
-              ? "flex flex-col items-center justify-between p-4 bg-gray-300 rounded-2xl shadow-lg"
-              : "flex flex-col items-center justify-between p-4 bg-white rounded-2xl shadow-lg"
+              ? "col-span-2 md:col-span-1 flex flex-col items-center justify-between p-4 bg-gray-300 rounded-2xl shadow-lg overflow-y-scroll"
+              : "col-span-2 md:col-span-1 flex flex-col items-center justify-between p-4 bg-white rounded-2xl shadow-lg overflow-y-scroll"
           }
         >
-          <div className="flex-1 w-full overflow-y-auto p-2">
+          <div className="flex-1 w-full p-2 overflow-y-scroll">
             {isPlayerEliminated ? (
               <div className="text-gray-500">Eliminated!</div>
             ) : (
@@ -117,6 +127,7 @@ export const PlayGame = () => {
                   </span>
                 </div>
               ))}
+              <div ref={bottomRef} />
             </div>
           </div>
           <div className="flex w-full mt-4">

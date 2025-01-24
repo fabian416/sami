@@ -59,8 +59,8 @@ export const ChooseGame = ({ showGame }: any) => {
   };
 
   return (
-    <div className="flex md:flex-row flex-col justify-evenly items-center w-full">
-      <div className="card bg-base-100 max-w-sm md:w-96 shadow-xl mt-4 mx-2">
+    <div className="flex md:flex-row flex-col justify-evenly items-center w-full gap-10 md:gap-8">
+      <div className="card bg-base-100 max-w-sm md:w-96 shadow-xl mx-4">
         <div className="card-body">
           <h2 className="card-title">Enter game!</h2>
           <p>Pay a 2 USDC fee to participate in the next round of SAMI!</p>
@@ -69,7 +69,7 @@ export const ChooseGame = ({ showGame }: any) => {
           </div>
         </div>
       </div>
-      <div className="card dark:bg-cyan-700 light:bg-white-100 max-w-sm md:w-96 shadow-xl mt-4 mx-2">
+      <div className="card dark:bg-cyan-700 light:bg-white-100 max-w-sm md:w-96 shadow-xl mx-4">
         <div className="card-body">
           <h2 className="card-title">Enter free game!</h2>
           <p>Participate free in the next round of SAMI!</p>
