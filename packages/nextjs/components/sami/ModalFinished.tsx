@@ -5,7 +5,7 @@ export const ModalFinished = ({ winner }: any) => {
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-base-100 rounded-2xl items-center justify-center">
         <div className="flex items-center justify-center text-center flex-col gap-4 p-8">
-          {winner === "humans" ? <span>Humans won</span> : <span>The IA won</span>}
+          {winner === "humans" ? <span>Humans won</span> : <span>SAMI won</span>}
           <div className="w-16 h-16">{winner === "humans" ? <UserGroupIcon /> : <NoSymbolIcon />}</div>
           <button className="btn btn-primary" onClick={() => window.location.reload()}>
             Play again

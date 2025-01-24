@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { ModalEliminated } from "./ModalEliminated";
 import { ModalFinished } from "./ModalFinished";
 import { ModalForVoting } from "./ModalForVoting";
+import { useTheme } from "next-themes";
 import { isMobile } from "react-device-detect";
 import { PaperAirplaneIcon } from "@heroicons/react/24/solid";
 import { useSocket } from "~~/app/socketContext";
@@ -27,6 +28,8 @@ export const PlayGame = () => {
   const [isEliminatedModalOpen, setIsEliminatedModalOpen] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const { resolvedTheme } = useTheme();
+  const isDarkMode = resolvedTheme === "dark";
 
   useEffect(() => {
     // Cuando los mensajes cambian, desplazamos al fondo
@@ -100,20 +103,16 @@ export const PlayGame = () => {
           </div>
         )}
         <div
-          className={
-            isPlayerEliminated
-              ? "col-span-2 md:col-span-1 flex flex-col items-center justify-between p-4 bg-gray-300 rounded-2xl shadow-lg overflow-y-scroll"
-              : "col-span-2 md:col-span-1 flex flex-col items-center justify-between p-4 bg-white rounded-2xl shadow-lg overflow-y-scroll"
-          }
+          className={`col-span-2 md:col-span-1 flex flex-col items-center justify-between p-4 rounded-2xl shadow-lg overflow-y-scroll
+          ${!isPlayerEliminated && isDarkMode ? "bg-base-300" : !isPlayerEliminated ? "bg-white" : ""}`}
         >
           <div className="flex-1 w-full p-2 overflow-y-scroll">
             {isPlayerEliminated ? (
-              <div className="text-gray-500">Eliminated!</div>
+              <div className="text-gray-500">Eliminated</div>
             ) : (
-              <div className="text-gray-500">Welcome! Feel free to chat! Ask questions!</div>
+              <div className="text-gray-500">Welcome! Ask questions to figure out who SAMI is.</div>
             )}
-
-            <div className="mt-4">
+            <div className={`mt-4 ${isDarkMode ? "text-white" : "text-black"}`}>
               {messages.map((msg, index) => {
                 const color = COLORS[Number(msg.playerIndex)];
                 return (
@@ -138,11 +137,7 @@ export const PlayGame = () => {
               ref={inputRef}
               type="text"
               disabled={isPlayerEliminated}
-              className={
-                isPlayerEliminated
-                  ? "flex-1 p-2 border bg-gray-500 border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  : "flex-1 p-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              }
+              className={`flex-1 p-2 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${isPlayerEliminated ? "bg-gray-500 border-gray-300" : "border-gray-300"}`}
               placeholder={isPlayerEliminated ? "" : "Type your message..."}
               onKeyDown={e => {
                 if (e.key === "Enter" && inputRef.current?.value.trim()) {
@@ -153,11 +148,7 @@ export const PlayGame = () => {
             />
             <button
               disabled={isPlayerEliminated}
-              className={
-                isPlayerEliminated
-                  ? "p-2 bg-gray-600 text-white rounded-r-lg hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500"
-                  : "p-2 bg-blue-500 text-white rounded-r-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              }
+              className={`p-2 text-white focus:outline-none focus:ring-2 rounded-r-lg ${isPlayerEliminated ? "bg-gray-600 hover:bg-gray-800  focus:ring-gray-500" : "bg-blue-500 hover:bg-blue-600 focus:ring-blue-500"}`}
               onClick={() => {
                 if (inputRef.current?.value.trim()) {
                   sendMessage(inputRef.current.value.trim());

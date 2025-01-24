@@ -4,7 +4,7 @@ import { useTheme } from "next-themes";
 
 const ParticleBackground = () => {
   const mountRef = useRef(null);
-  const { setTheme, resolvedTheme } = useTheme();
+  const { resolvedTheme } = useTheme();
   const isDarkMode = resolvedTheme === "dark";
 
   useEffect(() => {
