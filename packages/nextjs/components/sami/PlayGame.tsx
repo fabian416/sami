@@ -17,6 +17,8 @@ export interface Player {
   index: number;
 }
 
+const COLORS = ["text-red-600", "text-green-600", "text-blue-600", "text-pink-600", "text-yellow-600", "text-cyan-600"];
+
 export const PlayGame = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [players, setPlayers] = useState<Player[]>([]);
@@ -111,22 +113,23 @@ export const PlayGame = () => {
               <div className="text-gray-500">Welcome! Feel free to chat! Ask questions!</div>
             )}
 
-            <div className="mt-4 text-black">
-              {messages.map((msg, index) => (
-                <div key={index} className="text-left">
-                  <span>
-                    {msg.playerId ? (
-                      <>
-                        <strong>Player {msg.playerIndex}:</strong> {msg.message}
-                      </>
-                    ) : (
-                      <>
-                        <strong> {msg.message}</strong>
-                      </>
-                    )}
-                  </span>
-                </div>
-              ))}
+            <div className="mt-4">
+              {messages.map((msg, index) => {
+                const color = COLORS[Number(msg.playerIndex)];
+                return (
+                  <div key={index} className={`text-left mb-1 ${color}`}>
+                    <span>
+                      {msg.playerId ? (
+                        <>
+                          <strong>Player {msg.playerIndex}:</strong> {msg.message}
+                        </>
+                      ) : (
+                        <strong>{msg.message}</strong>
+                      )}
+                    </span>
+                  </div>
+                );
+              })}
               <div ref={bottomRef} />
             </div>
           </div>
