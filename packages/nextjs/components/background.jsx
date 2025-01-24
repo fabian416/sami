@@ -83,7 +83,7 @@ const ParticleBackground = () => {
     return () => {
       mount.removeChild(renderer.domElement);
     };
-  }, [resolvedTheme]);
+  }, [resolvedTheme, isDarkMode]);
 
   return (
     <div
