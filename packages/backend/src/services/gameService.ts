@@ -285,8 +285,8 @@ function startConversationPhase(roomId: string) {
     setTimeout(() => {
         endConversationPhase(roomId);
     }, 
-     //15 * 1000);   
-    2 * 60 * 1000); // Establece la duración de la fase de conversación
+     15 * 1000);   
+    //2 * 60 * 1000); // Establece la duración de la fase de conversación
 }
 
 // Get a Match by his ID
