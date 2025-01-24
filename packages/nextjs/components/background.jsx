@@ -1,8 +1,11 @@
 import React, { useEffect, useRef } from "react";
+import { useTheme } from "next-themes";
 import * as THREE from "three";
 
 const ParticleBackground = () => {
   const mountRef = useRef(null);
+  const { resolvedTheme } = useTheme();
+  const isDarkMode = resolvedTheme === "dark";
 
   useEffect(() => {
     const mount = mountRef.current;
@@ -80,7 +83,7 @@ const ParticleBackground = () => {
     return () => {
       mount.removeChild(renderer.domElement);
     };
-  }, []);
+  }, [resolvedTheme]);
 
   return (
     <div
