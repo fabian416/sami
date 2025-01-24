@@ -75,7 +75,7 @@ const VoteModal = ({ players, handleVote }: { players: Player[]; handleVote: any
     <div className="bg-base-100 rounded-2xl items-center justify-center py-8 px-16">
       <div className="flex justify-between items-center my-8">
         <div className="flex-grow text-center">
-          <span className="block text-2xl font-bold">Who is the IA?</span>
+          <span className="block text-2xl font-bold">Who is SAMI?</span>
         </div>
       </div>
       <div className="flex justify-center items-center gap-12 flex-col sm:flex-row pb-16">
