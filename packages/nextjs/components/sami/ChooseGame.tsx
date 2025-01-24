@@ -69,7 +69,7 @@ export const ChooseGame = ({ showGame }: any) => {
           </div>
         </div>
       </div>
-      <div className="card dark:bg-cyan-700 light:bg-white-100 max-w-sm md:w-96 shadow-xl mx-4">
+      <div className="card dark:bg-cyan-700 bg-base-100 max-w-sm md:w-96 shadow-xl mx-4">
         <div className="card-body">
           <h2 className="card-title">Enter free game!</h2>
           <p>Participate free in the next round of SAMI!</p>
