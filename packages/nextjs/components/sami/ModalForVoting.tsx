@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Player } from "./PlayGame";
+import { COLORS } from "./PlayGame";
 import { BugAntIcon, ClockIcon, CurrencyDollarIcon, XCircleIcon } from "@heroicons/react/24/outline";
 import { useSocket } from "~~/app/socketContext";
 
@@ -81,7 +82,7 @@ const VoteModal = ({ players, handleVote }: { players: Player[]; handleVote: any
         {players.map(player => (
           <button
             key={player.index}
-            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-200 ease-in-out"
+            className={`btn btn-secondary px-4 py-2 rounded-md transition duration-200 ease-in-out ${COLORS[player.index]}`}
             onClick={() => handleVote(player.index, player.id)}
           >
             Player {player.index}

@@ -18,7 +18,14 @@ export interface Player {
   index: number;
 }
 
-const COLORS = ["text-red-600", "text-green-600", "text-blue-600", "text-pink-600", "text-yellow-600", "text-cyan-600"];
+export const COLORS = [
+  "text-red-600",
+  "text-green-600",
+  "text-blue-600",
+  "text-pink-600",
+  "text-yellow-600",
+  "text-cyan-600",
+];
 
 export const PlayGame = () => {
   const [messages, setMessages] = useState<Message[]>([]);
