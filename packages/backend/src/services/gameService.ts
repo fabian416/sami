@@ -289,6 +289,7 @@ export const calculateNumberOfPlayers = ({roomId}: {roomId: string}) => {
   const game = getGameById(roomId);
   if (!game) return [-1, -1];
 
-  const amountOfPlayers = _.size(game.players);
+  const partialAmountOfPlayers = _.size(game.players);
+  const amountOfPlayers = partialAmountOfPlayers > MIN_PLAYERS ? MIN_PLAYERS : partialAmountOfPlayers;
   return [amountOfPlayers, MIN_PLAYERS];
 }

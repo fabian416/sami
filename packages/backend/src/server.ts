@@ -95,7 +95,7 @@ io.on('connection', (socket) => {
 
     socket.on('disconnect', () => {
         const player = players[socket.id];
-        playerController.disconnectPlayer({roomId: player.roomId, playerId: player.playerId});
+        playerController.disconnectPlayer({roomId: player?.roomId, playerId: player?.playerId});
         console.log("Player disconnected", socket.id)
     });
 

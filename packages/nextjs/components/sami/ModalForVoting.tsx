@@ -82,7 +82,9 @@ const WaitingOtherToVote = () => {
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-base-100 rounded-2xl items-center justify-center p-8">
         <div className="flex items-center justify-center text-center flex-col gap-4">
-          <span>Waiting for other players to vote</span>
+          <span>
+            <strong>Waiting for other players to vote</strong>
+          </span>
           <div className="animate-spin rounded-full h-8 w-8 border-t-4 border-blue-500 border-solid"></div>
         </div>
       </div>
