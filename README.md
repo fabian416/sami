@@ -5,9 +5,9 @@
   <a href="https://scaffoldeth.io">Website</a>
 </h4> -->
 
-🧪 Game where users have to chat and discover who is the AI agent, which disguises as a human on every game. Over time, the adaptive AI would be almost unrecognizable.
+🧪 Game where users have to chat and discover who is the AI agent, which disguises as a human on every game. Over time, the adaptive AI aims to be unrecognizable.
 
-⚙️ Built using NextJS, RainbowKit, Foundry, Wagmi, Viem, and Typescript.
+⚙️ Built using Typescript, Eliza, NextJS, Express, Supabase, RainbowKit, Foundry, Wagmi and Viem.
 
 ## Requirements
 
@@ -19,12 +19,13 @@ Before you begin, you need to install the following tools:
 
 ## Quickstart
 
-To get started with Scaffold-ETH 2, follow the steps below:
+To get started with SAMI, follow the steps below:
 
-1. Install dependencies if it was skipped in CLI:
+1. Clone this repo and install dependencies:
 
 ```
-cd my-dapp-example
+git clone https://github.com/fabian416/sami.git
+cd sami
 yarn install
 ```
 
@@ -45,8 +46,6 @@ yarn deploy
 This command deploys a test smart contract to the local network. The contract is located in `packages/foundry/contracts` and can be modified to suit your needs. The `yarn deploy` command uses the deploy script located in `packages/foundry/script` to deploy the contract to the network. You can also customize the deploy script.
 
 4. On a third terminal, start your backend by running first:
-
-> NOTE: You can skip this step now, backend is not yet implemented.
 
 ```
 yarn backend:build
@@ -70,7 +69,7 @@ Run smart contract test with `yarn foundry:test`
 
 ## Architecture
 
-- Frontend homepage at `packages/nextjs/app/page.tsx`. For guidance on [routing](https://nextjs.org/docs/app/building-your-application/routing/defining-routes) and configuring [pages/layouts](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts) checkout the Next.js documentation.
+- Frontend homepage at `packages/nextjs/app/page.tsx`.
 - Backend in `packages/backend`
 - Smart contracts in `packages/foundry/contracts`
 - Deployment scripts in `packages/foundry/script`

@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import { RainbowKitCustomConnectButton } from "../scaffold-eth";
 import { ModalWaitingForPlayers } from "./ModalWaitingForPlayers";
 import { v4 as uuidv4 } from "uuid";
+import { useAccount } from "wagmi";
 import { useSocket } from "~~/app/socketContext";
 
 interface Player {
@@ -14,6 +16,8 @@ interface Player {
 export const ChooseGame = ({ showGame }: any) => {
   const [loading, setLoading] = useState(false);
   const { socket, isConnected, playerId, setPlayerId, setPlayerIndex, setRoomId } = useSocket();
+
+  const { address: connectedAddress } = useAccount();
 
   useEffect(() => {
     if (!socket) return;
@@ -72,9 +76,13 @@ export const ChooseGame = ({ showGame }: any) => {
             <h2 className="card-title">Enter game!</h2>
             <p className="h-10">Pay a 2 USDC fee to participate in the next round of SAMI!</p>
             <div className="card-actions justify-end">
-              <button className="btn btn-primary bg-[#E45750] hover:bg-[#D64944] dark:bg-[#E45750] text-white border-0">
-                Pay 2 USDC
-              </button>
+              {connectedAddress ? (
+                <button className="btn btn-primary bg-[#E45750] hover:bg-[#D64944] dark:bg-[#E45750] text-white border-0">
+                  Pay 2 USDC
+                </button>
+              ) : (
+                <RainbowKitCustomConnectButton />
+              )}
             </div>
           </div>
         </div>
