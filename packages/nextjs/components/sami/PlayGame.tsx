@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import CountdownClock from "../CountdownClock";
 import { ModalEliminated } from "./ModalEliminated";
 import { ModalFinished } from "./ModalFinished";
 import { ModalForVoting } from "./ModalForVoting";
@@ -19,6 +20,11 @@ export interface Player {
   index: number;
 }
 
+export interface Clock {
+  timeBeforeEnds: number;
+  serverTime: number;
+}
+
 export const COLORS = [
   "text-red-600",
   "text-green-600",
@@ -28,23 +34,44 @@ export const COLORS = [
   "text-cyan-600",
 ];
 
-export const PlayGame = () => {
+export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [players, setPlayers] = useState<Player[]>([]);
   const [currentPhase, setCurrentPhase] = useState<"conversation" | "voting" | "finished">("conversation");
+  const [clockTimer, setClockTimer] = useState<Clock | null>(null);
   const [winner, setWinner] = useState<string | null>(null);
   const [isEliminatedModalOpen, setIsEliminatedModalOpen] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const { socket, playerIndex, playerId, setPlayerIndex, roomId, isPlayerEliminated } = useSocket();
   const { resolvedTheme } = useTheme();
   const isDarkMode = resolvedTheme === "dark";
+
+  useEffect(() => {
+    if (timeForFirstRound) {
+      setClockTimer(timeForFirstRound);
+    }
+  }, []);
+
+  useEffect(() => {
+    console.log("1");
+    if (!socket) return;
+    console.log("2");
+    if (!playerIndex && playerId && roomId) {
+      console.log("3");
+      socket.emit("getPlayerIndex", { roomId, playerId });
+    }
+    socket.on("playerIndex", (data: { playerId: string; playerIndex: number }) => {
+      console.log("el socket paso por aca");
+      console.log(data);
+      playerId === data.playerId && setPlayerIndex(data.playerIndex);
+    });
+  }, [playerIndex, socket]);
 
   useEffect(() => {
     // Cuando los mensajes cambian, desplazamos al fondo
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-
-  const { socket, playerIndex, playerId, roomId, isPlayerEliminated } = useSocket();
 
   useEffect(() => {
     if (!socket) return;
@@ -54,16 +81,21 @@ export const PlayGame = () => {
       setMessages(prev => [...prev, data]);
     });
 
-    socket.on("startConversationPhase", (data: { message: string }) => {
+    socket.on("startConversationPhase", (data: { message: string; timeBeforeEnds: number; serverTime: number }) => {
       setCurrentPhase("conversation");
+      setClockTimer({ timeBeforeEnds: data.timeBeforeEnds, serverTime: data.serverTime });
       console.log(data.message);
     });
 
-    socket.on("startVotePhase", (data: { players: Player[]; message: string }) => {
-      setCurrentPhase("voting");
-      setPlayers(data.players);
-      console.log(data.message);
-    });
+    socket.on(
+      "startVotePhase",
+      (data: { players: Player[]; message: string; timeBeforeEnds: number; serverTime: number }) => {
+        setCurrentPhase("voting");
+        setPlayers(data.players);
+        setClockTimer({ timeBeforeEnds: data.timeBeforeEnds, serverTime: data.serverTime });
+        console.log(data.message);
+      },
+    );
 
     socket.on("gameOver", (data: { winner: string; message: string }) => {
       setCurrentPhase("finished");
@@ -103,6 +135,7 @@ export const PlayGame = () => {
       )}
       {currentPhase === "finished" && <ModalFinished winner={winner} />}
       {isEliminatedModalOpen && isPlayerEliminated && <ModalEliminated closeModal={handleCloseEliminatedModal} />}
+      <CountdownClock setClockTimer={setClockTimer} clockTimer={clockTimer} />
 
       <div className="flex-grow grid grid-cols-2 gap-3 rounded-2xl backdrop-brightness-95 flex-col md:h-[calc(100vh-8rem)]">
         {!isMobile && (

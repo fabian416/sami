@@ -1,9 +1,17 @@
 import { games } from "./gameService";
+import { EventEmitter } from "events";
 
+
+class PlayerServiceEmitter extends EventEmitter {}
+
+const playerServiceEmitter = new PlayerServiceEmitter();
+
+export default playerServiceEmitter;
 
 // Interface to describe a player
 export interface Player{
     id: string;
+    index?: number;
     totalChars: number;
     isIA: boolean;
     isEliminated: boolean; // Indicate if was eliminated because of votation of because it didn't fullfill the minimum 20 chars

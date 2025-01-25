@@ -9,8 +9,8 @@ interface SocketContextType {
   isConnected: boolean;
   playerId: string | null;
   setPlayerId: (id: string) => void;
-  playerIndex: string | null;
-  setPlayerIndex: (id: string) => void;
+  playerIndex: number | null;
+  setPlayerIndex: (id: number) => void;
   roomId?: string | null;
   setRoomId: (id: string) => void;
   isPlayerEliminated?: boolean;
@@ -21,14 +21,15 @@ interface SocketContextType {
 const SocketContext = createContext<SocketContextType | undefined>(undefined);
 
 // URL del servidor WebSocket
-const SERVER_URL = "http://localhost:5001"; // Cambiar según tu configuración
+//const SERVER_URL = "http://localhost:5001"; // Cambiar según tu configuración
+const SERVER_URL = "https://8lh8dmll-5001.brs.devtunnels.ms";
 
 // Proveedor del contexto
 export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [playerId, setPlayerId] = useState<string | null>(null);
-  const [playerIndex, setPlayerIndex] = useState<string | null>(null);
+  const [playerIndex, setPlayerIndex] = useState<number | null>(null);
   const [roomId, setRoomId] = useState<string | null>(null);
   const [isPlayerEliminated, setIsPlayerEliminated] = useState<boolean | undefined>(false);
 

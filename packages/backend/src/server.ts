@@ -2,6 +2,7 @@ import http from 'http';
 import { Server } from 'socket.io';
 import app from './app';
 import * as gameController from '../src/controllers/gameController';
+import * as playerController from '../src/controllers/playerController';
 const PORT = process.env.PORT || 5001;
 
 const server = http.createServer(app);
@@ -52,6 +53,18 @@ io.on('connection', (socket) => {
         socket.emit("error", { message: "An error occurred while processing the message." });
     }
     });
+
+    socket.on("getPlayerIndex", (data) => {
+        console.log(`message: Received data:`, data);
+        try {
+            playerController.getPlayerIndex(data);
+        } catch (error) {
+            console.error(`message: An error occurred`, error);
+    
+            // Emitir un error al cliente, si es necesario
+            socket.emit("error", { message: "An error occurred while processing the message." });
+        }
+        });
 
     socket.on('disconnect', () => {
         console.log("Player disconnected", socket.id)

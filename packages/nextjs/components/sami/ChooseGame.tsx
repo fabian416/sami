@@ -4,6 +4,7 @@ import { useSocket } from "~~/app/socketContext";
 
 interface Player {
   id: string;
+  index: string;
   totalChars: number;
   isIA: boolean;
   isEliminated: boolean;
@@ -17,12 +18,15 @@ export const ChooseGame = ({ showGame }: any) => {
     if (!socket) return;
     if (!playerId) return;
 
-    const handleGameStarted = (data: { roomId: string; players: Player[] }) => {
-      const index: any = data.players.findIndex(player => player.id === playerId);
-      setPlayerIndex(index);
+    const handleGameStarted = (data: {
+      roomId: string;
+      players: Player[];
+      timeBeforeEnds: number;
+      serverTime: number;
+    }) => {
       setRoomId(data.roomId); // Almacena el roomId en el contexto
-      console.log("Game started:", data);
-      showGame(); // Cambiar a la pantalla del juego
+      console.log("Game started:", data.roomId);
+      showGame({ timeBeforeEnds: data.timeBeforeEnds, serverTime: data.serverTime });
     };
 
     socket.on("gameStarted", handleGameStarted);

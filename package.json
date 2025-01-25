@@ -57,6 +57,7 @@
     "node": ">=18.18.0"
   },
   "dependencies": {
+    "react-countdown": "^2.3.6",
     "react-device-detect": "^2.2.3",
     "three": "^0.172.0",
     "uuid": "^11.0.5"

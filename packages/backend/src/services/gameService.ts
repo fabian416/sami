@@ -110,7 +110,7 @@ function shuffleArray(array: Player[]): Player[] {
   return array;
 }
 
-export const startGame = (roomId: string) => {
+export const startGame = async (roomId: string) => {
   const game = games[roomId];
   if (!game) return null; // Will need to show a proper error
 
@@ -124,23 +124,21 @@ export const startGame = (roomId: string) => {
   console.log(`Game started for room: ${roomId}`);
   console.log(`Players in the game:`);
   game.players.forEach((player, index) => {
-    console.log(
-      `Index: ${index}, ID: ${player.id}, Role: ${player.isIA ? "IA" : "Human"}`
-    );
+    game.players[index].index = index;
+    console.log(`Index: ${index}, ID: ${player.id}, Index: ${index}, Role: ${player.isIA ? "IA" : "Human"}`);
   });
-  // Espera medio segundo antes de emitir el evento gameStarted
-  setTimeout(() => {
-    gameServiceEmitter.emit("gameStarted", { roomId, game });
-    gameServiceEmitter.emit("startConversation", { roomId });
-    // Comenzar la fase de conversación
-    setTimeout(() => {
-      endConversationPhase(roomId);
-    }, 15 * 1000);
-    //2 * 60 * 1000); // Configurar la duración de la fase de conversación
-  }, 500); // Retraso de 500 milisegundos
-  // Apply the rules
-  // clean votes after voting phase
-  // verify if someone got kicked out, etc
+
+  await new Promise((resolve) => setTimeout(resolve, 500)); // Esperar 500ms
+
+  let timeBeforeEnds = 15 * 1000; // 2 * 60 * 1000;
+  //let timeBeforeEnds = 20 * 60 * 1000;
+  const serverTime = Date.now();
+  gameServiceEmitter.emit("gameStarted", { roomId, game, timeBeforeEnds, serverTime });
+  await new Promise((resolve) => setTimeout(resolve, 100)); // Esperar 100ms
+
+  gameServiceEmitter.emit("startConversation", { roomId, timeBeforeEnds, serverTime });
+  setTimeout(() => endConversationPhase(roomId), timeBeforeEnds);
+
   return game;
 };
 
@@ -190,12 +188,14 @@ export const recordVote = (
   // Register vote
   game.votes[voterId] = votedPlayerId;
   console.log(
-    `[recordVote] Voter ${voterId} voted for ${votedPlayerId} in room: ${roomId}`
+    `[recordVote] Voter ${voterId} (${voter.index}) voted for ${votedPlayerId} in room: ${roomId}`
   );
+  gameServiceEmitter.emit("voteSubmitted", { roomId, voterId, votedId: votedPlayerId });
+
   return true;
 };
 
-function endConversationPhase(roomId: string) {
+const endConversationPhase = async (roomId: string) => {
   const game = games[roomId];
   if (!game) return;
 
@@ -213,17 +213,17 @@ function endConversationPhase(roomId: string) {
     */
 
   game.status = "voting";
-  // 2 Initiate Vote Phase ( Example of 20 seconds)
-  gameServiceEmitter.emit("conversationEnded", { roomId });
-  gameServiceEmitter.emit("startVoting", roomId);
 
-  setTimeout(
-    () => {
-      //  Continue after 25 seconds and the register of the votes
-      endVotingPhase(roomId);
-    }, //2 * 30 * 1000)
-    15 * 1000
-  );
+  const timeBeforeEnds = 15 * 1000;
+  //const timeBeforeEnds = 30 * 60 * 1000;
+  //const timeBeforeEnds = 15 * 1000;
+  const serverTime = Date.now();
+
+  gameServiceEmitter.emit("conversationEnded", { roomId });
+  await new Promise((resolve) => setTimeout(resolve, 100)); // Controlar tiempos
+  gameServiceEmitter.emit("startVoting", { roomId, timeBeforeEnds, serverTime });
+
+  setTimeout(() => endVotingPhase(roomId), timeBeforeEnds);
 }
 
 export const endVotingPhase = (roomId: string) => {
@@ -290,17 +290,17 @@ function startConversationPhase(roomId: string) {
   const game = games[roomId];
   if (!game || game.status !== "active") return;
 
-  console.log(`Starting conversation phase for room: ${roomId}`);
-  // Emit for the controller
-  gameServiceEmitter.emit("startConversation", { roomId });
-
   game.votes = {}; // Reset votes for the new round
+  console.log(`Starting conversation phase for room: ${roomId}`);
+  
+  const timeBeforeEnds = 15 * 1000;
+  // const timeBeforeEnds = 2 * 60 * 1000;
+  const serverTime = Date.now();
+
+  gameServiceEmitter.emit("startConversation", { roomId, timeBeforeEnds, serverTime });
 
   // Logic for the conversation phase (e.g., allow players to chat for two minutes)
-  setTimeout(() => {
-    endConversationPhase(roomId);
-  }, 15 * 1000);
-  //2 * 60 * 1000); // Establece la duración de la fase de conversación
+  setTimeout(() => { endConversationPhase(roomId) }, timeBeforeEnds);
 }
 
 // Get a Match by his ID

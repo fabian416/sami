@@ -11,44 +11,57 @@ import { io } from "../server";
 import gameServiceEmitter from "../services/gameService";
 import supabase from "../config/supabaseClient";
 
-gameServiceEmitter.on("startConversation", ({ roomId }) => {
+gameServiceEmitter.on("startConversation", (data: { roomId: string, timeBeforeEnds: number, serverTime: number }) => {
   const message = { message: "Conversation phase has started" };
-  io.to(roomId).emit("startConversationPhase", message);
+  io.to(data.roomId).emit("startConversationPhase", {
+    message,
+    timeBeforeEnds: data.timeBeforeEnds,
+    serverTime: data.serverTime
+  });
 });
 
 gameServiceEmitter.on("conversationEnded", (data: any) => {
   console.log(`Conversation phase ended for room: ${data.roomId}`);
 });
 
-gameServiceEmitter.on("playerEliminated", ({ roomId, playerId }) => {
-  console.log(
-    `Notifying clients: Player ${playerId} was eliminated from room ${roomId}`
-  );
-  io.to(roomId).emit("playerEliminated", { playerId });
+gameServiceEmitter.on("voteSubmitted", (data: {roomId: string, voterId: string, votedId: string}) => {
+  console.log(`Conversation phase ended for room: ${data.roomId}`);
+  io.to(data.roomId).emit("voteSubmitted", { voterId: data.voterId, votedId: data.votedId });
 });
 
-gameServiceEmitter.on("startVoting", (roomId: string) => {
-  const game = games[roomId];
+gameServiceEmitter.on("playerEliminated", (data: { roomId: string, playerId: string }) => {
+  console.log(
+    `Notifying clients: Player ${data.playerId} was eliminated from room ${data.roomId}`
+  );
+  io.to(data.roomId).emit("playerEliminated", { playerId: data.playerId });
+});
+
+gameServiceEmitter.on("startVoting", (data: {roomId: string, timeBeforeEnds: number, serverTime: number}) => {
+  const game = games[data.roomId];
   if (!game) return;
 
   // Get list of active players
   const activePlayers = game.players
     .filter((player) => !player.isEliminated)
-    .map((player, index) => ({ id: player.id, index }));
+    .map((player) => ({ id: player.id, index: player.index }));
 
-  console.log(`Starting voting phase for room: ${roomId}`);
-  io.to(roomId).emit("startVotePhase", {
+  console.log(`Starting voting phase for room: ${data.roomId}`);
+  io.to(data.roomId).emit("startVotePhase", {
     message: "Voting phase has started",
-    roomId: roomId,
+    roomId: data.roomId,
     players: activePlayers, // Send list of active players
+    timeBeforeEnds: data.timeBeforeEnds,
+    serverTime: data.serverTime,
   });
 });
 
-gameServiceEmitter.on("gameStarted", ({ roomId, game }) => {
+gameServiceEmitter.on("gameStarted", ({ roomId, game, timeBeforeEnds, serverTime }) => {
   console.log(`Game started for room: ${roomId}`);
   io.to(roomId).emit("gameStarted", {
     roomId: game.roomId,
     players: game.players,
+    timeBeforeEnds,
+    serverTime,
   });
 });
 
@@ -155,8 +168,7 @@ export const castVote = (data: any, socket: Socket, io: Server) => {
 };
 
 export const handleMessage = async (data: any, socket: Socket, io: Server) => {
-    const { roomId, message, playerId, playerIndex } = data;
-    console.log({playerIndex})
+  const { roomId, message, playerId, playerIndex } = data;
 
   // Validate if the instance exists
   const game = games[roomId];
