@@ -54,16 +54,11 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
   }, []);
 
   useEffect(() => {
-    console.log("1");
     if (!socket) return;
-    console.log("2");
     if (!playerIndex && playerId && roomId) {
-      console.log("3");
       socket.emit("getPlayerIndex", { roomId, playerId });
     }
     socket.on("playerIndex", (data: { playerId: string; playerIndex: number }) => {
-      console.log("el socket paso por aca");
-      console.log(data);
       playerId === data.playerId && setPlayerIndex(data.playerIndex);
     });
   }, [playerIndex, socket]);
@@ -113,8 +108,7 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
 
   const sendMessage = (message: string) => {
     if (!socket || !roomId || !playerId) {
-      console.error("Missing socket, roomId, or playerId.");
-      return;
+      return console.error("Missing socket, roomId, or playerId.");
     }
 
     socket.emit("message", { roomId, playerId, playerIndex, message });

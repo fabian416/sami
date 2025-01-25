@@ -48,6 +48,7 @@
     "verify": "yarn foundry:verify"
   },
   "devDependencies": {
+    "@types/lodash": "^4",
     "@types/three": "^0",
     "husky": "~8.0.3",
     "lint-staged": "~13.2.2"
@@ -57,6 +58,7 @@
     "node": ">=18.18.0"
   },
   "dependencies": {
+    "lodash": "^4.17.21",
     "react-countdown": "^2.3.6",
     "react-device-detect": "^2.2.3",
     "three": "^0.172.0",

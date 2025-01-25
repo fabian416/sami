@@ -14,6 +14,8 @@ export const io = new Server(server, {
     }
 });
 
+const players: any = {};
+
 // Manage WebSocket event
 io.on('connection', (socket) => {
     console.log("Player connected :)", socket.id);
@@ -27,6 +29,17 @@ io.on('connection', (socket) => {
         } catch (error) {
             console.error(`createOrJoinGame: An error occurred`, error);
     
+            // Emitir un error al cliente para informarle del problema
+            socket.emit('error', { message: 'An unexpected error occurred while processing your request.' });
+        }
+    });
+
+
+    socket.on('getNumberOfPlayers', (data) => {
+        try {
+            gameController.getNumberOfPlayers(data, socket, io);
+        } catch (error) {
+            console.error(`createOrJoinGame: An error occurred`, error);
             // Emitir un error al cliente para informarle del problema
             socket.emit('error', { message: 'An unexpected error occurred while processing your request.' });
         }
@@ -60,13 +73,29 @@ io.on('connection', (socket) => {
             playerController.getPlayerIndex(data);
         } catch (error) {
             console.error(`message: An error occurred`, error);
-    
             // Emitir un error al cliente, si es necesario
             socket.emit("error", { message: "An error occurred while processing the message." });
         }
-        });
+    });
+
+    socket.on("getPlayerRoomId", (data) => {
+        console.log(`message: Received data:`, data);
+        try {
+            const roomId = playerController.getPlayerRoomId(data);
+            players[socket.id] = { 
+                roomId,
+                playerId: data.playerId 
+              };
+        } catch (error) {
+            console.error(`message: An error occurred`, error);
+            // Emitir un error al cliente, si es necesario
+            socket.emit("error", { message: "An error occurred while processing the message." });
+        }
+    });
 
     socket.on('disconnect', () => {
+        const player = players[socket.id];
+        playerController.disconnectPlayer({roomId: player.roomId, playerId: player.playerId});
         console.log("Player disconnected", socket.id)
     });
 

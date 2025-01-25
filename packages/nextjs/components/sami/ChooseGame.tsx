@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { ModalWaitingForPlayers } from "./ModalWaitingForPlayers";
 import { v4 as uuidv4 } from "uuid";
 import { useSocket } from "~~/app/socketContext";
 
@@ -63,31 +64,34 @@ export const ChooseGame = ({ showGame }: any) => {
   };
 
   return (
-    <div className="flex md:flex-row flex-col justify-evenly items-center w-full gap-10 md:gap-8">
-      <div className="card bg-gray-500 text-white max-w-sm md:w-96 shadow-xl mx-4">
-        <div className="card-body">
-          <h2 className="card-title">Enter game!</h2>
-          <p>Pay a 2 USDC fee to participate in the next round of SAMI!</p>
-          <div className="card-actions justify-end">
-            <button className="btn btn-primary bg-gray-700 text-white border-0">Pay 2 USDC</button>
+    <>
+      {loading && <ModalWaitingForPlayers />}
+      <div className="flex md:flex-row flex-col justify-evenly items-center w-full gap-10 md:gap-8">
+        <div className="card bg-gray-500 text-white max-w-sm md:w-96 shadow-xl mx-4">
+          <div className="card-body">
+            <h2 className="card-title">Enter game!</h2>
+            <p>Pay a 2 USDC fee to participate in the next round of SAMI!</p>
+            <div className="card-actions justify-end">
+              <button className="btn btn-primary bg-gray-700 text-white border-0">Pay 2 USDC</button>
+            </div>
+          </div>
+        </div>
+        <div className="card bg-cyan-700 text-white max-w-sm md:w-96 shadow-xl mx-4">
+          <div className="card-body">
+            <h2 className="card-title">Enter free game!</h2>
+            <p>Participate free in the next round of SAMI!</p>
+            <div className="card-actions justify-end">
+              <button
+                className="btn btn-primary bg-red-600 hover:bg-red-700 text-white border-0"
+                onClick={handleEnterGame}
+                disabled={loading}
+              >
+                {loading ? "Looking for a game..." : "Enter"}
+              </button>
+            </div>
           </div>
         </div>
       </div>
-      <div className="card bg-cyan-700 text-white max-w-sm md:w-96 shadow-xl mx-4">
-        <div className="card-body">
-          <h2 className="card-title">Enter free game!</h2>
-          <p>Participate free in the next round of SAMI!</p>
-          <div className="card-actions justify-end">
-            <button
-              className="btn btn-primary bg-red-600 hover:bg-red-700 text-white border-0"
-              onClick={handleEnterGame}
-              disabled={loading}
-            >
-              {loading ? "Looking for a game..." : "Enter"}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+    </>
   );
 };

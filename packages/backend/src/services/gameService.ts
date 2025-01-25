@@ -8,12 +8,15 @@ import {
 import { EventEmitter } from "events";
 import { v4 as uuidv4 } from "uuid";
 import { io } from "../server";
+import _ from "lodash";
 
 class GameServiceEmitter extends EventEmitter {}
 
 const gameServiceEmitter = new GameServiceEmitter();
 
 export default gameServiceEmitter;
+
+const MIN_PLAYERS = 3;
 
 interface Game {
   roomId: string;
@@ -68,7 +71,7 @@ export const joinGame = (roomId: string, playerId: string): boolean => {
   if (game.status !== "waiting") return false;
 
   // Check if the player already exists
-  const existingPlayer = game.players.find((p: Player) => p.id === playerId);
+  const existingPlayer = _.find(game.players, { id: playerId });
   if (existingPlayer) {
     return false;
   }
@@ -78,7 +81,7 @@ export const joinGame = (roomId: string, playerId: string): boolean => {
   game.players.push(newPlayer);
 
   // If the game reaches 5 players, add SAMI and start the game
-  if (game.players.length === 3) {
+  if (game.players.length === MIN_PLAYERS) {
     // 5) {
     const samiID = uuidv4();
     const samiPlayer = createPlayer(samiID, true);
@@ -92,30 +95,17 @@ export const joinGame = (roomId: string, playerId: string): boolean => {
   return true;
 };
 
-export const findAvailableGame = (): Game | null => {
-  for (const roomId in games) {
-    const game = games[roomId];
-    if (game.status === "waiting" && game.players.length < 5) {
-      return game;
-    }
-  }
-  return null; // No matches availables
-};
 
-function shuffleArray(array: Player[]): Player[] {
-  for (let i = array.length - 1; i > 0; i--) {
-    const randomIndex = Math.floor(Math.random() * (i + 1));
-    [array[i], array[randomIndex]] = [array[randomIndex], array[i]];
-  }
-  return array;
-}
+export const findAvailableGame = (): Game | null => {
+  return _.find(_.reverse(Object.values(games)), (game) => game.status === "waiting" && game.players.length < MIN_PLAYERS) || null;
+};
 
 export const startGame = async (roomId: string) => {
   const game = games[roomId];
   if (!game) return null; // Will need to show a proper error
 
   // Shuffle the players randomly
-  game.players = shuffleArray(game.players);
+  game.players = _.shuffle(game.players);
 
   // Logic to start the round
   game.status = "active";
@@ -154,7 +144,7 @@ export const recordVote = (
   }
 
   // Verify the voter exists in the game and has not been eliminated
-  const voter = game.players.find((player) => player.id === voterId);
+  const voter = _.find(game.players, { id: voterId });
   if (!voter) {
     console.warn(
       `[recordVote] Voter ${voterId} does not exist in room: ${roomId}`
@@ -169,9 +159,7 @@ export const recordVote = (
   }
 
   // Verify the voted player exists in the game and has not been eliminated
-  const votedPlayer = game.players.find(
-    (player) => player.id === votedPlayerId
-  );
+  const votedPlayer = _.find(game.players, { id: votedPlayerId });
   if (!votedPlayer) {
     console.warn(
       `[recordVote] Voted player ${votedPlayerId} does not exist in room: ${roomId}`
@@ -233,25 +221,15 @@ export const endVotingPhase = (roomId: string) => {
   console.log(`Ending voting phase for room: ${roomId}`);
 
   // 1. Count votes
-  const voteCount: { [votedId: string]: number } = {};
-  for (const voterId in game.votes) {
-    const targetId = game.votes[voterId];
-    voteCount[targetId] = (voteCount[targetId] || 0) + 1;
-  }
+  const voteCount = _.countBy(Object.values(game.votes));
 
   // 2. Identify the most voted
-  let maxVotes = -1;
-  let maxVotedPlayerId = null;
-  for (const [votedId, count] of Object.entries(voteCount)) {
-    if (count > maxVotes) {
-      maxVotes = count;
-      maxVotedPlayerId = votedId;
-    }
-  }
+  const maxVotedPlayer = _.maxBy(Object.entries(voteCount), ([, count]) => count);
+  const maxVotedPlayerId = maxVotedPlayer ? maxVotedPlayer[0] : null;
 
   // Process the result of the votation
   if (maxVotedPlayerId) {
-    const votedPlayer = game.players.find((p) => p.id === maxVotedPlayerId);
+    const votedPlayer = _.find(game.players, { id: maxVotedPlayerId });
     if (votedPlayer) {
       eliminatePlayer(votedPlayer);
 
@@ -263,9 +241,7 @@ export const endVotingPhase = (roomId: string) => {
         return;
       }
 
-      console.log(
-        `Player ${votedPlayer.id} eliminated as a result of the vote.`
-      );
+      console.log(`Player ${votedPlayer.id} eliminated as a result of the vote.`);
       // Emit an event to inform clients
       gameServiceEmitter.emit("playerEliminated", {
         roomId,
@@ -307,3 +283,12 @@ function startConversationPhase(roomId: string) {
 export const getGameById = (roomId: string) => {
   return games[roomId] || null;
 };
+
+
+export const calculateNumberOfPlayers = ({roomId}: {roomId: string}) => {
+  const game = getGameById(roomId);
+  if (!game) return [-1, -1];
+
+  const amountOfPlayers = _.size(game.players);
+  return [amountOfPlayers, MIN_PLAYERS];
+}

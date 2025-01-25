@@ -4,6 +4,7 @@ import {
   recordVote,
   createOrJoin,
   games,
+  calculateNumberOfPlayers,
 } from "../services/gameService";
 import { Server, Socket } from "socket.io";
 import { addCharsToPlayer } from "../services/playerService";
@@ -72,6 +73,19 @@ gameServiceEmitter.on('gameOver', ({ roomId, winner }) => {
         message: `Game over. Winner: ${winner === 'ia' ? 'IA' : 'Humans'}`,
     });
 });
+
+
+// Create or join a new match
+export const getNumberOfPlayers = (data: any, socket: Socket, io: Server) => {
+  const { roomId } = data;
+  if (!roomId) {
+    console.error(`[getNumberOfPlayers] Invalid data:`, data);
+    return socket.emit("error", { message: "Incomplete data for voting" });
+  }
+  
+  const [amountOfPlayers, neededPlayers] = calculateNumberOfPlayers({roomId});
+  io.to(roomId).emit("numberOfPlayers", { roomId, amountOfPlayers, neededPlayers });
+};
 
 // Create or join a new match
 export const createOrJoinGame = (data: any, socket: Socket, io: Server) => {
