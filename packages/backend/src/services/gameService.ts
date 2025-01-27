@@ -2,12 +2,11 @@ import { Server, Socket } from "socket.io";
 import {
   Player,
   createPlayer,
-  assignIARole,
   eliminatePlayer,
 } from "./playerService";
 import { EventEmitter } from "events";
 import { v4 as uuidv4 } from "uuid";
-import { io } from "../server";
+import { createAgentForRoom } from "./agentManager";
 
 class GameServiceEmitter extends EventEmitter {}
 
@@ -58,7 +57,6 @@ export const createNewGame = (roomId: string) => {
   games[roomId] = newGame;
   return newGame;
 };
-
 export const joinGame = (roomId: string, playerId: string): boolean => {
   // Get instance of the created game
   const game = games[roomId];
@@ -77,12 +75,20 @@ export const joinGame = (roomId: string, playerId: string): boolean => {
   const newPlayer = createPlayer(playerId, false);
   game.players.push(newPlayer);
 
-  // If the game reaches 5 players, add SAMI and start the game
+  // If the game reaches the required number of players, add SAMI and start the game
   if (game.players.length === 3) {
-    // 5) {
     const samiID = uuidv4();
     const samiPlayer = createPlayer(samiID, true);
-    game.players.push(samiPlayer); // Add SAMI as the sixth player
+    game.players.push(samiPlayer); // Add SAMI as an additional player
+
+    // Initialize the agent for the room asynchronously
+    createAgentForRoom(roomId)
+      .then(() => {
+        console.log(`SAMI initialized for room: ${roomId}`);
+      })
+      .catch((error) => {
+        console.error(`Failed to initialize SAMI for room: ${roomId}`, error);
+      });
 
     // Start the game
     startGame(roomId);

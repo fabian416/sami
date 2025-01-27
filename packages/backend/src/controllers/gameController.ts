@@ -10,6 +10,8 @@ import { addCharsToPlayer } from "../services/playerService";
 import { io } from "../server";
 import gameServiceEmitter from "../services/gameService";
 import supabase from "../config/supabaseClient";
+import { getAgentForRoom } from "../services/agentManager";
+import { Memory } from "@elizaos/core";
 
 gameServiceEmitter.on("startConversation", ({ roomId }) => {
   const message = { message: "Conversation phase has started" };
@@ -155,8 +157,8 @@ export const castVote = (data: any, socket: Socket, io: Server) => {
 };
 
 export const handleMessage = async (data: any, socket: Socket, io: Server) => {
-    const { roomId, message, playerId, playerIndex } = data;
-    console.log({playerIndex})
+  const { roomId, message, playerId, playerIndex } = data;
+  console.log({ playerIndex });
 
   // Validate if the instance exists
   const game = games[roomId];
@@ -174,22 +176,72 @@ export const handleMessage = async (data: any, socket: Socket, io: Server) => {
   // Update the count of the chars a player did
   addCharsToPlayer(roomId, playerId, message.length);
 
-  // Register the message in the server test purposes only
+  // Register the message in the server (test purposes only)
   console.log(`Mensaje de ${playerId} en sala ${roomId}: ${message}`);
 
+  // Insert the message into the Supabase database
   const { data: dataSupabase, error } = await supabase
     .from("SAMI")
     .insert([{ messages: message, room_id: roomId, player_id: playerId }]);
 
   if (error) {
     console.log("Error inserting data: ", error);
-  }
-  if (dataSupabase) {
-    console.log(dataSupabase);
+  } else if (dataSupabase) {
+    console.log("Message inserted into Supabase:", dataSupabase);
   }
 
   // Resend the message to all the other players
   io.to(roomId).emit("newMessage", data);
+
+  // **Integration with SAMI**
+  const agent = getAgentForRoom(roomId); // Get the agent associate to the room
+  if (agent) {
+    try {
+      // Create the initial state to process the message
+      const memory: Memory = {
+        userId: playerId, // El userId del jugador
+        agentId: agent.agentId || "SAMI", // Usar un ID válido si no hay agentId
+        roomId: roomId,
+        content: {
+          text: message,
+        },
+      };
+
+      const state = await agent.composeState(memory);
+
+      // Processs the message with SAMI
+      await agent.processActions(
+        memory,
+        [],
+        state,
+        async (newMessages) => {
+          // Crear un array de Memory[] a partir de las respuestas
+          const responses: Memory[] = Array.isArray(newMessages)
+            ? newMessages.map((msg) => ({
+                userId: uuidv4(), // Generar un UUID válido para el userId de SAMI
+                agentId: agent.agentId,
+                roomId,
+                content: msg.content, // Copy the content of the message 
+              }))
+            : [];
+
+          // Emit the response generated for SAMI
+          if (responses.length > 0) {
+            io.to(roomId).emit("newMessage", {
+              playerId: "SAMI",
+              message: responses[0]?.content?.text || "SAMI could not generate an answer",
+            });
+          } else {
+            console.warn("No se generaron respuestas de SAMI.");
+          }
+
+          return responses; // return the array of responses
+        }
+      );
+    } catch (err) {
+      console.error(`Error processing message with SAMI for room ${roomId}:`, err);
+    }
+  }
 };
 
 export const handleGameOver = (
@@ -217,3 +269,7 @@ export const getGame = (req: Request, res: Response) => {
   res.status(200).json(game);
   return;
 };
+function uuidv4(): any {
+  throw new Error("Function not implemented.");
+}
+
