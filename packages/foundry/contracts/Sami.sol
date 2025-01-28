@@ -18,6 +18,9 @@ contract Sami {
     uint256 public fee;
     address public owner;
     Game[] public games;
+
+    mapping(uint256 => Game) game;
+
     uint256 public gamesCreated;
 
     //////////////////////////////////////////
@@ -26,6 +29,9 @@ contract Sami {
 
     event GameCreated(uint256 gameId);
     event GameFinished(uint256 gameId, address[] winners);
+
+    // joingGame event
+    // Withdraw prize event
 
     //////////////////////////////////////////
     // Constructor
@@ -44,6 +50,11 @@ contract Sami {
         _;
     }
 
+    modifier onlyPlayer(uint256 _gameId) {
+        require(games[_gameId].isPlayer[msg.sender], "Only players can call this function");
+        _;
+    }
+
     //////////////////////////////////////////
     // Functions
     //////////////////////////////////////////
@@ -53,12 +64,15 @@ contract Sami {
 
         uint256 _gameId = games.length;
 
-        Game memory newGame =
-            Game({ gameId: _gameId, players: new address[](0), winners: new address[](0), gameFinished: false });
+        // Create a new Game struct and initialize it
+        Game storage newGame = game[_gameId];
+        newGame.gameId = _gameId;
+        newGame.players.push(msg.sender);
+        newGame.isPlayer[msg.sender] = true; // Initialize the mapping
+        newGame.gameFinished = false;
 
+        // Add the new game to the games array
         games.push(newGame);
-
-        games[_gameId].players.push(msg.sender);
         gamesCreated++;
 
         emit GameCreated(newGame.gameId);
