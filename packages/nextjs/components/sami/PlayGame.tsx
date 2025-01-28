@@ -26,10 +26,11 @@ export interface Clock {
 }
 
 export const COLORS = [
+  "text-pink-600",
   "text-red-600",
   "text-green-600",
   "text-blue-600",
-  "text-pink-600",
+  "text-purple-600",
   "text-yellow-600",
   "text-cyan-600",
 ];
