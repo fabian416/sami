@@ -181,41 +181,77 @@ export const castVote = (data: any, socket: Socket, io: Server) => {
   });
 };
 
+
 export const handleMessage = async (data: any, socket: Socket, io: Server) => {
   const { roomId, message, playerId, playerIndex } = data;
 
-  // Validate if the instance exists
+  // Validate if the instance of the game exists
   const game = games[roomId];
   if (!game) {
-    socket.emit("error", { message: "La sala no existe" });
-    return;
+      socket.emit("error", { message: "La sala no existe" });
+      return;
   }
 
-  // Verify if the game has started
+  // Verify if the game has began
   if (game.status !== "active") {
-    socket.emit("error", { message: "La partida no ha comenzado" });
-    return;
+      socket.emit("error", { message: "La partida no ha comenzado" });
+      return;
   }
 
-  // Update the count of the chars a player did
-  addCharsToPlayer(roomId, playerId, message.length);
-
-  // Register the message in the server test purposes only
-  console.log(`Mensaje de ${playerId} en sala ${roomId}: ${message}`);
-
+  // Register the message in supabase
   const { data: dataSupabase, error } = await supabase
-    .from("SAMI")
-    .insert([{ messages: message, room_id: roomId, player_id: playerId }]);
+      .from("SAMI")
+      .insert([{ messages: message, room_id: roomId, player_id: playerId }]);
 
   if (error) {
-    console.log("Error inserting data: ", error);
-  }
-  if (dataSupabase) {
-    console.log(dataSupabase);
+      console.error("[Backend] Error al insertar en Supabase:", error);
+  } else {
+      console.log("[Backend] Mensaje guardado en Supabase:", dataSupabase);
   }
 
-  // Resend the message to all the other players
+  // Reesend to all the players in the room
   io.to(roomId).emit("newMessage", data);
+
+  // Send message to ELIZA by API REST
+  console.log("[Backend] Sendind message to Eliza", { roomId, message, playerId });
+
+  try {
+    const response = await fetch(`http://localhost:3000/SAMI-AGENT/message`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            text: message,
+            userId: playerId,
+            userName: "User",
+        }),
+    });
+
+    //  Get the response as text vefor sending
+    const responseText = await response.text();
+    console.log("[Backend] Response of Eliza (Before JSON parsing):", responseText);
+
+    // Convert into json
+    let responseData;
+    try {
+        responseData = JSON.parse(responseText);
+    } catch (jsonError) {
+        console.error("[Backend] Error parsin JSON Eliza:", jsonError);
+        return; // Detect if it's a valid json
+    }
+
+    // 📌 If ther eis a vald answer is sending by web sockets
+    if (responseData && responseData.length > 0) {
+        const agentMessage = responseData[0].text;
+        console.log(`[Backend] Response of Eliza: ${agentMessage}`);
+
+        io.to(roomId).emit("newMessage", {
+            playerId: "SAMI-AGENT",
+            message: agentMessage,
+        });
+    }
+} catch (error) {
+    console.error("[Backend] Error Comunicating with Eliza:", error);
+}
 };
 
 export const handleGameOver = (
