@@ -1,6 +1,9 @@
 # dependencies
 node_modules
 packages/ai/eliza-starter/.env
+packages/ai/eliza-starter/model.gguf
+packages/ai/eliza-starter/data/db.sqlite
+
 # yarn
 .yarn/*
 !.yarn/patches
