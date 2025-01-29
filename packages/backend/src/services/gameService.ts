@@ -113,15 +113,14 @@ export const startGame = async (roomId: string) => {
 
   console.log(`Game started for room: ${roomId}`);
   console.log(`Players in the game:`);
-  game.players.forEach((player, i) => {
-    const index = i + 1;
-    game.players[i].index = index;
+  game.players.forEach((player, index) => {
+    game.players[index].index = index;
     console.log(`Index: ${index}, ID: ${player.id}, Index: ${index}, Role: ${player.isIA ? "IA" : "Human"}`);
   });
 
   await new Promise((resolve) => setTimeout(resolve, 500)); // Esperar 500ms
 
-  let timeBeforeEnds = 60 * 1000; // 2 * 60 * 1000;
+  let timeBeforeEnds = 2 * 60 * 1000; // 2 * 60 * 1000;
   //let timeBeforeEnds = 20 * 60 * 1000;
   const serverTime = Date.now();
   gameServiceEmitter.emit("gameStarted", { roomId, game, timeBeforeEnds, serverTime });
@@ -203,8 +202,8 @@ const endConversationPhase = async (roomId: string) => {
 
   game.status = "voting";
 
+  //const timeBeforeEnds = 30 * 1000;
   const timeBeforeEnds = 30 * 1000;
-  //const timeBeforeEnds = 30 * 60 * 1000;
   //const timeBeforeEnds = 15 * 1000;
   const serverTime = Date.now();
 
@@ -270,7 +269,7 @@ function startConversationPhase(roomId: string) {
   game.votes = {}; // Reset votes for the new round
   console.log(`Starting conversation phase for room: ${roomId}`);
   
-  const timeBeforeEnds = 60 * 1000;
+  const timeBeforeEnds = 2 * 60 * 1000;
   // const timeBeforeEnds = 2 * 60 * 1000;
   const serverTime = Date.now();
 

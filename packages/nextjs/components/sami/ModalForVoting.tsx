@@ -108,7 +108,7 @@ const VoteModal = ({ players, handleVote }: { players: Player[]; handleVote: any
               className={`btn btn-secondary px-4 py-2 rounded-md transition duration-200 ease-in-out ${COLORS[player.index]}`}
               onClick={() => handleVote(player.index, player.id)}
             >
-              Player {player.index}
+              Player {player.index + 1}
             </button>
           ))}
         </div>

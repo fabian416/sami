@@ -149,14 +149,14 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
               <div className="text-gray-500">Welcome! Ask questions to figure out who SAMI is.</div>
             )}
             <div className={`mt-4 ${isDarkMode ? "text-white" : "text-black"}`}>
-              {messages.map((msg, index) => {
+              {messages.map((msg: any, index) => {
                 const color = COLORS[Number(msg.playerIndex)];
                 return (
                   <div key={index} className={`text-left mb-1 ${color}`}>
                     <span>
                       {msg.playerId ? (
                         <>
-                          <strong>Player {msg.playerIndex}:</strong> {msg.message}
+                          <strong>Player {msg.playerIndex + 1}:</strong> {msg.message}
                         </>
                       ) : (
                         <strong>{msg.message}</strong>
