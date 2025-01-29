@@ -6,7 +6,7 @@ pragma solidity ^0.8.20;
 contract Sami {
     struct Game {
         mapping(address => bool) players;
-        mapping(address => bool) winners;
+        address[] winners;
         uint16 totalPlayers;
         bool gameClosed;
         bool gameFinished;
@@ -17,12 +17,12 @@ contract Sami {
     // State Variables
     //////////////////////////////////////////
 
-    uint256 public fee;
-    address public owner;
     uint16 public maxPlayers;
-    mapping(uint256 => Game) public games;
-    
+    uint256 public fee;
     uint256 public gamesCreated;
+    address public owner;
+
+    mapping(uint256 => Game) public games;
 
     //////////////////////////////////////////
     // Events
@@ -77,7 +77,7 @@ contract Sami {
         emit GameCreated(gameId);
     }
 
-    function joinGame(uint256 gameId) public onlyPlayer(gameId) payable {
+    function joinGame(uint256 gameId) public payable onlyPlayer(gameId) {
         require(msg.value == fee, "Fee is not correct");
         require(gameId < gamesCreated, "Game does not exist");
         require(!games[gameId].gameFinished, "Game is finished");
@@ -87,22 +87,24 @@ contract Sami {
     }
 
     function finishGame(uint256 _gameId, address[] memory _winners) public onlyOwner {
-        require(_gameId < games.length, "Game does not exist");
+        require(_gameId < gamesCreated, "Game does not exist");
         require(!games[_gameId].gameFinished, "Game is finished");
 
-        games[_gameId].winners = _winners;
+        delete games[_gameId].winners;
+        for (uint256 i = 0; i < _winners.length; i++) {
+            games[_gameId].winners.push(_winners[i]);
+        }
         games[_gameId].gameFinished = true;
 
         uint256 totalWinners = _winners.length;
-        uint256 totalPlayers = games[_gameId].players.length;
+        uint256 totalPlayers = games[_gameId].totalPlayers;
         uint256 totalPot = totalPlayers * fee;
 
         for (uint256 i = 0; i < totalWinners; i++) {
             (bool success,) = _winners[i].call{ value: totalPot / totalWinners }("");
             require(success, "Failed to send Ether");
         }
-
-        emit GameFinished(_gameId, _winners);
+        emit GameFinished(_gameId, _winners.length > 0);
     }
 
     function setFee(uint256 _fee) public onlyOwner {
@@ -118,12 +120,8 @@ contract Sami {
     // View Functions
     //////////////////////////////////////////
 
-    function getPlayers(uint256 _gameId) public view returns (address[] memory) {
-        return games[_gameId].players;
-    }
-
     function getNumberOfPlayers(uint256 _gameId) public view returns (uint256) {
-        return games[_gameId].players.length;
+        return games[_gameId].totalPlayers;
     }
 
     function getWinners(uint256 _gameId) public view returns (address[] memory) {
@@ -135,6 +133,6 @@ contract Sami {
     }
 
     function getPot(uint256 _gameId) public view returns (uint256) {
-        return games[_gameId].players.length * fee;
+        return games[_gameId].totalPlayers * fee;
     }
 }
