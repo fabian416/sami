@@ -1,6 +1,6 @@
 # dependencies
 node_modules
-
+packages/ai/eliza-starter/.env
 # yarn
 .yarn/*
 !.yarn/patches
