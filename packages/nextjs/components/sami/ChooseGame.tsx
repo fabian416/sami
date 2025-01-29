@@ -9,7 +9,7 @@ interface Player {
   id: string;
   index: string;
   totalChars: number;
-  isIA: boolean;
+  isAI: boolean;
   isEliminated: boolean;
 }
 

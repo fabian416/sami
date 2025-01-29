@@ -5,6 +5,7 @@ import {
   createOrJoin,
   games,
   calculateNumberOfPlayers,
+  getSamiPlayer,
 } from "../services/gameService";
 import { Server, Socket } from "socket.io";
 import { addCharsToPlayer } from "../services/playerService";
@@ -188,70 +189,80 @@ export const handleMessage = async (data: any, socket: Socket, io: Server) => {
   // Validate if the instance of the game exists
   const game = games[roomId];
   if (!game) {
-      socket.emit("error", { message: "La sala no existe" });
-      return;
+    socket.emit("error", { message: "La sala no existe" });
+    return;
   }
 
   // Verify if the game has began
   if (game.status !== "active") {
-      socket.emit("error", { message: "La partida no ha comenzado" });
-      return;
+    socket.emit("error", { message: "La partida no ha comenzado" });
+    return;
   }
 
-  // Register the message in supabase
-  const { data: dataSupabase, error } = await supabase
-      .from("SAMI")
-      .insert([{ messages: message, room_id: roomId, player_id: playerId }]);
+  // Get the AI player
+  const samiPlayer: any = getSamiPlayer(game);
 
-  if (error) {
-      console.error("[Backend] Error al insertar en Supabase:", error);
-  } else {
-      console.log("[Backend] Mensaje guardado en Supabase:", dataSupabase);
-  }
+  // Start the request to the AI without waiting
+  const aiResponsePromise = fetch(`http://localhost:3000/SAMI-AGENT/message`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      text: `You are Player ${samiPlayer.index + 1} and Player ${
+        playerIndex + 1
+      } send this to the group chat: ${message}`,
+      userId: playerId,
+      userName: playerIndex,
+    }),
+  });
 
-  // Reesend to all the players in the room
-  io.to(roomId).emit("newMessage", data);
-
-  // Send message to ELIZA by API REST
-  console.log("[Backend] Sendind message to Eliza", { roomId, message, playerId });
-
-  try {
-    const response = await fetch(`http://localhost:3000/SAMI-AGENT/message`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            text: message,
-            userId: playerId,
-            userName: "User",
-        }),
+  // Register the message in Supabase in parallel
+  const supabasePromise = supabase
+    .from("SAMI")
+    .insert([{ messages: message, room_id: roomId, player_id: playerId }])
+    .then(({ data: dataSupabase, error }) => {
+      if (error) {
+        console.error("[Backend] Error al insertar en Supabase:", error);
+      } else {
+        console.log("[Backend] Mensaje guardado en Supabase:", dataSupabase);
+      }
     });
 
-    //  Get the response as text vefor sending
-    const responseText = await response.text();
-    console.log("[Backend] Response of Eliza (Before JSON parsing):", responseText);
+  // Emit message to all players in the room immediately
+  io.to(roomId).emit("newMessage", data);
 
-    // Convert into json
+  try {
+    // Wait for AI response
+    const response = await aiResponsePromise;
+    const responseText = await response.text();
+    console.log(
+      "[Backend] Response of Eliza (Before JSON parsing):",
+      responseText
+    );
+
     let responseData;
     try {
-        responseData = JSON.parse(responseText);
+      responseData = JSON.parse(responseText);
     } catch (jsonError) {
-        console.error("[Backend] Error parsin JSON Eliza:", jsonError);
-        return; // Detect if it's a valid json
+      console.error("[Backend] Error parsing JSON from Eliza:", jsonError);
+      return;
     }
 
-    // 📌 If ther eis a vald answer is sending by web sockets
     if (responseData && responseData.length > 0) {
-        const agentMessage = responseData[0].text;
-        console.log(`[Backend] Response of Eliza: ${agentMessage}`);
+      const agentMessage = responseData[0].text;
+      console.log(`[Backend] Response of Eliza: ${agentMessage}`);
 
-        io.to(roomId).emit("newMessage", {
-            playerId: "SAMI-AGENT",
-            message: agentMessage,
-        });
+      io.to(roomId).emit("newMessage", {
+        playerId: samiPlayer.id,
+        playerIndex: samiPlayer.index,
+        message: agentMessage,
+      });
     }
-} catch (error) {
-    console.error("[Backend] Error Comunicating with Eliza:", error);
-}
+  } catch (error) {
+    console.error("[Backend] Error communicating with Eliza:", error);
+  }
+
+  // Wait for the Supabase insert to finish, but don't block the AI response
+  await supabasePromise;
 };
 
 export const handleGameOver = (

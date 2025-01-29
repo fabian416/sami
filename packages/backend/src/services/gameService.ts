@@ -115,7 +115,7 @@ export const startGame = async (roomId: string) => {
   console.log(`Players in the game:`);
   game.players.forEach((player, index) => {
     game.players[index].index = index;
-    console.log(`Index: ${index}, ID: ${player.id}, Index: ${index}, Role: ${player.isIA ? "IA" : "Human"}`);
+    console.log(`Index: ${index}, ID: ${player.id}, Index: ${index}, Role: ${player.isAI ? "AI" : "Human"}`);
   });
 
   await new Promise((resolve) => setTimeout(resolve, 500)); // Esperar 500ms
@@ -234,8 +234,8 @@ export const endVotingPhase = (roomId: string) => {
       eliminatePlayer(votedPlayer);
 
       // Check if the player eliminated was the IA
-      if (votedPlayer.isIA) {
-        console.log("IA was eliminated. Game over.");
+      if (votedPlayer.isAI) {
+        console.log("AI was eliminated. Game over.");
         game.status = "finished";
         gameServiceEmitter.emit("gameOver", { roomId, winner: "humans" });
         return;
@@ -292,4 +292,9 @@ export const calculateNumberOfPlayers = ({roomId}: {roomId: string}) => {
   const partialAmountOfPlayers = _.size(game.players);
   const amountOfPlayers = partialAmountOfPlayers > MIN_PLAYERS ? MIN_PLAYERS : partialAmountOfPlayers;
   return [amountOfPlayers, MIN_PLAYERS];
+}
+
+export const getSamiPlayer = (game: Game) => {
+  return _.find(game.players, { isAI: true });
+
 }
