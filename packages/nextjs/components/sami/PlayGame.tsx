@@ -26,13 +26,13 @@ export interface Clock {
 }
 
 export const COLORS = [
-  "text-pink-600",
-  "text-red-600",
-  "text-green-600",
-  "text-blue-600",
-  "text-purple-600",
-  "text-yellow-600",
-  "text-cyan-600",
+  "text-pink-400",
+  "text-red-400",
+  "text-green-400",
+  "text-blue-400",
+  "text-orange-400",
+  "text-yellow-400",
+  "text-cyan-400",
 ];
 
 export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
@@ -140,13 +140,13 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
         )}
         <div
           className={`col-span-2 md:col-span-1 flex flex-col items-center justify-between p-4 rounded-2xl shadow-lg overflow-y-scroll
-          ${!isPlayerEliminated && isDarkMode ? "bg-base-300" : !isPlayerEliminated ? "bg-white" : ""}`}
+          ${!isPlayerEliminated && isDarkMode ? "bg-[#2c2171]" : !isPlayerEliminated ? "bg-white" : ""}`}
         >
           <div className="flex-1 w-full p-2 overflow-y-scroll">
             {isPlayerEliminated ? (
               <div className="text-gray-500">Eliminated</div>
             ) : (
-              <div className="text-gray-500">Welcome! Ask questions to figure out who SAMI is.</div>
+              <div className="text-gray-300">Welcome! Ask questions to figure out who SAMI is.</div>
             )}
             <div className={`mt-4 ${isDarkMode ? "text-white" : "text-black"}`}>
               {messages.map((msg: any, index) => {
@@ -184,7 +184,7 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
             />
             <button
               disabled={isPlayerEliminated}
-              className={`p-2 text-white focus:outline-none focus:ring-2 rounded-r-lg ${isPlayerEliminated ? "bg-gray-600 hover:bg-gray-800  focus:ring-gray-500" : "bg-blue-500 hover:bg-blue-600 focus:ring-blue-500"}`}
+              className={`p-2  text-white focus:outline-none focus:ring-2 rounded-r-lg ${isPlayerEliminated ? "bg-gray-600 hover:bg-gray-800  focus:ring-gray-500" : "bg-[#1CA297] hover:bg-[#33B3A8] focus:ring-[#1CA297]"}`}
               onClick={() => {
                 if (inputRef.current?.value.trim()) {
                   sendMessage(inputRef.current.value.trim());
