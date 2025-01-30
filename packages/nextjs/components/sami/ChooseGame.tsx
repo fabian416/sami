@@ -69,7 +69,7 @@ export const ChooseGame = ({ showGame }: any) => {
     <>
       {loading && <ModalWaitingForPlayers />}
       <div className="flex md:flex-row flex-col justify-evenly items-center w-full gap-10 md:gap-8">
-        <div className="card bg-[#1CA297] text-white max-w-sm md:w-96 shadow-xl mx-4">
+        <div className="card bg-[#1CA297] text-white glow-cyan max-w-sm md:w-96 shadow-xl mx-4">
           <div className="card-body">
             <h2 className="card-title">Enter free game!</h2>
             <p className="h-10">Play a game of SAMI for free!</p>
@@ -84,7 +84,7 @@ export const ChooseGame = ({ showGame }: any) => {
             </div>
           </div>
         </div>
-        <div className="card bg-[#2c2171] text-white max-w-sm md:w-96 shadow-xl mx-4">
+        <div className="card bg-[#2c2171] text-white glow-purple max-w-sm md:w-96 shadow-xl mx-4">
           <div className="card-body">
             <h2 className="card-title">Enter betting game!</h2>
             <p className="h-10">Bet 2 USDC and try to win a game of SAMI!</p>

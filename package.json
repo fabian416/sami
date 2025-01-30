@@ -11,6 +11,8 @@
     "account": "yarn foundry:account",
     "account:generate": "yarn foundry:generate",
     "account:import": "yarn foundry:account-import",
+    "ai:build": "yarn workspace ai/eliza-starter run build",
+    "ai:dev": "yarn workspace backend run dev",
     "backend:build": "yarn workspace backend run build",
     "backend:dev": "yarn workspace backend run dev",
     "chain": "yarn foundry:chain",
