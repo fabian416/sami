@@ -72,8 +72,8 @@ export const ChooseGame = ({ showGame }: any) => {
         <div className="card bg-[#1CA297] text-white glow-cyan max-w-sm md:w-96 shadow-xl mx-4">
           <div className="card-body">
             <h2 className="card-title">Enter free game!</h2>
-            <p className="h-10">Play a game of SAMI for free!</p>
-            <div className="card-actions justify-end">
+            <p className="h-10 w-auto">Play a free game against SAMI!</p>
+            <div className="card-actions justify-end flex">
               <button
                 className="btn btn-primary bg-white text-[#1CA297] hover:text-[#1CA297] hover:bg-white border-0"
                 onClick={handleEnterGame}
@@ -87,8 +87,8 @@ export const ChooseGame = ({ showGame }: any) => {
         <div className="card bg-[#2c2171] text-white glow-purple max-w-sm md:w-96 shadow-xl mx-4">
           <div className="card-body">
             <h2 className="card-title">Enter betting game!</h2>
-            <p className="h-10">Bet 2 USDC and try to win a game of SAMI!</p>
-            <div className="card-actions justify-end">
+            <p className="h-10 w-auto">Bet 2 USDC and try to win a game of SAMI!</p>
+            <div className="card-actions justify-end flex">
               {connectedAddress ? (
                 <button className="btn btn-primary bg-[#1CA297] hover:bg-[#1B9086] dark:bg-[#249C8E] dark:hover:bg-[#1B9086] text-white border-0">
                   Approve 2 USDC
