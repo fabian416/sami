@@ -75,7 +75,7 @@ export const ChooseGame = ({ showGame }: any) => {
             <p className="h-10">Play a game of SAMI for free!</p>
             <div className="card-actions justify-end">
               <button
-                className="btn btn-primary bg-white text-[#1CA297] hover:text-[#1CA297] hover:bg-white  border-0"
+                className="btn btn-primary bg-white text-[#1CA297] hover:text-[#1CA297] hover:bg-white border-0"
                 onClick={handleEnterGame}
                 disabled={loading}
               >

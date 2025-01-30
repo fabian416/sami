@@ -194,56 +194,55 @@ export const handleMessage = async (data: any, socket: Socket, io: Server) => {
     .from("SAMI")
     .insert([{ messages: message, room_id: roomId, player_id: playerId }])
     .then(({ error }) => {
-      if (error) {
-        console.error("[Backend] Error al insertar en Supabase:", error);
-      }
+      if (error) console.error("[Backend] Error al insertar en Supabase:", error);
     });
 
   // Emitir mensaje a todos los jugadores de la sala inmediatamente
   io.to(roomId).emit("newMessage", data);
 
+  let supabasePromise2: any = null;
   try {
     // ⏳ Timeout de 8 segundos para la respuesta de la IA
-    const response = await Promise.race([
-      aiResponsePromise,
-      new Promise((_, reject) =>
+    const responseText = await Promise.race([
+      aiResponsePromise.then((res) => res.text()), // Convierte Response a string antes de la carrera
+      new Promise<string>((_, reject) =>
         setTimeout(() => reject(new Error("Timeout: AI response took too long")), 8000)
       ),
     ]);
-
-    if (!(response instanceof Response)) {
-      return console.error("[Backend] AI did not return a valid response");
-    }
-
-    const responseText = await response.text();
+  
     console.log(`[${roomId}] Output of Sami: ${responseText}`);
-    let responseData;
-    try {
-      responseData = JSON.parse(responseText);
-    } catch (jsonError) {
-      return console.error("[Backend] Error parsing JSON from Eliza:", jsonError);
+    const responseData = safeParseJSON(responseText);
+    if (!responseData) {
+      console.error("[Backend] Invalid AI response.");
+      return await supabasePromise; // Asegurar que la primera escritura en Supabase termine antes de salir.
     }
 
-    if (responseData && responseData.length > 0) {
-      const agentMessage = responseData[0].text;
-      if (game.status === "active" && responseData[0].action !== "IGNORE") {
-        const endTime = Date.now();
-        const elapsedTimeSeconds = (endTime - startTime) / 1000;
-        console.log(`[${roomId}] Time taken for AI response: ${elapsedTimeSeconds} seconds.`);
+    const agentMessage = responseData[0].text;
+    if (responseData.length > 0 && game.status === "active" && responseData[0].action !== "IGNORE") {
+      const endTime = Date.now();
+      const elapsedTimeSeconds = (endTime - startTime) / 1000;
+      console.log(`[${roomId}] Time taken for AI response: ${elapsedTimeSeconds} seconds.`);
 
-        io.to(roomId).emit("newMessage", {
-          playerId: samiPlayer.id,
-          playerIndex: samiPlayer.index,
-          message: agentMessage,
-        });
-      }
+      supabasePromise2 = supabase
+        .from("SAMI")
+        .insert([{ messages: agentMessage, room_id: roomId, player_id: samiPlayer.id }])
+        .then(({ error }) => {
+          if (error) console.error("[Backend] Error al insertar en Supabase:", error);
+        })
+
+      io.to(roomId).emit("newMessage", {
+        playerId: samiPlayer.id,
+        playerIndex: samiPlayer.index,
+        message: agentMessage,
+      });
     }
+    
   } catch (error) {
     console.error("[Backend] AI Response Timeout or Error:", error);
   }
 
   // Esperar que Supabase termine, pero sin bloquear el proceso
-  await supabasePromise;
+  await Promise.all([supabasePromise, supabasePromise2].filter(Boolean));
 };
 
 
@@ -271,4 +270,13 @@ export const getGame = (req: Request, res: Response) => {
 
   res.status(200).json(game);
   return;
+};
+
+const safeParseJSON = (text: string): any | null => {
+  try {
+    return JSON.parse(text);
+  } catch (error) {
+    console.error("[Backend] Error parsing JSON:", error);
+    return null;
+  }
 };
