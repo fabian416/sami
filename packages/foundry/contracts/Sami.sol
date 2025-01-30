@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+ // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
 // Sami is a game where players pay a fee to enter, and the winner or winners get the pot.
@@ -9,6 +9,7 @@ contract Sami {
         address[] players;
         address[] winners;
         bool gameFinished;
+        mapping(address => bool)isPlayer;
     }
 
     //////////////////////////////////////////
@@ -17,9 +18,8 @@ contract Sami {
 
     uint256 public fee;
     address public owner;
-    Game[] public games;
-
-    mapping(uint256 => Game) game;
+ 
+    mapping(uint256 => Game) games;
 
     uint256 public gamesCreated;
 
@@ -62,17 +62,15 @@ contract Sami {
     function createGame() public payable {
         require(msg.value == fee, "Fee is not correct");
 
-        uint256 _gameId = games.length;
+        uint256 _gameId = gamesCreated;
 
         // Create a new Game struct and initialize it
-        Game storage newGame = game[_gameId];
+        Game storage newGame = games[_gameId];
         newGame.gameId = _gameId;
         newGame.players.push(msg.sender);
         newGame.isPlayer[msg.sender] = true; // Initialize the mapping
         newGame.gameFinished = false;
 
-        // Add the new game to the games array
-        games.push(newGame);
         gamesCreated++;
 
         emit GameCreated(newGame.gameId);
@@ -80,7 +78,7 @@ contract Sami {
 
     function joinGame(uint256 _gameId) public payable {
         require(msg.value == fee, "Fee is not correct");
-        require(_gameId < games.length, "Game does not exist");
+        require(_gameId < gamesCreated, "Game does not exist");
         require(!games[_gameId].gameFinished, "Game is finished");
 
         // Get list of players then verify if the player is already in the game
@@ -93,7 +91,7 @@ contract Sami {
     }
 
     function finishGame(uint256 _gameId, address[] memory _winners) public onlyOwner {
-        require(_gameId < games.length, "Game does not exist");
+        require(_gameId < gamesCreated, "Game does not exist");
         require(!games[_gameId].gameFinished, "Game is finished");
 
         games[_gameId].winners = _winners;
