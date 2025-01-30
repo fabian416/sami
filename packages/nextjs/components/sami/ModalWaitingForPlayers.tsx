@@ -39,7 +39,7 @@ export const ModalWaitingForPlayers = () => {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-[#2c2171] text-white rounded-2xl items-center justify-center p-8">
+      <div className="bg-[#2c2171] glow-purple text-white rounded-2xl items-center justify-center p-8">
         <div className="flex items-center justify-center text-center flex-col gap-4">
           <span>
             <strong>Waiting for other players to join</strong>

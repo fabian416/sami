@@ -3,7 +3,7 @@ import Image from "next/image";
 export const ModalFinished = ({ winner }: any) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-[#2c2171] rounded-2xl items-center justify-center">
+      <div className="bg-[#2c2171] glow-purple rounded-2xl items-center justify-center">
         <div className="flex items-center justify-center text-center text-2xl flex-col gap-2 py-8 px-16">
           {winner === "humans" ? <strong>Humans won</strong> : <strong>SAMI won</strong>}
           <div className="w-48 h-48">

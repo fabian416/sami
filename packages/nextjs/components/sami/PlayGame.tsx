@@ -131,19 +131,13 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
 
       <div className="flex-grow grid grid-cols-2 gap-3 rounded-2xl backdrop-brightness-95 flex-col md:h-[calc(100vh-8rem)]">
         {!isMobile && (
-          <div className="flex items-center justify-center overflow-hidden rounded-2xl">
-            <Image
-              src="/sami-team.webp"
-              className="w-auto h-auto object-cover"
-              alt="Game Banner"
-              width={500}
-              height={500}
-            />
+          <div className="flex items-center justify-center glow-purple overflow-hidden rounded-2xl">
+            <Image src="/sami-team.webp" className="object-cover " alt="Game Banner" width={500} height={500} />
           </div>
         )}
         <div
           className={`col-span-2 md:col-span-1 flex flex-col items-center justify-between p-4 rounded-2xl shadow-lg overflow-y-scroll
-          ${!isPlayerEliminated && isDarkMode ? "bg-[#2c2171]" : !isPlayerEliminated ? "bg-white" : ""}`}
+          ${!isPlayerEliminated && isDarkMode ? "bg-[#2c2171] glow-purple" : !isPlayerEliminated ? "bg-white" : "bg-base-100"}`}
         >
           <div className="flex-1 w-full p-2 overflow-y-scroll">
             {isPlayerEliminated ? (

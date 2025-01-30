@@ -30,3 +30,11 @@ p {
 .btn.btn-ghost {
   @apply shadow-none;
 }
+
+.glow-cyan {
+  box-shadow: 0 0 15px 5px rgba(28, 162, 151, 0.6);
+}
+
+.glow-purple {
+  box-shadow: 0 0 20px 10px rgba(44, 33, 113, 0.6); /* Updated to use #2c2171 */
+}
