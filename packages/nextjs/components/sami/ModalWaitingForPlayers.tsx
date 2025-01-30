@@ -32,8 +32,6 @@ export const ModalWaitingForPlayers = () => {
   useEffect(() => {
     if (!socket) return;
     socket.on("numberOfPlayers", (data: { amountOfPlayers: number; neededPlayers: number }) => {
-      console.log("llego respuesta");
-      console.log({ amountOfPlayers });
       setAmountOfPlayers(data.amountOfPlayers);
       setMinPlayers(data.neededPlayers);
     });

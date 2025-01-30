@@ -17,6 +17,8 @@ const gameServiceEmitter = new GameServiceEmitter();
 export default gameServiceEmitter;
 
 const MIN_PLAYERS = 3;
+const CONVERTATION_PHASE_TIME = 2 * 60 * 1000;
+const VOTING_PHASE_TIME = 30 * 1000;
 
 interface Game {
   roomId: string;
@@ -82,7 +84,6 @@ export const joinGame = (roomId: string, playerId: string): boolean => {
 
   // If the game reaches 5 players, add SAMI and start the game
   if (game.players.length === MIN_PLAYERS) {
-    // 5) {
     const samiID = uuidv4();
     const samiPlayer = createPlayer(samiID, true);
     game.players.push(samiPlayer); // Add SAMI as the sixth player
@@ -106,22 +107,18 @@ export const startGame = async (roomId: string) => {
 
   // Shuffle the players randomly
   game.players = _.shuffle(game.players);
-
-  // Logic to start the round
   game.status = "active";
   game.round = 1;
 
-  console.log(`Game started for room: ${roomId}`);
-  console.log(`Players in the game:`);
+  console.log(`[${roomId}] Starting game...`);
+  console.log(`[${roomId}] Players in the game:`);
   game.players.forEach((player, index) => {
     game.players[index].index = index;
     console.log(`Index: ${index}, ID: ${player.id}, Index: ${index}, Role: ${player.isAI ? "AI" : "Human"}`);
   });
 
   await new Promise((resolve) => setTimeout(resolve, 500)); // Esperar 500ms
-
-  let timeBeforeEnds = 2 * 15 * 1000; // 2 * 60 * 1000;
-  //let timeBeforeEnds = 20 * 60 * 1000;
+  const timeBeforeEnds = CONVERTATION_PHASE_TIME;
   const serverTime = Date.now();
   gameServiceEmitter.emit("gameStarted", { roomId, game, timeBeforeEnds, serverTime });
   await new Promise((resolve) => setTimeout(resolve, 100)); // Esperar 100ms
@@ -175,13 +172,16 @@ export const recordVote = (
 
   // Register vote
   game.votes[voterId] = votedPlayerId;
-  console.log(
-    `[recordVote] Voter ${voterId} (${voter.index}) voted for ${votedPlayerId} in room: ${roomId}`
-  );
+  console.log(`[${roomId}] Voter ${voterId} (Player ${voter.index}) voted for ${votedPlayerId} (Player ${votedPlayer.index}).`);
   gameServiceEmitter.emit("voteSubmitted", { roomId, voterId, votedId: votedPlayerId });
 
-  if (game.votes && Object.keys(game.votes).length === game.players.length) {
-    endVotingPhase(roomId)
+  // Filtrar solo los jugadores que no han sido eliminados
+  const activePlayers = game.players.filter(player => !player.isEliminated);
+  const totalVotes = Object.keys(game?.votes).length;
+
+  // Comparar solo con la cantidad de jugadores activos
+  if (game.votes && totalVotes === activePlayers.length) {
+    endVotingPhase(roomId);
   }
 
   return true;
@@ -190,7 +190,7 @@ export const recordVote = (
 const endConversationPhase = async (roomId: string) => {
   const game = games[roomId];
 
-  console.log(`Ending conversation phase for room: ${roomId}`);
+  console.log(`[${roomId}] Ending conversation phase...`);
 
   // Deactivate the elimination of min 20 charracters test purposes
   /*
@@ -204,10 +204,7 @@ const endConversationPhase = async (roomId: string) => {
     */
 
   game.status = "voting";
-
-  //const timeBeforeEnds = 30 * 1000;
-  const timeBeforeEnds = 2 * 60 * 1000;
-  //const timeBeforeEnds = 15 * 1000;
+  const timeBeforeEnds = VOTING_PHASE_TIME;
   const serverTime = Date.now();
 
   gameServiceEmitter.emit("conversationEnded", { roomId });
@@ -217,12 +214,12 @@ const endConversationPhase = async (roomId: string) => {
 
   const samiPlayer: any = getSamiPlayer(game);
   const body = JSON.stringify({
-    text: `You are Player ${samiPlayer.index}. The round has ended. You must now vote for one of these players: ${game.players.map((p) =>  " " + p.index)}. Respond only with a number. No extra words, just the number. You never are gonna be able to vote for yourself. Take into account if a player has accused you.`,
-    userId: "",
-    userName: "",
+    text: `The round has ended. You are Player ${samiPlayer.index}. You must now vote for one of these players: ${game.players.map((p) =>  " " + p.index)}. Respond only with a number. No extra words, just the number. You never are gonna be able to vote for yourself. For issuing your vote take into account the whole interactions and if a player has accused you of being the AI.`,
+    userId: "NO USER THIS IS A COMMAND FOR VOTING",
+    userName: "NO USER THIS IS A COMMAND FOR VOTING",
   });
 
-  console.log({body})
+  console.log(`[${roomId}] Input to Sami: ${body}`)
   // Start the request to the AI without waiting
   const aiResponsePromise = fetch(`http://localhost:3000/SAMI-AGENT/message`, {
     method: "POST",
@@ -234,7 +231,7 @@ const endConversationPhase = async (roomId: string) => {
     // Wait for AI response
     const response = await aiResponsePromise;
     const responseText = await response.text();
-    console.log("[Backend] Response of Eliza (Before JSON parsing):", responseText);
+    console.log(`[${roomId}] Output of Sami: ${responseText}.`);
     let responseData;
     try {
       responseData = JSON.parse(responseText);
@@ -245,11 +242,13 @@ const endConversationPhase = async (roomId: string) => {
 
     if (responseData && responseData.length > 0) {
       const agentMessage = responseData[0].text;
-      console.log(`[Backend] Response of Eliza: ${agentMessage}`);
-
       const votedPlayer: any = getSafePlayerIndex(roomId, agentMessage, samiPlayer.index);
       // Register the vote
       const voterId = samiPlayer.id;
+
+      // Esperar un tiempo aleatorio antes de votar (entre 0 y 15 segundos)
+      const randomDelay = Math.floor(Math.random() * (15 * 1000)); // Entre 0 y 15000 ms (0-15 segundos)
+      await new Promise((resolve) => setTimeout(resolve, randomDelay));
       const success = recordVote(roomId, voterId, votedPlayer.id);
       if (!success) {
         console.error(
@@ -267,7 +266,7 @@ const endConversationPhase = async (roomId: string) => {
 export const endVotingPhase = (roomId: string) => {
   const game = games[roomId];
   if (!game || game.status !== "voting") return; // Make sure game is in 'voting' phase
-  console.log(`Ending voting phase for room: ${roomId}`);
+  console.log(`[${roomId}] Ending voting phase...`);
 
   // 1. Count votes
   const voteCount = _.countBy(Object.values(game.votes));
@@ -280,28 +279,27 @@ export const endVotingPhase = (roomId: string) => {
 
   // 4. If there's only one player with max votes, eliminate them. Otherwise, no one is eliminated.
   const eliminatedPlayerId = maxVotedPlayers.length === 1 ? maxVotedPlayers[0] : null;
+  const votedPlayer: Player | null = typeof eliminatedPlayerId === "number"
+    ? _.find(game.players, { id: eliminatedPlayerId }) ?? null
+    : null;
 
   // Process the result of the votation
-  if (eliminatedPlayerId) {
-    const votedPlayer = _.find(game.players, { id: eliminatedPlayerId });
-    if (votedPlayer) {
-      eliminatePlayer(votedPlayer);
+  if (votedPlayer) {
+    eliminatePlayer(votedPlayer);
 
-      // Check if the player eliminated was the IA
-      if (votedPlayer.isAI) {
-        console.log("AI was eliminated. Game over.");
-        game.status = "finished";
-        gameServiceEmitter.emit("gameOver", { roomId, winner: "humans" });
-        return;
-      }
-
-      console.log(`Player ${votedPlayer.id} eliminated as a result of the vote.`);
-      // Emit an event to inform clients
-      gameServiceEmitter.emit("playerEliminated", {
-        roomId,
-        playerId: votedPlayer.id,
-      });
+    // Check if the player eliminated was the IA
+    if (votedPlayer.isAI) {
+      game.status = "finished";
+      gameServiceEmitter.emit("gameOver", { roomId, winner: "humans" });
+      return;
     }
+
+    // Emit an event to inform clients
+    gameServiceEmitter.emit("playerEliminated", {
+      roomId,
+      playerId: votedPlayer.id,
+    });
+    
   }
 
   // Decide what continue after the votation
@@ -310,7 +308,7 @@ export const endVotingPhase = (roomId: string) => {
     game.status = "active"; // Cambiar el estado para seguir jugando
     setTimeout(() => startConversationPhase(roomId), 1000); // Initiate another phase of conversation after 1 second
   } else {
-    console.log("Maximum rounds reached and no clear decision. Game over.");
+    console.log(`[${roomId}] Maximum rounds reached and no clear decision.`);
     game.status = "finished"; // Finalizar el juego después de las rondas máximas
     gameServiceEmitter.emit("gameOver", { roomId, winner: "ia" });
   }
@@ -321,15 +319,11 @@ function startConversationPhase(roomId: string) {
   if (!game || game.status !== "active") return;
 
   game.votes = {}; // Reset votes for the new round
-  console.log(`Starting conversation phase for room: ${roomId}`);
+  console.log(`[${roomId}] Starting conversation phase...`);
   
-  const timeBeforeEnds = 2 * 60 * 1000;
-  // const timeBeforeEnds = 2 * 60 * 1000;
+  const timeBeforeEnds = CONVERTATION_PHASE_TIME;
   const serverTime = Date.now();
-
   gameServiceEmitter.emit("startConversation", { roomId, timeBeforeEnds, serverTime });
-
-  // Logic for the conversation phase (e.g., allow players to chat for two minutes)
   setTimeout(() => { endConversationPhase(roomId) }, timeBeforeEnds);
 }
 

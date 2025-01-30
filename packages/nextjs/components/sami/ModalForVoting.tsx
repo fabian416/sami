@@ -64,7 +64,6 @@ export const ModalForVoting = ({
       return;
     }
 
-    console.log("Votando...");
     socket.emit("castVote", { roomId, voterId: playerId, voteIndex: votedPlayerIndex, votedId: votedPlayerId });
     setCastedVote(true);
   };

@@ -30,7 +30,6 @@ export const ChooseGame = ({ showGame }: any) => {
       serverTime: number;
     }) => {
       setRoomId(data.roomId); // Almacena el roomId en el contexto
-      console.log("Game started:", data.roomId);
       showGame({ timeBeforeEnds: data.timeBeforeEnds, serverTime: data.serverTime });
     };
 
@@ -57,7 +56,6 @@ export const ChooseGame = ({ showGame }: any) => {
       (response: { message(arg0: string, message: any): unknown; success: boolean; roomId: string }) => {
         setLoading(false);
         if (response.success && response.roomId) {
-          console.log("Joined game:", response.roomId);
           setRoomId(response.roomId); // Almacena el roomId en el contexto tras unirse
         } else {
           console.error("Failed to join game:", response.message);

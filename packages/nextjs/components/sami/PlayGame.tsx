@@ -47,6 +47,7 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
   const { socket, playerIndex, playerId, setPlayerIndex, roomId, isPlayerEliminated } = useSocket();
   const { resolvedTheme } = useTheme();
   const isDarkMode = resolvedTheme === "dark";
+  const disabledChat = isPlayerEliminated || currentPhase === "voting";
 
   useEffect(() => {
     if (timeForFirstRound) {
@@ -73,14 +74,12 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
     if (!socket) return;
 
     socket.on("newMessage", (data: Message) => {
-      console.log(data);
       setMessages(prev => [...prev, data]);
     });
 
     socket.on("startConversationPhase", (data: { message: string; timeBeforeEnds: number; serverTime: number }) => {
       setCurrentPhase("conversation");
       setClockTimer({ timeBeforeEnds: data.timeBeforeEnds, serverTime: data.serverTime });
-      console.log(data.message);
     });
 
     socket.on(
@@ -89,14 +88,12 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
         setCurrentPhase("voting");
         setPlayers(data.players);
         setClockTimer({ timeBeforeEnds: data.timeBeforeEnds, serverTime: data.serverTime });
-        console.log(data.message);
       },
     );
 
     socket.on("gameOver", (data: { winner: string; message: string }) => {
       setCurrentPhase("finished");
       setWinner(data.winner);
-      console.log(data.message);
     });
 
     return () => {
@@ -135,7 +132,13 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
       <div className="flex-grow grid grid-cols-2 gap-3 rounded-2xl backdrop-brightness-95 flex-col md:h-[calc(100vh-8rem)]">
         {!isMobile && (
           <div className="flex items-center justify-center overflow-hidden rounded-2xl">
-            <Image src="/sami-team.webp" className="object-cover" alt="Game Banner" width={500} height={500} />
+            <Image
+              src="/sami-team.webp"
+              className="w-auto h-auto object-cover"
+              alt="Game Banner"
+              width={500}
+              height={500}
+            />
           </div>
         )}
         <div
@@ -172,7 +175,7 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
             <input
               ref={inputRef}
               type="text"
-              disabled={isPlayerEliminated}
+              disabled={disabledChat}
               className={`flex-1 p-2 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${isPlayerEliminated ? "bg-gray-500 border-gray-300" : "border-gray-300"}`}
               placeholder={isPlayerEliminated ? "" : "Type your message..."}
               onKeyDown={e => {
@@ -183,7 +186,7 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
               }}
             />
             <button
-              disabled={isPlayerEliminated}
+              disabled={disabledChat}
               className={`p-2  text-white focus:outline-none focus:ring-2 rounded-r-lg ${isPlayerEliminated ? "bg-gray-600 hover:bg-gray-800  focus:ring-gray-500" : "bg-[#1CA297] hover:bg-[#33B3A8] focus:ring-[#1CA297]"}`}
               onClick={() => {
                 if (inputRef.current?.value.trim()) {

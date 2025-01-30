@@ -46,17 +46,14 @@ io.on('connection', (socket) => {
     });
   
     socket.on('castVote', (data) => {
-      console.log(`[castVote] Received data:`, JSON.stringify(data));
       try {
           gameController.castVote(data, socket, io);
-          console.log(`[castVote] Vote processed successfully for room: ${data.roomId}`);
       } catch (error) {
           console.error(`[castVote] Error processing vote for room: ${data.roomId}`, error);
       }
     });
 
     socket.on("message", (data) => {
-    console.log(`message: Received data:`, data);
     try {
         gameController.handleMessage(data, socket, io);
     } catch (error) {
@@ -68,7 +65,6 @@ io.on('connection', (socket) => {
     });
 
     socket.on("getPlayerIndex", (data) => {
-        console.log(`message: Received data:`, data);
         try {
             playerController.getPlayerIndex(data);
         } catch (error) {
@@ -79,7 +75,6 @@ io.on('connection', (socket) => {
     });
 
     socket.on("getPlayerRoomId", (data) => {
-        console.log(`message: Received data:`, data);
         try {
             const roomId = playerController.getPlayerRoomId(data);
             players[socket.id] = { 

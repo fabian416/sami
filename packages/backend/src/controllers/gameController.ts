@@ -8,7 +8,6 @@ import {
   getSamiPlayer,
 } from "../services/gameService";
 import { Server, Socket } from "socket.io";
-import { addCharsToPlayer } from "../services/playerService";
 import { io } from "../server";
 import gameServiceEmitter from "../services/gameService";
 import supabase from "../config/supabaseClient";
@@ -22,19 +21,14 @@ gameServiceEmitter.on("startConversation", (data: { roomId: string, timeBeforeEn
   });
 });
 
-gameServiceEmitter.on("conversationEnded", (data: any) => {
-  console.log(`Conversation phase ended for room: ${data.roomId}`);
-});
+gameServiceEmitter.on("conversationEnded", (data: any) => {});
 
 gameServiceEmitter.on("voteSubmitted", (data: {roomId: string, voterId: string, votedId: string}) => {
-  console.log(`Conversation phase ended for room: ${data.roomId}`);
   io.to(data.roomId).emit("voteSubmitted", { voterId: data.voterId, votedId: data.votedId });
 });
 
 gameServiceEmitter.on("playerEliminated", (data: { roomId: string, playerId: string }) => {
-  console.log(
-    `Notifying clients: Player ${data.playerId} was eliminated from room ${data.roomId}`
-  );
+  console.log(`[${data.roomId}] Player ${data.playerId} was eliminated.`);
   io.to(data.roomId).emit("playerEliminated", { playerId: data.playerId });
 });
 
@@ -47,7 +41,7 @@ gameServiceEmitter.on("startVoting", (data: {roomId: string, timeBeforeEnds: num
     .filter((player) => !player.isEliminated)
     .map((player) => ({ id: player.id, index: player.index }));
 
-  console.log(`Starting voting phase for room: ${data.roomId}`);
+  console.log(`[${data.roomId}] Starting voting phase.`);
   io.to(data.roomId).emit("startVotePhase", {
     message: "Voting phase has started",
     roomId: data.roomId,
@@ -58,7 +52,7 @@ gameServiceEmitter.on("startVoting", (data: {roomId: string, timeBeforeEnds: num
 });
 
 gameServiceEmitter.on("gameStarted", ({ roomId, game, timeBeforeEnds, serverTime }) => {
-  console.log(`Game started for room: ${roomId}`);
+  console.log(`[${roomId}] Game started.`);
   io.to(roomId).emit("gameStarted", {
     roomId: game.roomId,
     players: game.players,
@@ -68,7 +62,7 @@ gameServiceEmitter.on("gameStarted", ({ roomId, game, timeBeforeEnds, serverTime
 });
 
 gameServiceEmitter.on('gameOver', ({ roomId, winner }) => {
-    console.log(`Game over for room: ${roomId}, winner: ${winner}`);
+    console.log(`[${roomId}] Game finished and the winner is/are ${winner}.`);
     io.to(roomId).emit('gameOver', {
         winner,
         message: `Game over. Winner: ${winner === 'ia' ? 'IA' : 'Humans'}`,
@@ -99,7 +93,7 @@ export const createOrJoinGame = (data: any, socket: Socket, io: Server) => {
     socket.emit("error", {
       message: "There was an error creating or joining the match",
     });
-    console.log(`Error joining the player ${playerId} into the room ${roomId}`);
+    console.error(`Error joining the player ${playerId} into the room ${roomId}`);
     return;
   }
 
@@ -145,7 +139,7 @@ export const castVote = (data: any, socket: Socket, io: Server) => {
 
   // Prevent self-voting
   if (votedPlayer === voterId) {
-    console.warn(
+    console.error(
       `[castVote] Player ${voterId} attempted to vote for themselves in room: ${roomId}`
     );
     socket.emit("error", { message: "You cannot vote for yourself" });
@@ -163,80 +157,80 @@ export const castVote = (data: any, socket: Socket, io: Server) => {
   }
 };
 
-
 export const handleMessage = async (data: any, socket: Socket, io: Server) => {
   const { roomId, message, playerId, playerIndex } = data;
+  const startTime = Date.now();
 
-  // Validate if the instance of the game exists
+  // Validar si la sala existe
   const game = games[roomId];
   if (!game) {
-    socket.emit("error", { message: "La sala no existe" });
-    return;
+    return socket.emit("error", { message: "La sala no existe" });
   }
 
-  // Verify if the game has began
+  // Verificar si la partida está activa
   if (game.status !== "active") {
-    socket.emit("error", { message: "La partida no ha comenzado" });
-    return;
+    return socket.emit("error", { message: "La partida no ha comenzado" });
   }
 
-  // Get the AI player
+  // Obtener el jugador AI
   const samiPlayer: any = getSamiPlayer(game);
-
   const body = JSON.stringify({
-    text: `You are Player ${samiPlayer.index + 1} and Player ${
-      playerIndex + 1
-    } send this to the group chat: ${message}`,
+    text: `You are Player ${samiPlayer.index + 1} and Player ${playerIndex + 1} sent this to the group chat: ${message}`,
     userId: playerId,
-    userName: playerIndex+1,
+    userName: playerIndex + 1,
   });
 
-  console.log({body})
+  console.log(`[${roomId}] Input to Sami: ${body}`);
 
-  // Start the request to the AI without waiting
+  // Iniciar solicitud a la IA sin esperar la respuesta (se manejará con timeout)
   const aiResponsePromise = fetch(`http://localhost:3000/SAMI-AGENT/message`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body,
   });
 
-  // Register the message in Supabase in parallel
+  // Registrar el mensaje en Supabase sin bloquear la respuesta de la IA
   const supabasePromise = supabase
     .from("SAMI")
     .insert([{ messages: message, room_id: roomId, player_id: playerId }])
-    .then(({ data: dataSupabase, error }) => {
+    .then(({ error }) => {
       if (error) {
         console.error("[Backend] Error al insertar en Supabase:", error);
-      } else {
-        console.log("[Backend] Mensaje guardado en Supabase:", dataSupabase);
       }
     });
 
-  // Emit message to all players in the room immediately
+  // Emitir mensaje a todos los jugadores de la sala inmediatamente
   io.to(roomId).emit("newMessage", data);
 
   try {
-    // Wait for AI response
-    const response = await aiResponsePromise;
-    const responseText = await response.text();
-    console.log(
-      "[Backend] Response of Eliza (Before JSON parsing):",
-      responseText
-    );
+    // ⏳ Timeout de 8 segundos para la respuesta de la IA
+    const response = await Promise.race([
+      aiResponsePromise,
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Timeout: AI response took too long")), 8000)
+      ),
+    ]);
 
+    if (!(response instanceof Response)) {
+      return console.error("[Backend] AI did not return a valid response");
+    }
+
+    const responseText = await response.text();
+    console.log(`[${roomId}] Output of Sami: ${responseText}`);
     let responseData;
     try {
       responseData = JSON.parse(responseText);
     } catch (jsonError) {
-      console.error("[Backend] Error parsing JSON from Eliza:", jsonError);
-      return;
+      return console.error("[Backend] Error parsing JSON from Eliza:", jsonError);
     }
 
     if (responseData && responseData.length > 0) {
       const agentMessage = responseData[0].text;
-      console.log(`[Backend] Response of Eliza: ${agentMessage}`);
-
       if (game.status === "active" && responseData[0].action !== "IGNORE") {
+        const endTime = Date.now();
+        const elapsedTimeSeconds = (endTime - startTime) / 1000;
+        console.log(`[${roomId}] Time taken for AI response: ${elapsedTimeSeconds} seconds.`);
+
         io.to(roomId).emit("newMessage", {
           playerId: samiPlayer.id,
           playerIndex: samiPlayer.index,
@@ -245,12 +239,13 @@ export const handleMessage = async (data: any, socket: Socket, io: Server) => {
       }
     }
   } catch (error) {
-    console.error("[Backend] Error communicating with Eliza:", error);
+    console.error("[Backend] AI Response Timeout or Error:", error);
   }
 
-  // Wait for the Supabase insert to finish, but don't block the AI response
+  // Esperar que Supabase termine, pero sin bloquear el proceso
   await supabasePromise;
 };
+
 
 export const handleGameOver = (
   roomId: string,

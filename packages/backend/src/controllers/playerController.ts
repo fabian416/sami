@@ -32,7 +32,6 @@ export const disconnectPlayer = (data: {roomId: string, playerId: string}) => {
 
 export const getPlayerIndex = (data: {roomId: string, playerId: string}) => {
     const { roomId, playerId } = data;
-    console.log(`Player ${playerId} solicitó su index.`);
     const game = games[roomId];
     if (!game) return -1;
     const player = game.players.find((p: Player) => p.id === playerId);
@@ -43,7 +42,6 @@ export const getPlayerIndex = (data: {roomId: string, playerId: string}) => {
   
 export const getPlayerRoomId = (data: {playerId: string}) => {
   const { playerId } = data;
-  console.log(`Player ${playerId} solicitó su roomId.`);
 
   const reverseGames = _.reverse(Object.entries(games)); // Convertimos a [roomId, game] y lo invertimos
 
