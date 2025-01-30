@@ -3,13 +3,14 @@ import { useTheme } from "next-themes";
 import { isMobile } from "react-device-detect";
 
 // Transformar milisegundos a minutos y segundos
-const transformMilisecondsIntoClockTime = (miliseconds: number) => {
-  const minutes = Math.floor(miliseconds / (1000 * 60)); // Milisegundos a minutos
-  const seconds = Math.floor((miliseconds % (1000 * 60)) / 1000); // Resto a segundos
-  return { minutes, seconds };
-};
+// const transformMilisecondsIntoClockTime = (miliseconds: number) => {
+//   const minutes = Math.floor(miliseconds / (1000 * 60)); // Milisegundos a minutos
+//   const seconds = Math.floor((miliseconds % (1000 * 60)) / 1000); // Resto a segundos
+//   return { minutes, seconds };
+// };
 
-const CountdownClock = ({ clockTimer, setClockTimer }: any) => {
+// const CountdownClock = ({ clockTimer, setClockTimer }: any) => {
+const CountdownClock = ({ clockTimer }: any) => {
   const [timeLeft, setTimeLeft] = useState(0);
   const { resolvedTheme } = useTheme();
   const isDarkMode = resolvedTheme === "dark";
