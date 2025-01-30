@@ -120,7 +120,7 @@ export const startGame = async (roomId: string) => {
 
   await new Promise((resolve) => setTimeout(resolve, 500)); // Esperar 500ms
 
-  let timeBeforeEnds = 2 * 60 * 1000; // 2 * 60 * 1000;
+  let timeBeforeEnds = 2 * 15 * 1000; // 2 * 60 * 1000;
   //let timeBeforeEnds = 20 * 60 * 1000;
   const serverTime = Date.now();
   gameServiceEmitter.emit("gameStarted", { roomId, game, timeBeforeEnds, serverTime });
@@ -180,12 +180,15 @@ export const recordVote = (
   );
   gameServiceEmitter.emit("voteSubmitted", { roomId, voterId, votedId: votedPlayerId });
 
+  if (game.votes && Object.keys(game.votes).length === game.players.length) {
+    endVotingPhase(roomId)
+  }
+
   return true;
 };
 
 const endConversationPhase = async (roomId: string) => {
   const game = games[roomId];
-  if (!game) return;
 
   console.log(`Ending conversation phase for room: ${roomId}`);
 
@@ -203,33 +206,84 @@ const endConversationPhase = async (roomId: string) => {
   game.status = "voting";
 
   //const timeBeforeEnds = 30 * 1000;
-  const timeBeforeEnds = 30 * 1000;
+  const timeBeforeEnds = 2 * 60 * 1000;
   //const timeBeforeEnds = 15 * 1000;
   const serverTime = Date.now();
 
   gameServiceEmitter.emit("conversationEnded", { roomId });
   await new Promise((resolve) => setTimeout(resolve, 100)); // Controlar tiempos
   gameServiceEmitter.emit("startVoting", { roomId, timeBeforeEnds, serverTime });
-
   setTimeout(() => endVotingPhase(roomId), timeBeforeEnds);
+
+  const samiPlayer: any = getSamiPlayer(game);
+  const body = JSON.stringify({
+    text: `You are Player ${samiPlayer.index}. The round has ended. You must now vote for one of these players: ${game.players.map((p) =>  " " + p.index)}. Respond only with a number. No extra words, just the number. You never are gonna be able to vote for yourself. Take into account if a player has accused you.`,
+    userId: "",
+    userName: "",
+  });
+
+  console.log({body})
+  // Start the request to the AI without waiting
+  const aiResponsePromise = fetch(`http://localhost:3000/SAMI-AGENT/message`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body,
+  });
+
+  try {
+    // Wait for AI response
+    const response = await aiResponsePromise;
+    const responseText = await response.text();
+    console.log("[Backend] Response of Eliza (Before JSON parsing):", responseText);
+    let responseData;
+    try {
+      responseData = JSON.parse(responseText);
+    } catch (jsonError) {
+      console.error("[Backend] Error parsing JSON from Eliza:", jsonError);
+      return;
+    }
+
+    if (responseData && responseData.length > 0) {
+      const agentMessage = responseData[0].text;
+      console.log(`[Backend] Response of Eliza: ${agentMessage}`);
+
+      const votedPlayer: any = getSafePlayerIndex(roomId, agentMessage, samiPlayer.index);
+      // Register the vote
+      const voterId = samiPlayer.id;
+      const success = recordVote(roomId, voterId, votedPlayer.id);
+      if (!success) {
+        console.error(
+          `[castVote] Failed to register vote from ${voterId} to ${votedPlayer.id} in room: ${roomId}`
+        );
+        return;
+      }
+    }
+  } catch (error) {
+    console.error("[Backend] Error communicating with Eliza:", error);
+  }
+
 }
 
 export const endVotingPhase = (roomId: string) => {
   const game = games[roomId];
   if (!game || game.status !== "voting") return; // Make sure game is in 'voting' phase
-
   console.log(`Ending voting phase for room: ${roomId}`);
 
   // 1. Count votes
   const voteCount = _.countBy(Object.values(game.votes));
+  // 2. Identify the maximum number of votes
+  const maxVotes = _.max(Object.values(voteCount));
+  // 3. Find all players with max votes
+  const maxVotedPlayers = Object.entries(voteCount)
+    .filter(([, count]) => count === maxVotes)
+    .map(([playerId]) => playerId);
 
-  // 2. Identify the most voted
-  const maxVotedPlayer = _.maxBy(Object.entries(voteCount), ([, count]) => count);
-  const maxVotedPlayerId = maxVotedPlayer ? maxVotedPlayer[0] : null;
+  // 4. If there's only one player with max votes, eliminate them. Otherwise, no one is eliminated.
+  const eliminatedPlayerId = maxVotedPlayers.length === 1 ? maxVotedPlayers[0] : null;
 
   // Process the result of the votation
-  if (maxVotedPlayerId) {
-    const votedPlayer = _.find(game.players, { id: maxVotedPlayerId });
+  if (eliminatedPlayerId) {
+    const votedPlayer = _.find(game.players, { id: eliminatedPlayerId });
     if (votedPlayer) {
       eliminatePlayer(votedPlayer);
 
@@ -256,7 +310,7 @@ export const endVotingPhase = (roomId: string) => {
     game.status = "active"; // Cambiar el estado para seguir jugando
     setTimeout(() => startConversationPhase(roomId), 1000); // Initiate another phase of conversation after 1 second
   } else {
-    console.log("Maximum rounds reached or no clear decision. Game over.");
+    console.log("Maximum rounds reached and no clear decision. Game over.");
     game.status = "finished"; // Finalizar el juego después de las rondas máximas
     gameServiceEmitter.emit("gameOver", { roomId, winner: "ia" });
   }
@@ -279,11 +333,32 @@ function startConversationPhase(roomId: string) {
   setTimeout(() => { endConversationPhase(roomId) }, timeBeforeEnds);
 }
 
+
+
+// AUXILIAR FUNCTIONS
 // Get a Match by his ID
 export const getGameById = (roomId: string) => {
   return games[roomId] || null;
 };
 
+const getPlayerByIndex = (roomId: string, playerIndex: number) => {
+  const game = games[roomId];
+
+  return _.find(game.players, { index: playerIndex });
+}
+
+const getSafePlayerIndex = (roomId: string, agentMessage: string, agentId: number) => {
+  let parsedIndex = parseInt(agentMessage);
+
+  // Si el parseo falla (es NaN), se elige un número válido aleatorio entre 0 y 5
+  if (isNaN(parsedIndex) || parsedIndex === agentId) {
+    do {
+      parsedIndex = Math.floor(Math.random() * MIN_PLAYERS); // Número entre 0 y 5
+    } while (parsedIndex === agentId); // Asegurar que no sea el mismo que agentId
+  }
+
+  return getPlayerByIndex(roomId, parsedIndex);
+};
 
 export const calculateNumberOfPlayers = ({roomId}: {roomId: string}) => {
   const game = getGameById(roomId);

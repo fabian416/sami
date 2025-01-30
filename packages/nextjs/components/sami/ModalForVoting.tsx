@@ -24,7 +24,7 @@ export const ModalForVoting = ({
     const handlePlayerElimited = (data: { roomId: string; playerId: string }) => {
       const eliminatedPlayer = players.find(player => player.id === data.playerId);
       if (eliminatedPlayer) {
-        const eliminatedMessage = { message: `Player ${eliminatedPlayer.index} was eliminated` };
+        const eliminatedMessage = { message: `Player ${eliminatedPlayer.index + 1} was eliminated` };
         setMessages((prev: any) => [...prev, eliminatedMessage]);
       }
 
@@ -48,7 +48,7 @@ export const ModalForVoting = ({
       const voterPlayer: any = players.find(player => player.id === data.voterId);
       const votedPlayer: any = players.find(player => player.id === data.votedId);
 
-      const votedMessage = { message: `Player ${voterPlayer.index} voted for Player ${votedPlayer.index}` };
+      const votedMessage = { message: `Player ${voterPlayer.index + 1} voted for Player ${votedPlayer.index + 1}` };
       setMessages((prev: any) => [...prev, votedMessage]);
     };
 

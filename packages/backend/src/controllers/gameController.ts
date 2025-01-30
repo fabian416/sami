@@ -107,6 +107,8 @@ export const createOrJoinGame = (data: any, socket: Socket, io: Server) => {
   socket.join(roomId);
   io.to(roomId).emit("playerJoined", { playerId, roomId });
 };
+
+
 export const castVote = (data: any, socket: Socket, io: Server) => {
     const { roomId, voterId, voteIndex, votedId } = data;
 
@@ -159,27 +161,6 @@ export const castVote = (data: any, socket: Socket, io: Server) => {
     socket.emit("error", { message: "Failed to register the vote" });
     return;
   }
-
-  // Count votes for the voted player
-  const votesForTarget = Object.values(game.votes).filter(
-    (vote) => vote === votedPlayer
-  ).length;
-
-  console.log(
-    `[castVote] Player ${voterId} voted for ${votedPlayer} in room: ${roomId}`
-  );
-  console.log(`[castVote] Current votes:`, game.votes);
-
-  // Emit the vote update to all players
-  io.to(roomId).emit("voteUpdate", {
-    votedPlayer,
-    totalVotes: votesForTarget,
-  });
-
-  // Emit all votes (optional, for debugging or client visualization)
-  io.to(roomId).emit("allVotes", {
-    votes: game.votes,
-  });
 };
 
 
@@ -202,17 +183,21 @@ export const handleMessage = async (data: any, socket: Socket, io: Server) => {
   // Get the AI player
   const samiPlayer: any = getSamiPlayer(game);
 
+  const body = JSON.stringify({
+    text: `You are Player ${samiPlayer.index + 1} and Player ${
+      playerIndex + 1
+    } send this to the group chat: ${message}`,
+    userId: playerId,
+    userName: playerIndex+1,
+  });
+
+  console.log({body})
+
   // Start the request to the AI without waiting
   const aiResponsePromise = fetch(`http://localhost:3000/SAMI-AGENT/message`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      text: `You are Player ${samiPlayer.index + 1} and Player ${
-        playerIndex + 1
-      } send this to the group chat: ${message}`,
-      userId: playerId,
-      userName: playerIndex,
-    }),
+    body,
   });
 
   // Register the message in Supabase in parallel
@@ -251,11 +236,13 @@ export const handleMessage = async (data: any, socket: Socket, io: Server) => {
       const agentMessage = responseData[0].text;
       console.log(`[Backend] Response of Eliza: ${agentMessage}`);
 
-      io.to(roomId).emit("newMessage", {
-        playerId: samiPlayer.id,
-        playerIndex: samiPlayer.index,
-        message: agentMessage,
-      });
+      if (game.status === "active" && responseData[0].action !== "IGNORE") {
+        io.to(roomId).emit("newMessage", {
+          playerId: samiPlayer.id,
+          playerIndex: samiPlayer.index,
+          message: agentMessage,
+        });
+      }
     }
   } catch (error) {
     console.error("[Backend] Error communicating with Eliza:", error);
