@@ -188,7 +188,7 @@ export const handleMessage = async (data: any, socket: Socket, io: Server) => {
     headers: { "Content-Type": "application/json" },
     body,
   });
-
+/*
   // Registrar el mensaje en Supabase sin bloquear la respuesta de la IA
   const supabasePromise = supabase
     .from("SAMI")
@@ -196,11 +196,11 @@ export const handleMessage = async (data: any, socket: Socket, io: Server) => {
     .then(({ error }) => {
       if (error) console.error("[Backend] Error al insertar en Supabase:", error);
     });
-
+*/
   // Emitir mensaje a todos los jugadores de la sala inmediatamente
   io.to(roomId).emit("newMessage", data);
 
-  let supabasePromise2: any = null;
+  //let supabasePromise2: any = null;
   try {
     // ⏳ Timeout de 8 segundos para la respuesta de la IA
     const responseText = await Promise.race([
@@ -214,7 +214,7 @@ export const handleMessage = async (data: any, socket: Socket, io: Server) => {
     const responseData = safeParseJSON(responseText);
     if (!responseData) {
       console.error("[Backend] Invalid AI response.");
-      return await supabasePromise; // Asegurar que la primera escritura en Supabase termine antes de salir.
+      return //await supabasePromise; // Asegurar que la primera escritura en Supabase termine antes de salir.
     }
 
     const agentMessage = responseData[0].text;
@@ -223,13 +223,13 @@ export const handleMessage = async (data: any, socket: Socket, io: Server) => {
       const elapsedTimeSeconds = (endTime - startTime) / 1000;
       console.log(`[${roomId}] Time taken for AI response: ${elapsedTimeSeconds} seconds.`);
 
-      supabasePromise2 = supabase
+/*      supabasePromise2 = supabase
         .from("SAMI")
         .insert([{ messages: agentMessage, room_id: roomId, player_id: samiPlayer.id }])
         .then(({ error }) => {
           if (error) console.error("[Backend] Error al insertar en Supabase:", error);
         })
-
+*/
       io.to(roomId).emit("newMessage", {
         playerId: samiPlayer.id,
         playerIndex: samiPlayer.index,
@@ -242,7 +242,7 @@ export const handleMessage = async (data: any, socket: Socket, io: Server) => {
   }
 
   // Esperar que Supabase termine, pero sin bloquear el proceso
-  await Promise.all([supabasePromise, supabasePromise2].filter(Boolean));
+  //await Promise.all([supabasePromise, supabasePromise2].filter(Boolean));
 };
 
 
