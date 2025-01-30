@@ -13,7 +13,7 @@ export const ModalWaitingForPlayers = () => {
     socket.on("playerRoomId", (data: { roomId: string; playerId: string }) => {
       playerId === data.playerId && setRoomId(data.roomId);
     });
-  }, [socket, roomId]);
+  }, [socket, roomId, playerId, setRoomId]);
 
   useEffect(() => {
     if (!socket || !roomId) return;

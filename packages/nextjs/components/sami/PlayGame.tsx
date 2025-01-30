@@ -53,7 +53,7 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
     if (timeForFirstRound) {
       setClockTimer(timeForFirstRound);
     }
-  }, []);
+  }, [timeForFirstRound]);
 
   useEffect(() => {
     if (!socket) return;
@@ -63,7 +63,7 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
     socket.on("playerIndex", (data: { playerId: string; playerIndex: number }) => {
       playerId === data.playerId && setPlayerIndex(data.playerIndex);
     });
-  }, [playerIndex, socket]);
+  }, [playerIndex, socket, playerId, roomId, setPlayerIndex]);
 
   useEffect(() => {
     // Cuando los mensajes cambian, desplazamos al fondo
