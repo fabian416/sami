@@ -246,8 +246,11 @@ const endConversationPhase = async (roomId: string) => {
       // Register the vote
       const voterId = samiPlayer.id;
 
-      // Esperar un tiempo aleatorio antes de votar (entre 0 y 15 segundos)
-      const randomDelay = Math.floor(Math.random() * (15 * 1000)); // Entre 0 y 15000 ms (0-15 segundos)
+      // Esperar un tiempo aleatorio antes de votar (entre 2 y 15 segundos)
+      const minDelay = 2 * 1000;  // 2 segundos en milisegundos
+      const maxDelay = 15 * 1000; // 15 segundos en milisegundos
+      const randomDelay = Math.floor(Math.random() * (maxDelay - minDelay + 1)) + minDelay;
+
       await new Promise((resolve) => setTimeout(resolve, randomDelay));
       const success = recordVote(roomId, voterId, votedPlayer.id);
       if (!success) {
