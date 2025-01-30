@@ -9,6 +9,15 @@
 
 body {
   min-height: 100vh;
+  font-family: "Exo 2", serif;
+  font-weight: 600;
+}
+
+.sami-title {
+  font-family: "Exo 2", serif;
+  font-optical-sizing: auto;
+  font-weight: 900;
+  font-style: normal;
 }
 
 h1,
