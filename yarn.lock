@@ -1699,6 +1699,7 @@ __metadata:
     "@trivago/prettier-plugin-sort-imports": ~4.3.0
     "@types/node": ~18.19.50
     "@types/react": ~18.3.5
+    "@types/three": ^0
     "@typescript-eslint/eslint-plugin": ~5.40.0
     "@uniswap/sdk-core": ~5.8.2
     "@uniswap/v2-sdk": ~4.6.1
@@ -1719,9 +1720,11 @@ __metadata:
     qrcode.react: ~4.0.1
     react: ~18.3.1
     react-copy-to-clipboard: ~5.1.0
+    react-device-detect: ^2.2.3
     react-dom: ~18.3.1
     react-hot-toast: ~2.4.0
     tailwindcss: ~3.4.11
+    three: ^0.172.0
     type-fest: ~4.26.1
     typescript: <5.6.0
     usehooks-ts: ~3.1.0
@@ -3825,15 +3828,18 @@ __metadata:
   dependencies:
     "@supabase/supabase-js": ^2.48.0
     "@types/express": ^5.0.0
+    "@types/lodash": ^4
     "@types/node": ^22.10.5
     bullmq: ^5.39.0
     dotenv: ^16.4.7
     express: ^4.21.2
     ioredis: ^5.4.2
+    lodash: ^4.17.21
     nodemon: ^3.1.9
     socket.io: ^4.8.1
     socket.io-client: ^4.8.1
     ts-node: ^10.9.2
+    tsconfig-paths: ^4.2.0
     typescript: ^5.7.3
     uuid: ^11.0.5
   languageName: unknown
@@ -7541,6 +7547,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"json5@npm:^2.2.2":
+  version: 2.2.3
+  resolution: "json5@npm:2.2.3"
+  bin:
+    json5: lib/cli.js
+  checksum: 2a7436a93393830bce797d4626275152e37e877b265e94ca69c99e3d20c2b9dab021279146a39cdb700e71b2dd32a4cebd1514cd57cee102b1af906ce5040349
+  languageName: node
+  linkType: hard
+
 "jsonfile@npm:^4.0.0":
   version: 4.0.0
   resolution: "jsonfile@npm:4.0.0"
@@ -11207,6 +11222,17 @@ __metadata:
     minimist: ^1.2.6
     strip-bom: ^3.0.0
   checksum: 59f35407a390d9482b320451f52a411a256a130ff0e7543d18c6f20afab29ac19fbe55c360a93d6476213cc335a4d76ce90f67df54c4e9037f7d240920832201
+  languageName: node
+  linkType: hard
+
+"tsconfig-paths@npm:^4.2.0":
+  version: 4.2.0
+  resolution: "tsconfig-paths@npm:4.2.0"
+  dependencies:
+    json5: ^2.2.2
+    minimist: ^1.2.6
+    strip-bom: ^3.0.0
+  checksum: 28c5f7bbbcabc9dabd4117e8fdc61483f6872a1c6b02a4b1c4d68c5b79d06896c3cc9547610c4c3ba64658531caa2de13ead1ea1bf321c7b53e969c4752b98c7
   languageName: node
   linkType: hard
 

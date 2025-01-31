@@ -1,0 +1,41 @@
+services:
+  backend:
+    build: ./packages/backend
+    ports:
+      - "5001:5001"
+    restart: always
+    networks:
+      - sami_network
+    depends_on:
+      - ai-agent
+    environment:
+      - NODE_ENV=production
+      - PORT=5001
+
+  frontend:
+    build: ./packages/nextjs
+    ports:
+      - "3001:3001"
+    restart: always
+    networks:
+      - sami_network
+    depends_on:
+      - backend
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+
+  ai-agent:
+    build: ./packages/ai/sami
+    ports:
+      - "3000:3000"
+    restart: always
+    networks:
+      - sami_network
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+
+networks:
+  sami_network:
+    driver: bridge
