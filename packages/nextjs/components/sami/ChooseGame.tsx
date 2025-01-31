@@ -75,7 +75,7 @@ export const ChooseGame = ({ showGame }: any) => {
             <p className="text-xl">Play a game of SAMI for free!</p>
             <div className="card-actions justify-end">
               <button
-                className="btn btn-primary text-4xl bg-white text-[#1CA297] hover:text-[#1CA297] hover:bg-white  border-0"
+                className="btn btn-primary text-lg bg-white text-[#1CA297] hover:text-[#1CA297] hover:bg-white  border-0"
                 onClick={handleEnterGame}
                 disabled={loading}
               >
@@ -90,7 +90,7 @@ export const ChooseGame = ({ showGame }: any) => {
             <p className="text-xl">Bet and try to win a game of SAMI!</p>
             <div className="card-actions justify-end">
               {connectedAddress ? (
-                <button className="btn btn-primary bg-[#1CA297] hover:bg-[#1B9086] dark:bg-[#249C8E] dark:hover:bg-[#1B9086] text-white border-0">
+                <button className="btn btn-primary text-lg bg-[#1CA297] hover:bg-[#1B9086] dark:bg-[#249C8E] dark:hover:bg-[#1B9086] text-white border-0">
                   Approve 2 USDC
                 </button>
               ) : (

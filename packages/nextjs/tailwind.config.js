@@ -49,7 +49,7 @@ module.exports = {
           success: "#34EEB6", // Glowing green (keep existing)
           warning: "#FFE08A", // Brighter amber
           error: "#FF6B6B", // More vibrant red
-          "--rounded-btn": "0.5rem", // Slightly sharper edges for tech feel
+          "--rounded-btn": "9999rem",
           "--border-btn": "1px", // Add definition
           "--btn-focus-scale": "0.95", // Modern interaction
           // Custom futuristic additions
