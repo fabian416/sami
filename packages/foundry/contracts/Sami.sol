@@ -1,4 +1,4 @@
- // SPDX-License-Identifier: MIT
+    // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
 // Sami is a game where players pay a fee to enter, and the winner or winners get the pot.
@@ -9,7 +9,7 @@ contract Sami {
         address[] players;
         address[] winners;
         bool gameFinished;
-        mapping(address => bool)isPlayer;
+        mapping(address => bool) isPlayer;
     }
 
     //////////////////////////////////////////
@@ -17,11 +17,10 @@ contract Sami {
     //////////////////////////////////////////
 
     uint256 public fee;
-    address public owner;
- 
-    mapping(uint256 => Game) games;
-
     uint256 public gamesCreated;
+    address public owner;
+
+    mapping(uint256 => Game) games;
 
     //////////////////////////////////////////
     // Events
