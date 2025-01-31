@@ -10,7 +10,10 @@ import {
 import { Server, Socket } from "socket.io";
 import { io } from "../server";
 import gameServiceEmitter from "../services/gameService";
-import supabase from "../config/supabaseClient";
+
+//export const SAMI_URI = "http://localhost:3000"
+export const SAMI_URI = "http://ai-agent:3000"
+
 
 gameServiceEmitter.on("startConversation", (data: { roomId: string, timeBeforeEnds: number, serverTime: number }) => {
   const message = { message: "Conversation phase has started" };
@@ -183,7 +186,7 @@ export const handleMessage = async (data: any, socket: Socket, io: Server) => {
   console.log(`[${roomId}] Input to Sami: ${body}`);
 
   // Iniciar solicitud a la IA sin esperar la respuesta (se manejará con timeout)
-  const aiResponsePromise = fetch(`http://localhost:3000/SAMI-AGENT/message`, {
+  const aiResponsePromise = fetch(`${SAMI_URI}/SAMI-AGENT/message`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body,

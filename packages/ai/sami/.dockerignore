@@ -1,0 +1,23 @@
+# Ignorar node_modules porque ya los instalamos dentro del contenedor
+node_modules
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Ignorar archivos de configuración de entorno local
+.DS_Store
+
+# Archivos de logs y cache
+logs
+*.log
+*.log.*
+/*.cache
+/.next
+/.turbo
+/out
+
+# Ignorar Git y editor configs
+.git
+.gitignore
+.vscode
+.idea

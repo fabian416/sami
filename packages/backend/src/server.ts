@@ -1,8 +1,8 @@
 import http from 'http';
 import { Server } from 'socket.io';
 import app from './app';
-import * as gameController from '../src/controllers/gameController';
-import * as playerController from '../src/controllers/playerController';
+import * as gameController from '@controllers/gameController';
+import * as playerController from '@controllers/playerController';
 const PORT = process.env.PORT || 5001;
 
 const server = http.createServer(app);

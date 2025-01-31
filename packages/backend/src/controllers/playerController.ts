@@ -25,7 +25,7 @@ export const disconnectPlayer = (data: {roomId: string, playerId: string}) => {
   const { roomId, playerId } = data;
   const game = games[roomId];
   if (game) {
-    _.remove(game.players, (player) => player.id === playerId);
+    _.remove(game.players, (player: Player) => player.id === playerId);
   }
 }
 

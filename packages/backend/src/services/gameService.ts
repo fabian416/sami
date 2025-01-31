@@ -2,13 +2,12 @@ import { Server, Socket } from "socket.io";
 import {
   Player,
   createPlayer,
-  assignIARole,
   eliminatePlayer,
 } from "./playerService";
 import { EventEmitter } from "events";
 import { v4 as uuidv4 } from "uuid";
-import { io } from "../server";
 import _ from "lodash";
+import { SAMI_URI } from "@controllers/gameController";
 
 class GameServiceEmitter extends EventEmitter {}
 
@@ -98,7 +97,7 @@ export const joinGame = (roomId: string, playerId: string): boolean => {
 
 
 export const findAvailableGame = (): Game | null => {
-  return _.find(_.reverse(Object.values(games)), (game) => game.status === "waiting" && game.players.length < MIN_PLAYERS) || null;
+  return _.find(_.reverse(Object.values(games)), (game: Game) => game.status === "waiting" && game.players.length < MIN_PLAYERS) || null;
 };
 
 export const startGame = async (roomId: string) => {
@@ -221,7 +220,7 @@ const endConversationPhase = async (roomId: string) => {
 
   console.log(`[${roomId}] Input to Sami: ${body}`)
   // Start the request to the AI without waiting
-  const aiResponsePromise = fetch(`http://localhost:3000/SAMI-AGENT/message`, {
+  const aiResponsePromise = fetch(`${SAMI_URI}/SAMI-AGENT/message`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body,
