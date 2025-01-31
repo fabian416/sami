@@ -87,7 +87,7 @@ export const ChooseGame = ({ showGame }: any) => {
         <div className="card bg-[#2c2171] text-white glow-purple max-w-sm md:w-96 shadow-xl mx-4">
           <div className="card-body">
             <h2 className="text-3xl sami-title">Bet some coins!</h2>
-            <p className="text-xl">Bet and try to win a game of SAMI!</p>
+            <p className="text-xl">Double or nothing! Do you dare?</p>
             <div className="card-actions justify-end">
               {connectedAddress ? (
                 <button className="btn btn-primary text-lg bg-[#1CA297] hover:bg-[#1B9086] dark:bg-[#249C8E] dark:hover:bg-[#1B9086] text-white border-0">
