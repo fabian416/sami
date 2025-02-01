@@ -11,6 +11,7 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=5001
+      - HOST=0.0.0.0
 
   frontend:
     build: ./packages/nextjs
@@ -22,7 +23,6 @@ services:
     depends_on:
       - backend
     environment:
-      - NODE_ENV=production
       - PORT=3001
 
   ai-agent:

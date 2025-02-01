@@ -14,6 +14,9 @@ RUN yarn build
 # Etapa 2: Producción
 FROM node:23.3.0-slim
 
+# -- Add curl and any other needed utilities
+RUN apt-get update && apt-get install -y curl
+
 WORKDIR /app
 
 # Copia solo los archivos esenciales desde la etapa de construcción

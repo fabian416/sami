@@ -3,7 +3,8 @@ import { Server } from 'socket.io';
 import app from './app';
 import * as gameController from '@controllers/gameController';
 import * as playerController from '@controllers/playerController';
-const PORT = process.env.PORT || 5001;
+const HOST = process.env.HOST || 'localhost';
+const PORT = parseInt(process.env.PORT || '5001', 10);
 
 const server = http.createServer(app);
 // Socket configuration.IO for the server
@@ -11,7 +12,8 @@ export const io = new Server(server, {
     cors: {
         origin: '*', // Allowing connections from any origin
         methods: ['GET', 'POST'],
-    }
+    },
+  transports: ["polling"]
 });
 
 const players: any = {};
@@ -96,7 +98,6 @@ io.on('connection', (socket) => {
 
 });
 
-server.listen(PORT, () => {
-    console.log("Server running at http://localhost:", PORT);
-})
-
+server.listen(PORT, HOST, () => {
+    console.log(`Server running at http://${HOST}:${PORT}`);
+});

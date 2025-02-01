@@ -27,6 +27,9 @@ RUN ls -la /app/.next
 # Etapa 2: Servir con Next.js en producción
 FROM node:23.3.0-slim
 
+# -- Add curl and any other needed utilities
+RUN apt-get update && apt-get install -y curl
+
 WORKDIR /app
 
 # Habilitar Corepack en producción

@@ -3,6 +3,8 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { Socket, io } from "socket.io-client";
 
+const NODE_ENV = process.env.NODE_ENV;
+
 // Define el tipo del contexto
 interface SocketContextType {
   socket: Socket | null;
@@ -21,9 +23,8 @@ interface SocketContextType {
 const SocketContext = createContext<SocketContextType | undefined>(undefined);
 
 // URL del servidor WebSocket
-//const SERVER_URL = "http://localhost:5001"; // Cambiar según tu configuración
-//const SERVER_URL = "https://8lh8dmll-5001.brs.devtunnels.ms";
-const SERVER_URL = "http://backend";
+const SERVER_URL = NODE_ENV === "production" ? "http://backend:5001" : "http://localhost:5001";
+//const SERVER_URL = NODE_ENV === "production" ? "http://backend:5001" : "https://8lh8dmll-5001.brs.devtunnels.ms";
 
 // Proveedor del contexto
 export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -35,8 +36,11 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [isPlayerEliminated, setIsPlayerEliminated] = useState<boolean | undefined>(false);
 
   useEffect(() => {
+    console.log("Intentando conectar a:", SERVER_URL);
     // Inicializar el socket
-    const socketInstance = io(SERVER_URL);
+    const socketInstance = io(SERVER_URL, {
+      transports: ["polling"],
+    });
 
     // Eventos de conexión y desconexión
     socketInstance.on("connect", () => {
