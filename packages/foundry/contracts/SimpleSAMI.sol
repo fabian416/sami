@@ -5,134 +5,77 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract SimpleSAMI is Ownable {
-    struct Game {
-        uint256 gameId;
-        address[] players;
-        address[] winners;
-        bool gameFinished;
-        mapping(address => bool) isPlayer;
-    }
-
     //////////////////////////////////////////
     // State Variables
     //////////////////////////////////////////
 
-    IERC20 public immutable modeToken;
+    IERC20 public immutable MODE_TOKEN;
 
-    // Add a variable for the amount of players per game
-    uint256 public playersPerGame;
-    uint256 public fee;
-    uint256 public reserves;
-    uint256 public gamesCreated;
+    uint256 public betAmount;
+    uint256 public samiReserves;
+    uint256 public ticketCounter;
 
-    mapping(address => uint256) public bets;
-    mapping(uint256 => Game) games;
+    mapping(uint256 => address) public ticketToOwner;
+    mapping(address => uint256) public ownerTicketCount;
+    mapping(uint256 => bool) public ticketUsed;
 
     //////////////////////////////////////////
     // Events
     //////////////////////////////////////////
 
-    event PlayerJoined(address indexed player, uint256 amount);
-    event PrizeDistributed(address indexed winner, uint256 amount);
-    event LossLogged(address indexed loser, uint256 amount);
-    event GameCreated(uint256 gameId);
-    event GameFinished(uint256 gameId, address[] winners);
+    event TicketBought(address indexed owner, uint256 ticketId);
+    event TicketUsed(address indexed owner, uint256 ticketId);
+    event PrizeSent(address indexed winner, uint256 amount);
 
     //////////////////////////////////////////
     // Constructor
     //////////////////////////////////////////
     constructor(address _modeTokenAddress) Ownable(msg.sender) {
-        modeToken = IERC20(_modeTokenAddress);
+        MODE_TOKEN = IERC20(_modeTokenAddress);
     }
 
     //////////////////////////////////////////
     // Functions
     //////////////////////////////////////////
 
-    function createOrJoinGame() public payable {
-        // Check if the last game is full or doesn't exist
-        if (gamesCreated == 0 || games[gamesCreated - 1].players.length >= playersPerGame) {
-            // Create a new game if the last one is full or no games exist
-            uint256 _gameId = gamesCreated;
+    function buyTicket() public {
+        require(MODE_TOKEN.transferFrom(msg.sender, address(this), betAmount), "Transfer failed");
 
-            // Create a new Game struct and initialize it
-            Game storage newGame = games[_gameId];
-            newGame.gameId = _gameId;
-            newGame.players.push(msg.sender);
-            newGame.isPlayer[msg.sender] = true; // Initialize the mapping
-            newGame.gameFinished = false;
+        ticketCounter++;
+        ticketToOwner[ticketCounter] = msg.sender;
+        ownerTicketCount[msg.sender]++;
+        samiReserves += betAmount;
 
-            require(modeToken.transferFrom(msg.sender, address(this), fee), "Transfer failed");
-
-            gamesCreated++;
-
-            emit GameCreated(newGame.gameId);
-        } else {
-            // Join the last game if it's not full
-            require(fee > 0, "Bet amount must be positive");
-
-            // Transfer MODE tokens from player to contract
-            require(modeToken.transferFrom(msg.sender, address(this), fee), "Transfer failed");
-
-            // Check contract has enough funds to cover potential 2x payout
-            require((reserves + fee) * 2 <= modeToken.balanceOf(address(this)), "Not enough funds to cover prizes");
-
-            bets[msg.sender] += fee;
-            reserves += fee;
-
-            // Add the player to the last game
-            Game storage currentGame = games[gamesCreated - 1];
-            currentGame.players.push(msg.sender);
-            currentGame.isPlayer[msg.sender] = true;
-
-            emit PlayerJoined(msg.sender, reserves);
-        }
+        emit TicketBought(msg.sender, ticketCounter);
     }
 
-    function distributePrizes(address[] calldata winners, address[] calldata losers) external onlyOwner {
-        uint256 totalPrize;
+    function useTicket(uint256 _ticketId) public {
+        require(ticketToOwner[_ticketId] == msg.sender, "You don't own this ticket");
+        require(!ticketUsed[_ticketId], "Ticket already used");
 
-        // Calculate total needed prize first
-        for (uint256 i = 0; i < winners.length; i++) {
-            uint256 bet = bets[winners[i]];
-            require(bet > 0, "No bet for winner");
-            totalPrize += bet * 2;
-        }
+        ticketUsed[_ticketId] = true;
+        ownerTicketCount[msg.sender]--;
+        samiReserves -= betAmount;
 
-        require(modeToken.balanceOf(address(this)) >= totalPrize, "Insufficient contract balance");
-
-        // Distribute prizes to winners
-        for (uint256 i = 0; i < winners.length; i++) {
-            address winner = winners[i];
-            uint256 bet = bets[winner];
-            uint256 prize = bet * 2;
-
-            bets[winner] = 0;
-            reserves -= bet;
-
-            require(modeToken.transfer(winner, prize), "Prize transfer failed");
-            emit PrizeDistributed(winner, prize);
-        }
-
-        // Process losers
-        for (uint256 i = 0; i < losers.length; i++) {
-            address loser = losers[i];
-            uint256 bet = bets[loser];
-
-            if (bet > 0) {
-                bets[loser] = 0;
-                reserves -= bet;
-                emit LossLogged(loser, bet);
-            }
-        }
+        emit TicketUsed(msg.sender, _ticketId);
     }
 
-    function setFee(uint256 _fee) public onlyOwner {
-        fee = _fee;
+    function sendPrize(address _winner) public onlyOwner {
+        require(samiReserves > 0, "No prize to send");
+
+        uint256 prizeAmount = samiReserves;
+        samiReserves = 0;
+
+        require(MODE_TOKEN.transfer(_winner, prizeAmount), "Transfer failed");
+
+        emit PrizeSent(_winner, prizeAmount);
     }
 
-    // Emergency function to recover ERC20 tokens (optional)
-    function recoverERC20(address tokenAddress, uint256 amount) external onlyOwner {
-        IERC20(tokenAddress).transfer(owner(), amount);
+    function setBetAmount(uint256 _betAmount) public onlyOwner {
+        betAmount = _betAmount;
+    }
+
+    function withdraw(uint256 _amount) external onlyOwner {
+        MODE_TOKEN.transfer(owner(), _amount);
     }
 }
