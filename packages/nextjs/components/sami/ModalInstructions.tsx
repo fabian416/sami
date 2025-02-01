@@ -1,3 +1,4 @@
+import { XMarkIcon } from "@heroicons/react/20/solid";
 import { BugAntIcon, ClockIcon, CurrencyDollarIcon, XCircleIcon } from "@heroicons/react/24/outline";
 
 export const ModalInstructions = ({ closeModal }: any) => {
@@ -13,34 +14,25 @@ export const ModalInstructions = ({ closeModal }: any) => {
       className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-100"
       onClick={handleBackdropClick}
     >
-      <div className="bg-base-300 rounded-2xl items-center justify-center mx-4 md:mx-16 max-h-[85vh] overflow-auto">
+      <div className="bg-[#1CA297] glow-cyan rounded-2xl items-center justify-center mx-4 md:mx-16 max-h-[75vh] overflow-auto">
         <CloseButton closeModal={closeModal} />
         <div className="flex justify-between items-center md:mb-8 mb-6">
           <div className="flex-grow text-center">
-            <span className="block text-2xl font-bold">About the game</span>
+            <span className="block text-5xl font-bold">Instructions</span>
           </div>
         </div>
         <div className="flex justify-between items-between md:gap-12 gap-4 flex-col sm:flex-row md:pb-16 pb-4 mx-4 overflow-scroll">
-          <div className="flex flex-col bg-base-100 px-4 py-4 lg:px-10 lg:py-10 text-center items-center max-w-xs rounded-3xl md:ml-4">
+          <div className="flex flex-col bg-[#2c2171] px-4 py-4 lg:px-10 lg:py-10 text-center items-center max-w-xs rounded-3xl md:ml-4">
             <BugAntIcon className="h-8 w-8 fill-secondary" />
-            <p>
-              Engage in a quick chat with strangers and try to figure out who our AI agent, SAMI, is. <br /> It&apos;s
-              harder than you think!
-            </p>
+            <p>Chat with anonymous strangers and try to figure out who is SAMI, the AI agent.</p>
           </div>
-          <div className="flex flex-col bg-base-100 px-4 py-4 lg:px-10 lg:py-10 text-center items-center max-w-xs rounded-3xl">
-            <CurrencyDollarIcon className="h-8 w-8 fill-secondary" />
-            <p>
-              You pay a fee for each game, and it adds up to a prize that gets distributed among winners. <br />
-              Alternatively, you can play for free, but you won&apos;t earn any prize.
-            </p>
-          </div>
-          <div className="flex flex-col bg-base-100 px-4 py-4 lg:px-10 lg:py-10 text-center items-center max-w-xs rounded-3xl">
+          <div className="flex flex-col bg-[#2c2171] px-4 py-4 lg:px-10 lg:py-10 text-center items-center max-w-xs rounded-3xl">
             <ClockIcon className="h-8 w-8 fill-secondary" />
-            <p>
-              Each game consists of two rounds. Each round lasts 120 seconds, after which everyone votes on who they
-              think SAMI is.
-            </p>
+            <p>Each round lasts 2 minutes, after which you vote on who you think SAMI was in the chat.</p>
+          </div>
+          <div className="flex flex-col bg-[#2c2171] px-4 py-4 lg:px-10 lg:py-10 text-center items-center max-w-xs rounded-3xl">
+            <CurrencyDollarIcon className="h-8 w-8 fill-secondary" />
+            <p>Play for free, or bet 100 $MODE, and if you win, you get back the double.</p>
           </div>
         </div>
       </div>
@@ -50,9 +42,9 @@ export const ModalInstructions = ({ closeModal }: any) => {
 
 const CloseButton = ({ closeModal }: any) => {
   return (
-    <div className="flex justify-end md:pb-4">
-      <button className="btn btn-ghost" onClick={closeModal}>
-        <XCircleIcon className="h-1/2" />
+    <div className="flex justify-end md:m-4 ">
+      <button className="btn btn-ghost bg-red-600 hover:bg-red-500" onClick={closeModal}>
+        <XMarkIcon className="h-2/3" />
       </button>
     </div>
   );

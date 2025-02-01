@@ -71,8 +71,8 @@ export const ChooseGame = ({ showGame }: any) => {
       <div className="flex md:flex-row flex-col justify-evenly items-center w-full gap-10 md:gap-8">
         <div className="card bg-[#1CA297] text-white glow-cyan max-w-sm md:w-96 shadow-xl mx-4">
           <div className="card-body">
-            <h2 className="text-3xl sami-title">Free!</h2>
-            <p className="text-xl">Play a game of SAMI for free!</p>
+            <h2 className="text-3xl sami-title">Play for free!</h2>
+            <p className="text-xl">Find SAMI among the players!</p>
             <div className="card-actions justify-end">
               <button
                 className="btn btn-primary text-lg bg-white text-[#1CA297] hover:text-[#1CA297] hover:bg-white  border-0"
@@ -86,12 +86,14 @@ export const ChooseGame = ({ showGame }: any) => {
         </div>
         <div className="card bg-[#2c2171] text-white glow-purple max-w-sm md:w-96 shadow-xl mx-4">
           <div className="card-body">
-            <h2 className="text-3xl sami-title">Bet some coins!</h2>
+            <h2 className="text-3xl sami-title">
+              Bet <span className="text-[#1CA297]">100 $MODE</span>!
+            </h2>
             <p className="text-xl">Double or nothing! Do you dare?</p>
             <div className="card-actions justify-end">
               {connectedAddress ? (
-                <button className="btn btn-primary text-lg bg-[#1CA297] hover:bg-[#1B9086] dark:bg-[#249C8E] dark:hover:bg-[#1B9086] text-white border-0">
-                  Approve 2 USDC
+                <button className="btn btn-primary text-lg glow-cyan bg-[#1CA297] hover:bg-[#1B9086] dark:bg-[#249C8E] dark:hover:bg-[#1B9086] text-white border-0">
+                  Approve 100 $MODE
                 </button>
               ) : (
                 <RainbowKitCustomConnectButton />

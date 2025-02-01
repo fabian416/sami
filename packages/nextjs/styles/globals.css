@@ -40,10 +40,32 @@ p {
   @apply shadow-none;
 }
 
+@keyframes glow-cyan-animation {
+  0%,
+  100% {
+    box-shadow: 0 0 10px 3px rgba(28, 162, 151, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 15px 7px rgba(28, 162, 151, 0.8);
+  }
+}
+
+@keyframes glow-purple-animation {
+  0%,
+  100% {
+    box-shadow: 0 0 15px 7px rgba(44, 33, 113, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 20px 10px rgba(44, 33, 113, 0.8);
+  }
+}
+
 .glow-cyan {
-  box-shadow: 0 0 15px 5px rgba(28, 162, 151, 0.6);
+  box-shadow: 0 0 10px 3px rgba(28, 162, 151, 0.6);
+  animation: glow-cyan-animation 2s infinite;
 }
 
 .glow-purple {
-  box-shadow: 0 0 20px 10px rgba(44, 33, 113, 0.6); /* Updated to use #2c2171 */
+  box-shadow: 0 0 15px 7px rgba(44, 33, 113, 0.6);
+  animation: glow-purple-animation 2s infinite;
 }
