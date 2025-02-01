@@ -10,7 +10,7 @@ contract SimpleSAMI is Ownable {
     //////////////////////////////////////////
     // State Variables
     //////////////////////////////////////////
-
+    ///@notice MODE token has 18 decimals
     IERC20 public immutable MODE_TOKEN;
 
     uint256 public betAmount;
