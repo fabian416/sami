@@ -5,9 +5,9 @@
 import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
 const deployedContracts = {
-  31337: {
+  919: {
     MockMODE: {
-      address: "0x700b6a60ce7eaaea56f065753d8dcb9653dbad35",
+      address: "0x56c4c8dbb6e9598b90119686c40271a969e1ee44",
       abi: [
         {
           type: "constructor",
@@ -534,11 +534,11 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deploymentFile: "run-1738410377.json",
-      deploymentScript: "Deploy.s.sol",
+      deploymentFile: "run-1738444857.json",
+      deploymentScript: "DeployMockMODE.s.sol",
     },
     SimpleSAMI: {
-      address: "0xa15bb66138824a1c7167f5e85b957d04dd34e468",
+      address: "0x5ba1b40c2503b716bcb67c439a63bbfe3071147d",
       abi: [
         {
           type: "constructor",
@@ -593,25 +593,6 @@ const deployedContracts = {
               name: "",
               type: "address",
               internalType: "address",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "ownerTicketCount",
-          inputs: [
-            {
-              name: "",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-          outputs: [
-            {
-              name: "",
-              type: "uint256",
-              internalType: "uint256",
             },
           ],
           stateMutability: "view",
@@ -852,8 +833,8 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deploymentFile: "run-1738410377.json",
-      deploymentScript: "Deploy.s.sol",
+      deploymentFile: "run-1738445632.json",
+      deploymentScript: "DeploySimpleSAMI.s.sol",
     },
   },
 } as const;
