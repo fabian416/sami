@@ -7,10 +7,14 @@ export const ModalForVoting = ({
   players,
   setIsEliminatedModalOpen,
   setMessages,
+  shuffledColors,
+  shuffledNames,
 }: {
   players: Player[];
   setIsEliminatedModalOpen: any;
   setMessages: any;
+  shuffledColors: string[];
+  shuffledNames: string[];
 }) => {
   const [castedVote, setCastedVote] = useState(false);
   const { socket, isConnected, playerId, roomId, isPlayerEliminated, setIsPlayerEliminated } = useSocket();
@@ -69,7 +73,14 @@ export const ModalForVoting = ({
 
   return (
     <>
-      {!isPlayerEliminated && !castedVote && <VoteModal players={playersToVote} handleVote={handleVote} />}
+      {!isPlayerEliminated && !castedVote && (
+        <VoteModal
+          players={playersToVote}
+          handleVote={handleVote}
+          shuffledColors={shuffledColors}
+          shuffledNames={shuffledNames}
+        />
+      )}
       {!isPlayerEliminated && castedVote && <WaitingOtherToVote />}
     </>
   );
@@ -78,19 +89,29 @@ export const ModalForVoting = ({
 const WaitingOtherToVote = () => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-base-100 rounded-2xl items-center justify-center p-8">
+      <div className="bg-[#1CA297] rounded-2xl items-center justify-center p-8">
         <div className="flex items-center justify-center text-center flex-col gap-4">
           <span>
             <strong>Waiting for other players to vote</strong>
           </span>
-          <div className="animate-spin rounded-full h-8 w-8 border-t-4 border-blue-500 border-solid"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-t-4 border-[#2c2171] border-solid"></div>
         </div>
       </div>
     </div>
   );
 };
 
-const VoteModal = ({ players, handleVote }: { players: Player[]; handleVote: any }) => {
+const VoteModal = ({
+  players,
+  handleVote,
+  shuffledColors,
+  shuffledNames,
+}: {
+  players: Player[];
+  handleVote: any;
+  shuffledColors: string[];
+  shuffledNames: string[];
+}) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-[#1CA297] glow-cyan  text-white rounded-2xl items-center justify-center py-8 px-16">
@@ -103,10 +124,10 @@ const VoteModal = ({ players, handleVote }: { players: Player[]; handleVote: any
           {players.map(player => (
             <button
               key={player.index}
-              className={`btn btn-secondary bg-[#2c2171] hover:bg-[#4a3bb1] border-0 px-4 py-2 rounded-md transition duration-200 ease-in-out ${COLORS[player.index]}`}
+              className={`btn btn-secondary bg-[#2c2171] hover:bg-[#4a3bb1] border-0 px-4 py-2 rounded-md transition duration-200 ease-in-out ${shuffledColors[player.index]}`}
               onClick={() => handleVote(player.index, player.id)}
             >
-              Player {player.index + 1}
+              {shuffledNames[player.index]}
             </button>
           ))}
         </div>

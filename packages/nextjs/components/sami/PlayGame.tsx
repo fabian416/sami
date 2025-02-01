@@ -35,6 +35,29 @@ export const COLORS = [
   "text-cyan-400",
 ];
 
+const getPermutations = (str: string) => {
+  if (str.length <= 1) return [str];
+  const permutations: string[] = [];
+  for (let i = 0; i < str.length; i++) {
+    const char = str[i];
+    const remainingChars = str.slice(0, i) + str.slice(i + 1);
+    for (const perm of getPermutations(remainingChars)) {
+      permutations.push(char + perm);
+    }
+  }
+  return permutations;
+};
+
+export const NAMES = getPermutations("SAMI").filter(name => name !== "SAMI");
+
+const shuffleArray = (array: string[]) => {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+};
+
 export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [players, setPlayers] = useState<Player[]>([]);
@@ -42,12 +65,22 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
   const [clockTimer, setClockTimer] = useState<Clock | null>(null);
   const [winner, setWinner] = useState<string | null>(null);
   const [isEliminatedModalOpen, setIsEliminatedModalOpen] = useState<boolean>(false);
+  const [shuffledColors, setShuffledColors] = useState<string[]>([]);
+  const [shuffledNames, setShuffledNames] = useState<string[]>([]);
+
   const inputRef = useRef<HTMLInputElement | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+
   const { socket, playerIndex, playerId, setPlayerIndex, roomId, isPlayerEliminated } = useSocket();
   const { resolvedTheme } = useTheme();
+
   const isDarkMode = resolvedTheme === "dark";
   const disabledChat = isPlayerEliminated || currentPhase === "voting";
+
+  useEffect(() => {
+    setShuffledColors(shuffleArray([...COLORS]));
+    setShuffledNames(shuffleArray([...NAMES]));
+  }, []);
 
   useEffect(() => {
     if (timeForFirstRound) {
@@ -123,6 +156,8 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
           players={players}
           setIsEliminatedModalOpen={setIsEliminatedModalOpen}
           setMessages={setMessages}
+          shuffledColors={shuffledColors}
+          shuffledNames={shuffledNames}
         />
       )}
       {currentPhase === "finished" && <ModalFinished winner={winner} />}
@@ -153,13 +188,14 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
             )}
             <div className={`mt-4 ${isDarkMode ? "text-white" : "text-black"}`}>
               {messages.map((msg: any, index) => {
-                const color = COLORS[Number(msg.playerIndex)];
+                const color = shuffledColors[Number(msg.playerIndex)];
+                const name = shuffledNames[Number(msg.playerIndex)];
                 return (
                   <div key={index} className={`text-left mb-1 ${color}`}>
                     <span>
                       {msg.playerId ? (
                         <>
-                          <strong>Player {msg.playerIndex + 1}:</strong> {msg.message}
+                          <strong>{name}:</strong> {msg.message}
                         </>
                       ) : (
                         <strong>{msg.message}</strong>
