@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Player } from "./PlayGame";
-import { COLORS } from "./PlayGame";
 import { useSocket } from "~~/app/socketContext";
 
 export const ModalForVoting = ({
