@@ -18,7 +18,6 @@ contract SimpleSAMI is Ownable {
     uint256 public ticketCounter;
 
     mapping(uint256 => address) public ticketToOwner;
-    mapping(address => uint256) public ownerTicketCount;
     mapping(uint256 => bool) public ticketUsed;
 
     //////////////////////////////////////////
