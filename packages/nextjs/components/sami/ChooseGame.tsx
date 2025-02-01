@@ -4,6 +4,8 @@ import { ModalWaitingForPlayers } from "./ModalWaitingForPlayers";
 import { v4 as uuidv4 } from "uuid";
 import { useAccount } from "wagmi";
 import { useSocket } from "~~/app/socketContext";
+import { useDeployedContractInfo, useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { notification } from "~~/utils/scaffold-eth";
 
 interface Player {
   id: string;
@@ -18,6 +20,17 @@ export const ChooseGame = ({ showGame }: any) => {
   const { socket, isConnected, playerId, setPlayerId, setPlayerIndex, setRoomId } = useSocket();
 
   const { address: connectedAddress } = useAccount();
+
+  const { writeContractAsync: MODEwriteContractAsync } = useScaffoldWriteContract("MockMODE");
+  const { writeContractAsync: simpleSamiwriteContractAsync } = useScaffoldWriteContract("SimpleSAMI");
+  const { data: simpleSamiContractData } = useDeployedContractInfo("SimpleSAMI");
+
+  const { data: allowance } = useScaffoldReadContract({
+    contractName: "MockMODE",
+    functionName: "allowance",
+    args: [connectedAddress, simpleSamiContractData?.address],
+    watch: true,
+  });
 
   useEffect(() => {
     if (!socket) return;
@@ -39,6 +52,48 @@ export const ChooseGame = ({ showGame }: any) => {
       socket.off("gameStarted", handleGameStarted);
     };
   }, [socket, showGame, setRoomId, playerId, setPlayerIndex]);
+
+  const handleAllowanceChange = async () => {
+    if (!connectedAddress) {
+      notification.error("Please connect your wallet");
+      return;
+    }
+
+    try {
+      const contractResponse = await MODEwriteContractAsync({
+        functionName: "approve",
+        args: [simpleSamiContractData?.address, BigInt(2 * 1e18)],
+      });
+
+      if (contractResponse) {
+        notification.success("Allowance increased successfully!");
+      }
+    } catch (error) {
+      console.error("Error increasing allowance:", error);
+      notification.error("Increasing allowance failed, please try again.");
+    }
+  };
+
+  const handleBetAndPlay = async () => {
+    if (!connectedAddress) {
+      notification.error("Please connect your wallet");
+      return;
+    }
+
+    try {
+      const contractResponse = await simpleSamiwriteContractAsync({
+        functionName: "buyTicket",
+        args: undefined,
+      });
+
+      if (contractResponse) {
+        notification.success("Ticket for a game bought successfully!");
+      }
+    } catch (error) {
+      console.error("Error increasing buying ticket:", error);
+      notification.error("Buying ticket failed, please try again.");
+    }
+  };
 
   const handleEnterGame = () => {
     if (!isConnected || !socket) {
@@ -92,9 +147,21 @@ export const ChooseGame = ({ showGame }: any) => {
             <p className="text-xl">Double or nothing! Do you dare?</p>
             <div className="card-actions justify-end">
               {connectedAddress ? (
-                <button className="btn btn-primary text-lg glow-cyan bg-[#1CA297] hover:bg-[#1B9086] dark:bg-[#249C8E] dark:hover:bg-[#1B9086] text-white border-0">
-                  Approve 100 $MODE
-                </button>
+                allowance && allowance >= BigInt(2 * 1e18) ? (
+                  <button
+                    onClick={handleBetAndPlay}
+                    className="btn btn-primary text-lg glow-cyan bg-[#1CA297] hover:bg-[#1B9086] dark:bg-[#249C8E] dark:hover:bg-[#1B9086] text-white border-0"
+                  >
+                    Bet 100 $MODE
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleAllowanceChange}
+                    className="btn btn-primary text-lg glow-cyan bg-[#1CA297] hover:bg-[#1B9086] dark:bg-[#249C8E] dark:hover:bg-[#1B9086] text-white border-0"
+                  >
+                    Approve 100 $MODE
+                  </button>
+                )
               ) : (
                 <RainbowKitCustomConnectButton />
               )}

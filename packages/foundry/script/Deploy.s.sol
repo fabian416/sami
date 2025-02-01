@@ -3,7 +3,8 @@ pragma solidity ^0.8.19;
 
 import "./DeployHelpers.s.sol";
 // import { DeployYourContract } from "./DeployYourContract.s.sol";
-import { DeploySami } from "./DeploySami.s.sol";
+import { DeploySimpleSAMI } from "./DeploySimpleSAMI.s.sol";
+import { DeployMockMODE } from "./DeployMockMODE.s.sol";
 
 /**
  * @notice Main deployment script for all contracts
@@ -16,7 +17,10 @@ contract DeployScript is ScaffoldETHDeploy {
         // Deploys all your contracts sequentially
         // Add new deployments here when needed
 
-        DeploySami deploySami = new DeploySami();
+        DeployMockMODE deployMockMode = new DeployMockMODE();
+        address modeToken = deployMockMode.run();
+
+        DeploySimpleSAMI deploySami = new DeploySimpleSAMI(modeToken);
         deploySami.run();
 
         // Deploy another contract
