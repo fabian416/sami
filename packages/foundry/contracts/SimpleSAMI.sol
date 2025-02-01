@@ -56,7 +56,7 @@ contract SimpleSAMI is Ownable {
 
     /// @notice Allows a user to buy a ticket by transferring the bet amount
     /// @dev The user must approve the contract to spend the bet amount of MODE tokens
-    function buyTicket() public {
+    function buyTicket() public  {
         require(MODE_TOKEN.transferFrom(msg.sender, address(this), betAmount), "Transfer failed");
 
         ticketCounter++;
@@ -73,7 +73,7 @@ contract SimpleSAMI is Ownable {
         require(!ticketUsed[_ticketId], "Ticket already used");
 
         ticketUsed[_ticketId] = true;
-        samiReserves -= betAmount;
+  
 
         emit TicketUsed(msg.sender, _ticketId);
     }
@@ -83,8 +83,8 @@ contract SimpleSAMI is Ownable {
     /// @param _winner The address of the winner to receive the prize
     function sendPrize(address _winner) public onlyOwner {
         uint256 prize = betAmount * 2;
-
         require(samiReserves >= prize, "No prize to send");
+        samiReserves -= betAmount;
         require(MODE_TOKEN.transfer(_winner, prize), "Transfer failed");
 
         emit PrizeSent(_winner, prize);
