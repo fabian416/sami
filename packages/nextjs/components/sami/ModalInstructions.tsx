@@ -14,7 +14,7 @@ export const ModalInstructions = ({ closeModal }: any) => {
       className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-100"
       onClick={handleBackdropClick}
     >
-      <div className="bg-[#1CA297] glow-cyan rounded-2xl items-center justify-center mx-4 md:mx-16 max-h-[75vh] overflow-auto">
+      <div className="bg-[#1CA297] glow-cyan rounded-2xl items-center justify-center mx-4 md:mx-16  overflow-auto">
         <CloseButton closeModal={closeModal} />
         <div className="flex justify-between items-center md:mb-8 mb-6">
           <div className="flex-grow text-center">
@@ -22,16 +22,16 @@ export const ModalInstructions = ({ closeModal }: any) => {
           </div>
         </div>
         <div className="flex justify-between items-between md:gap-12 gap-4 flex-col sm:flex-row md:pb-16 pb-4 mx-4 overflow-scroll">
-          <div className="flex flex-col bg-[#2c2171] px-4 py-4 lg:px-10 lg:py-10 text-center items-center max-w-xs rounded-3xl md:ml-4">
-            <BugAntIcon className="h-8 w-8 fill-secondary" />
-            <p>Chat with anonymous strangers and try to figure out who is SAMI, the AI agent.</p>
+          <div className="flex flex-col bg-[#2c2171] p-4 text-center items-center max-w-xs rounded-3xl md:ml-4">
+            <BugAntIcon className="h-10 w-10 fill-secondary" />
+            <p>Chat with strangers and try to figure out who is SAMI, the AI agent.</p>
           </div>
-          <div className="flex flex-col bg-[#2c2171] px-4 py-4 lg:px-10 lg:py-10 text-center items-center max-w-xs rounded-3xl">
-            <ClockIcon className="h-8 w-8 fill-secondary" />
-            <p>Each round lasts 2 minutes, after which you vote on who you think SAMI was in the chat.</p>
+          <div className="flex flex-col bg-[#2c2171] p-4 text-center items-center max-w-xs rounded-3xl">
+            <ClockIcon className="h-10 w-10 fill-secondary" />
+            <p>After 2 minutes, vote on who you think SAMI was in the chat.</p>
           </div>
-          <div className="flex flex-col bg-[#2c2171] px-4 py-4 lg:px-10 lg:py-10 text-center items-center max-w-xs rounded-3xl">
-            <CurrencyDollarIcon className="h-8 w-8 fill-secondary" />
+          <div className="flex flex-col bg-[#2c2171] p-4 text-center items-center max-w-xs rounded-3xl">
+            <CurrencyDollarIcon className="h-10 w-10 fill-secondary" />
             <p>Play for free, or bet 100 $MODE, and if you win, you get back the double.</p>
           </div>
         </div>
