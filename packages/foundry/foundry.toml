@@ -2,7 +2,7 @@
 src = 'contracts'
 out = 'out'
 libs = ['lib']
-fs_permissions = [{ access = "read-write", path = "./"}]
+fs_permissions = [{ access = "read-write", path = "./" }]
 
 
 [rpc_endpoints]
@@ -27,12 +27,13 @@ scrollSepolia = "https://sepolia-rpc.scroll.io"
 scroll = "https://rpc.scroll.io"
 pgn = "https://rpc.publicgoods.network"
 pgnTestnet = "https://sepolia.publicgoods.network"
+mode = ""
+modeTestnet = "https://sepolia.mode.network/"
 
 
 [etherscan]
 polygonMumbai = { key = "${ETHERSCAN_API_KEY}" }
 sepolia = { key = "${ETHERSCAN_API_KEY}" }
-
 
 
 [fmt]
@@ -41,8 +42,6 @@ tab_width = 4
 quote_style = "double"
 bracket_spacing = true
 int_types = "long"
-
-
 
 
 # See more config options https://book.getfoundry.sh/reference/config/overview

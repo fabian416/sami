@@ -5,6 +5,7 @@
     "rootDir": "./src",
     "outDir": "./dist",
     "moduleResolution": "node",
+    "resolveJsonModule": true,
     "baseUrl": "./",
     "paths": {
       "@controllers/*": ["./src/controllers/*", "./dist/controllers/*"],

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.19;
 
 import "./DeployHelpers.s.sol";
-import "../contracts/Sami.sol";
+import { SimpleSAMI } from "../contracts/SimpleSAMI.sol";
 
 /**
  * @notice Deploy script for YourContract contract
@@ -14,7 +14,7 @@ import "../contracts/Sami.sol";
  * yarn deploy --file DeployYourContract.s.sol  # local anvil chain
  * yarn deploy --file DeployYourContract.s.sol --network optimism # live network (requires keystore)
  */
-contract DeploySami is ScaffoldETHDeploy {
+contract DeploySimpleSAMI is ScaffoldETHDeploy {
     /**
      * @dev Deployer setup based on `ETH_KEYSTORE_ACCOUNT` in `.env`:
      *      - "scaffold-eth-default": Uses Anvil's account #9 (0xa0Ee7A142d267C1f36714E4a8F75612F20a79720), no password prompt
@@ -24,9 +24,11 @@ contract DeploySami is ScaffoldETHDeploy {
      *      - Setup correct `deployer` account and fund it
      *      - Export contract addresses & ABIs to `nextjs` packages
      */
-    uint256 initialFee = 0.1 ether;
-
     function run() external ScaffoldEthDeployerRunner {
-        new Sami(initialFee);
+           address _mode = 0x323B0C3Ab49Be9f752E19cFdEe21e92CA56692B3;
+        SimpleSAMI simpleSAMI = new SimpleSAMI(_mode);
+        console.logString(string.concat("SimpleSAMI deployed at: ", vm.toString(address(simpleSAMI))));
+
+        simpleSAMI.setBetAmount(100 * 1e18);
     }
 }

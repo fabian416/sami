@@ -11,8 +11,9 @@ import { Server, Socket } from "socket.io";
 import { io } from "../server";
 import gameServiceEmitter from "../services/gameService";
 
-//export const SAMI_URI = "http://localhost:3000"
-export const SAMI_URI = "http://ai-agent:3000"
+const NODE_ENV = process.env.NODE_ENV;
+// URL del servidor WebSocket
+export const SAMI_URI = NODE_ENV === "production" ? "http://ai-agent:3000" : "http://localhost:3000";
 
 
 gameServiceEmitter.on("startConversation", (data: { roomId: string, timeBeforeEnds: number, serverTime: number }) => {
@@ -28,11 +29,6 @@ gameServiceEmitter.on("conversationEnded", (data: any) => {});
 
 gameServiceEmitter.on("voteSubmitted", (data: {roomId: string, voterId: string, votedId: string}) => {
   io.to(data.roomId).emit("voteSubmitted", { voterId: data.voterId, votedId: data.votedId });
-});
-
-gameServiceEmitter.on("playerEliminated", (data: { roomId: string, playerId: string }) => {
-  console.log(`[${data.roomId}] Player ${data.playerId} was eliminated.`);
-  io.to(data.roomId).emit("playerEliminated", { playerId: data.playerId });
 });
 
 gameServiceEmitter.on("startVoting", (data: {roomId: string, timeBeforeEnds: number, serverTime: number}) => {
@@ -64,14 +60,13 @@ gameServiceEmitter.on("gameStarted", ({ roomId, game, timeBeforeEnds, serverTime
   });
 });
 
-gameServiceEmitter.on('gameOver', ({ roomId, winner }) => {
-    console.log(`[${roomId}] Game finished and the winner is/are ${winner}.`);
-    io.to(roomId).emit('gameOver', {
-        winner,
-        message: `Game over. Winner: ${winner === 'ia' ? 'IA' : 'Humans'}`,
-    });
+gameServiceEmitter.on("gameOver", ({ roomId, results }) => {
+  console.log(`[${roomId}] Game over`);
+  io.to(roomId).emit("gameOver", {
+    message: "The game is over! Here are the results:",
+    results, // Array con los resultados de todos los jugadores
+  });
 });
-
 
 // Create or join a new match
 export const getNumberOfPlayers = (data: any, socket: Socket, io: Server) => {

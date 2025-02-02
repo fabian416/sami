@@ -100,14 +100,6 @@ io.on('connection', (socket) => {
 
 });
 
-setInterval(() => {
-    console.log(`Sockets activos: ${io.sockets.sockets.size}`);
-}, 5000);
-
-app.get('/socket-test', (req, res) => {
-    res.send(io.sockets.sockets.size > 0 ? `Sockets activos: ${io.sockets.sockets.size}` : "No hay sockets activos");
-});
-
 server.listen(PORT, HOST, () => {
     console.log(`Server running at http://${HOST}:${PORT}`);
 });

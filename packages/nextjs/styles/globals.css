@@ -13,11 +13,24 @@ body {
   font-weight: 600;
 }
 
-.sami-title {
+/* .sami-title {
   font-family: "Exo 2", serif;
   font-optical-sizing: auto;
   font-weight: 900;
   font-style: normal;
+  margin: 0;
+  padding: 0;
+  font-size: 2.5rem;
+  line-height: 0.2;
+} */
+
+.sami-title {
+  font-family: "Audiowide", serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  margin: 0;
+  padding: 0;
 }
 
 h1,
@@ -40,10 +53,97 @@ p {
   @apply shadow-none;
 }
 
+@keyframes glow-cyan-animation {
+  0%,
+  100% {
+    box-shadow: 0 0 10px 3px rgba(28, 162, 151, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 15px 7px rgba(28, 162, 151, 0.8);
+  }
+}
+
+@keyframes glow-purple-animation {
+  0%,
+  100% {
+    box-shadow: 0 0 15px 7px rgba(44, 33, 113, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 20px 10px rgba(44, 33, 113, 0.8);
+  }
+}
+
 .glow-cyan {
-  box-shadow: 0 0 15px 5px rgba(28, 162, 151, 0.6);
+  box-shadow: 0 0 10px 3px rgba(28, 162, 151, 0.6);
+  animation: glow-cyan-animation 2s infinite;
 }
 
 .glow-purple {
-  box-shadow: 0 0 20px 10px rgba(44, 33, 113, 0.6); /* Updated to use #2c2171 */
+  box-shadow: 0 0 15px 7px rgba(44, 33, 113, 0.6);
+  animation: glow-purple-animation 2s infinite;
+}
+
+.cool-button {
+  appearance: button;
+  background-color: #ffffff;
+  border: solid transparent;
+  border-radius: 16px;
+  border-width: 0 0 4px;
+  box-sizing: border-box;
+  color: #ffffff;
+  cursor: pointer;
+  display: inline-block;
+  font-family: "Audiowide", serif;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  line-height: 20px;
+  margin: 0;
+  outline: none;
+  overflow: visible;
+  padding: 13px 16px;
+  text-align: center;
+  text-transform: uppercase;
+  touch-action: manipulation;
+  transform: translateZ(0);
+  transition: filter 0.2s;
+  user-select: none;
+  -webkit-user-select: none;
+  vertical-align: middle;
+  white-space: nowrap;
+  width: 100%;
+}
+
+.cool-button:after {
+  background-clip: padding-box;
+  background-color: #1ca297;
+  border: solid transparent;
+  border-radius: 16px;
+  border-width: 0 0 4px;
+  bottom: -4px;
+  content: "";
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: -1;
+}
+
+.cool-button,
+.cool-button:focus {
+  user-select: auto;
+}
+
+.cool-button:hover:not(:disabled) {
+  filter: brightness(1.1);
+  -webkit-filter: brightness(1.1);
+}
+
+.cool-button:disabled {
+  cursor: auto;
+}
+
+.cool-button:active {
+  border-width: 4px 0 0;
+  background: none;
 }

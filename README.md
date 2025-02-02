@@ -1,10 +1,5 @@
 # 🤖 SAMI
 
-<!-- <h4 align="center">
-  <a href="https://docs.scaffoldeth.io">Documentation</a> |
-  <a href="https://scaffoldeth.io">Website</a>
-</h4> -->
-
 🧪 Game where users have to chat and discover who is the AI agent, which disguises as a human on every game. Over time, the adaptive AI aims to be unrecognizable.
 
 ⚙️ Built using Typescript, Eliza, NextJS, Express, Supabase, RainbowKit, Foundry, Wagmi and Viem.
@@ -71,5 +66,6 @@ Run smart contract test with `yarn foundry:test`
 
 - Frontend homepage at `packages/nextjs/app/page.tsx`.
 - Backend in `packages/backend`
+- AI in `packages/ai/sami`
 - Smart contracts in `packages/foundry/contracts`
 - Deployment scripts in `packages/foundry/script`

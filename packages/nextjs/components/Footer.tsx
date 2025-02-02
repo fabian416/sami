@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import { hardhat } from "viem/chains";
 import { HeartIcon } from "@heroicons/react/24/outline";
 import { SwitchTheme } from "~~/components/SwitchTheme";
@@ -23,10 +24,17 @@ export const Footer = () => {
         <ul className="menu menu-horizontal w-full">
           <div className="flex justify-center items-center gap-2 text-sm w-full">
             <div className="flex justify-center items-center gap-1">
-              <p className="m-0 text-center">
+              {/* <p className="m-0 text-center">
                 Built with <HeartIcon className="inline-block h-4 w-4" /> by
               </p>
               <span>Los pibes</span>
+              <span>·</span> */}
+              <div className="text-center">
+                <span className="mr-1">Follow SAMI on</span>
+                <Link className="link" href="https://x.com/sami_ai_agent" target="_blank" passHref>
+                  X (Twitter!)
+                </Link>
+              </div>
             </div>
           </div>
         </ul>
