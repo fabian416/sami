@@ -36,6 +36,8 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3000
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - USE_OPENAI_EMBEDDING=${USE_OPENAI_EMBEDDING}
 
   caddy:
     image: caddy:latest
