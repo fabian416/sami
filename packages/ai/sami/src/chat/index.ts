@@ -1,6 +1,9 @@
 import { settings } from "@elizaos/core";
 import readline from "readline";
 
+const NODE_ENV = process.env.NODE_ENV;
+export const SAMI_HOST = NODE_ENV === "production" ? "ai-agent" : "localhost";
+
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
@@ -21,7 +24,7 @@ async function handleUserInput(input, agentId) {
     const serverPort = parseInt(settings.SERVER_PORT || "3000");
 
     const response = await fetch(
-      `http://localhost:${serverPort}/${agentId}/message`,
+      `http://${SAMI_HOST}:${serverPort}/${agentId}/message`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
