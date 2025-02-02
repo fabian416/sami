@@ -1,5 +1,5 @@
 # Usa la imagen base de Node.js
-FROM node:23.3.0-slim
+FROM node:23.3.0-slim AS builder
 
 WORKDIR /app
 
@@ -8,13 +8,35 @@ RUN corepack enable \
     && corepack prepare yarn@3.2.3 --activate \
     && yarn set version 3.2.3
 
-COPY . .
 
-# Instalar dependencias antes de copiar el código fuente para aprovechar la cache
+# Copia solo los archivos necesarios para instalar dependencias
+COPY package*.json yarn*.lock ./
+COPY /packages/frontend/package*.json ./packages/frontend/
 RUN yarn install
+
+# Cambia al directorio del backend y ejecuta el build
+WORKDIR /app/packages/frontend
+
+# Copia el resto del código fuente y compila
+COPY /packages/frontend ./
+
+
+# Etapa 2: Producción
+FROM node:23.3.0-slim
+
+# -- Add curl and any other needed utilities
+RUN apt-get update && apt-get install -y curl
+
+WORKDIR /app
+
+# Copia solo los archivos esenciales desde la etapa de construcción
+COPY --from=builder /app/packages/frontend ./
+
+RUN yarn install
+
 
 # Exponer el puerto (asegúrate de que Next.js se ejecuta en este puerto en development)
 EXPOSE 3001
 
 # Ejecutar Next.js en modo desarrollo
-CMD ["yarn", "start"]
+CMD ["yarn", "dev"]

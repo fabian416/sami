@@ -16,10 +16,14 @@ RUN yarn install
 # Cambia al directorio del backend y ejecuta el build
 WORKDIR /app/packages/backend
 
+RUN yarn install
+
 # Copia el resto del código fuente y compila
 COPY /packages/backend ./
 
+
 RUN yarn build
+
 
 # Etapa 2: Producción
 FROM node:23.3.0-slim
