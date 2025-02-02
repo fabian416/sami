@@ -13,7 +13,7 @@ COPY package*.json yarn*.lock ./
 COPY /packages/nextjs/package*.json ./packages/nextjs/
 RUN yarn install
 
-# Cambia al directorio del backend y ejecuta el build
+# Cambia al directorio del frontend y ejecuta el build
 WORKDIR /app/packages/nextjs
 
 # Copia el resto del código fuente y compila

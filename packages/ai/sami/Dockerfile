@@ -20,8 +20,8 @@ COPY pnpm-lock.yaml ./
 COPY tsconfig.json ./
 
 # Copy the rest of the application code
-COPY ./src ./src
-COPY ./characters ./characters
+COPY /src ./src
+COPY /characters ./characters
 
 # Copia el .env solo si existe
 RUN test -f .env && cp .env /app/.env || echo ".env not found, skipping."

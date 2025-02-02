@@ -13,6 +13,7 @@ COPY package*.json yarn*.lock ./
 COPY /packages/backend/package*.json ./packages/backend/
 RUN yarn install
 
+# Cambia al directorio del backend y ejecuta el build
 WORKDIR /app/packages/backend
 
 # Copia el resto del código fuente después de instalar dependencias
