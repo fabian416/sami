@@ -1,6 +1,8 @@
 services:
   backend:
-    build: ./packages/backend
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
     ports:
       - "5001:5001"
     restart: always

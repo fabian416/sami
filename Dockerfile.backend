@@ -9,11 +9,16 @@ RUN corepack enable \
     && yarn set version 3.2.3
 
 # Copia solo los archivos necesarios para instalar dependencias
-COPY package*.json ./
+COPY package*.json yarn*.lock ./
+COPY /packages/backend/package*.json ./packages/backend/
 RUN yarn install
 
+# Cambia al directorio del backend y ejecuta el build
+WORKDIR /app/packages/backend
+
 # Copia el resto del código fuente y compila
-COPY . .
+COPY /packages/backend ./
+
 RUN yarn build
 
 # Etapa 2: Producción
@@ -25,10 +30,10 @@ RUN apt-get update && apt-get install -y curl
 WORKDIR /app
 
 # Copia solo los archivos esenciales desde la etapa de construcción
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/tsconfig.json ./
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/packages/backend/package*.json ./
+COPY --from=builder /app/packages/backend/tsconfig.json ./
+COPY --from=builder /app/packages/backend/node_modules ./node_modules
+COPY --from=builder /app/packages/backend/dist ./dist
 
 # Expone el puerto del backend
 EXPOSE 5001
