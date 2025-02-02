@@ -17,10 +17,10 @@ contract DeployScript is ScaffoldETHDeploy {
         // Deploys all your contracts sequentially
         // Add new deployments here when needed
 
-        DeployMockMODE deployMockMode = new DeployMockMODE();
-        address modeToken = deployMockMode.run();
+        // DeployMockMODE deployMockMode = new DeployMockMODE();
+        // address modeToken = deployMockMode.run();
 
-        DeploySimpleSAMI deploySami = new DeploySimpleSAMI(modeToken);
+        DeploySimpleSAMI deploySami = new DeploySimpleSAMI();
         deploySami.run();
 
         // Deploy another contract
