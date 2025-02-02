@@ -18,6 +18,8 @@ WORKDIR /app/packages/backend
 # Copia el resto del código fuente después de instalar dependencias
 COPY /packages/backend/ ./
 
+RUN yarn install
+
 # Ejecuta el build
 RUN yarn build
 
