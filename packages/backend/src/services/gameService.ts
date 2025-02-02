@@ -56,7 +56,6 @@ export const createNewGame = (roomId: string) => {
     roomId,
     players: [] as Player[],
     status: "waiting" as const,
-    round: 0,
     votes: {},
     isBetGame: false,
   };
@@ -140,47 +139,22 @@ export const recordVote = (
     return false;
   }
 
-  // Verify the voter exists in the game and has not been eliminated
+  // Verify the player is in the match
   const voter = _.find(game.players, { id: voterId });
-  if (!voter) {
-    console.warn(
-      `[recordVote] Voter ${voterId} does not exist in room: ${roomId}`
-    );
-    return false;
-  }
-  if (voter.isEliminated) {
-    console.warn(
-      `[recordVote] Voter ${voterId} is eliminated and cannot vote in room: ${roomId}`
-    );
-    return false;
-  }
-
-  // Verify the voted player exists in the game and has not been eliminated
   const votedPlayer = _.find(game.players, { id: votedPlayerId });
-  if (!votedPlayer) {
-    console.warn(
-      `[recordVote] Voted player ${votedPlayerId} does not exist in room: ${roomId}`
-    );
-    return false;
-  }
-  if (votedPlayer.isEliminated) {
-    console.warn(
-      `[recordVote] Voted player ${votedPlayerId} is eliminated in room: ${roomId}`
-    );
+
+  if (!voter || !votedPlayer) {
+    console.warn(`[recordVote] Voto inválido en room: ${roomId}`);
     return false;
   }
 
-  // Register vote
+  // Register the vote
   game.votes[voterId] = votedPlayerId;
-  console.log(`[${roomId}] Voter ${voterId} (Player ${voter.index}) voted for ${votedPlayerId} (Player ${votedPlayer.index}).`);
+  console.log(`[${roomId}] ${voterId} votó por ${votedPlayerId}.`);
   gameServiceEmitter.emit("voteSubmitted", { roomId, voterId, votedId: votedPlayerId });
 
-  // Filtrar solo los jugadores que no han sido eliminados
-  const activePlayers = game.players.filter(player => !player.isEliminated);
-  const totalVotes = Object.keys(game?.votes).length;
-
-  // Comparar solo con la cantidad de jugadores activos
-  if (game.votes && totalVotes === activePlayers.length) {
+  // ✅ Verify that all the players have voted
+  if (Object.keys(game.votes).length === game.players.length - 1) {
     endVotingPhase(roomId);
   }
 
