@@ -164,28 +164,21 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
       {isEliminatedModalOpen && isPlayerEliminated && <ModalEliminated closeModal={handleCloseEliminatedModal} />}
       <CountdownClock setClockTimer={setClockTimer} clockTimer={clockTimer} />
 
-      <div className="flex-grow grid grid-cols-2 gap-3 rounded-2xl backdrop-brightness-95 flex-col md:h-[calc(100vh-8rem)]">
-        {!isMobile && (
-          <div className="flex items-center justify-center glow-purple overflow-hidden rounded-2xl">
-            <Image
-              src="/sami-team.webp"
-              className="object-cover h-auto w-auto"
-              alt="Game Banner"
-              width={500}
-              height={500}
-            />
-          </div>
-        )}
+      <div className="flex-grow grid grid-cols-2 gap-10 rounded-2xl backdrop-brightness-95 flex-col md:h-[calc(100vh-8rem)]">
         <div
-          className={`col-span-2 md:col-span-1 flex flex-col items-center justify-between p-4 rounded-2xl shadow-lg overflow-y-scroll max-w-screen-sm
+          className={`col-span-2 md:col-span-1 flex flex-col items-center justify-between p-4 rounded-2xl shadow-lg overflow-y-scroll max-w-screen-sm opacity-80
           ${!isPlayerEliminated && isDarkMode ? "bg-[#2c2171] glow-purple" : !isPlayerEliminated ? "bg-white glow-purple" : "bg-base-100"}`}
         >
           <div className="flex-1 w-full p-2 overflow-y-scroll">
-            {isPlayerEliminated ? (
-              <div className="text-gray-500">Eliminated</div>
-            ) : (
-              <div className="text-gray-300">Welcome! Ask questions to figure out who SAMI is.</div>
-            )}
+            <div className="flex items-center justify-center text-xl">
+              {isPlayerEliminated ? (
+                <div className="text-gray-500">Eliminated</div>
+              ) : (
+                <div className="text-gray-300">
+                  SAMI is among us. <span className="text-[#1CA297]">Can you detect who is SAMI?</span>
+                </div>
+              )}
+            </div>
             <div className={`mt-4 ${isDarkMode ? "text-white" : "text-black"}`}>
               {messages.map((msg: any, index) => {
                 const color = shuffledColors[Number(msg.playerIndex)];
@@ -212,7 +205,7 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
               ref={inputRef}
               type="text"
               disabled={disabledChat}
-              className={`flex-1 p-2 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${isPlayerEliminated ? "bg-gray-500 border-gray-300" : "border-gray-300"}`}
+              className={`flex-1 p-2 border glow-cyan rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${isPlayerEliminated ? "bg-gray-500 border-gray-300" : "border-gray-300"}`}
               placeholder={isPlayerEliminated ? "" : "Type your message..."}
               onKeyDown={e => {
                 if (e.key === "Enter" && inputRef.current?.value.trim()) {
@@ -223,7 +216,7 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
             />
             <button
               disabled={disabledChat}
-              className={`p-2  text-white focus:outline-none focus:ring-2 rounded-r-lg ${isPlayerEliminated ? "bg-gray-600 hover:bg-gray-800  focus:ring-gray-500" : "bg-[#1CA297] hover:bg-[#33B3A8] focus:ring-[#1CA297]"}`}
+              className={`ml-2 p-2  text-white focus:outline-none focus:ring-2 glow-cyan rounded-lg ${isPlayerEliminated ? "bg-gray-600 hover:bg-gray-800  focus:ring-gray-500" : "bg-[#1CA297] hover:bg-[#33B3A8] focus:ring-[#1CA297]"}`}
               onClick={() => {
                 if (inputRef.current?.value.trim()) {
                   sendMessage(inputRef.current.value.trim());
@@ -235,6 +228,17 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
             </button>
           </div>
         </div>
+        {!isMobile && (
+          <div className="flex items-center justify-center glow-purple overflow-hidden rounded-2xl">
+            <Image
+              src="/sami-team.webp"
+              className="object-cover h-auto w-auto"
+              alt="Game Banner"
+              width={500}
+              height={500}
+            />
+          </div>
+        )}
       </div>
     </>
   );

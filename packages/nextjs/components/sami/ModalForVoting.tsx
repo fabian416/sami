@@ -88,12 +88,12 @@ export const ModalForVoting = ({
 const WaitingOtherToVote = () => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-[#1CA297] rounded-2xl items-center justify-center p-8">
+      <div className="bg-[#1CA297] rounded-2xl items-center justify-center p-8 opacity-80">
         <div className="flex items-center justify-center text-center flex-col gap-4">
           <span>
             <strong>Waiting for other players to vote</strong>
           </span>
-          <div className="animate-spin rounded-full h-8 w-8 border-t-4 border-[#2c2171] border-solid"></div>
+          <div className="animate-spin rounded-full h-20 w-20 border-t-4 border-[#2c2171] border-solid"></div>
         </div>
       </div>
     </div>
@@ -113,17 +113,17 @@ const VoteModal = ({
 }) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-[#1CA297] glow-cyan  text-white rounded-2xl items-center justify-center py-8 px-16">
+      <div className="bg-[#1CA297] opacity-80 text-white rounded-2xl items-center justify-center py-8 px-16">
         <div className="flex justify-between items-center my-8">
           <div className="flex-grow text-center">
-            <span className="block text-2xl font-bold">Who is SAMI?</span>
+            <span className="block text-4xl font-bold">Who is SAMI?</span>
           </div>
         </div>
         <div className="flex justify-center items-center gap-12 flex-col sm:flex-row pb-16">
           {players.map(player => (
             <button
               key={player.index}
-              className={`btn btn-secondary bg-[#2c2171] hover:bg-[#4a3bb1] border-0 px-4 py-2 rounded-md transition duration-200 ease-in-out ${shuffledColors[player.index]}`}
+              className={`btn btn-secondary text-xl glow-purple bg-[#2c2171] hover:bg-[#4a3bb1] border-0 px-4 py-2 rounded-md transition duration-200 ease-in-out ${shuffledColors[player.index]}`}
               onClick={() => handleVote(player.index, player.id)}
             >
               {shuffledNames[player.index]}
