@@ -39,15 +39,16 @@ export const ModalWaitingForPlayers = () => {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-[#1CA297] glow-cyan text-white rounded-2xl items-center justify-center p-8">
-        <div className="flex items-center justify-center text-center flex-col gap-4">
-          <span>
-            <strong>Waiting for other players to join</strong>
+      <div className="bg-[#1CA297] glow-cyan text-white rounded-2xl items-center justify-center p-8 opacity-80">
+        <div className="flex items-center justify-center text-center flex-col gap-2">
+          <span className="text-[#2c2171]">
+            <strong className="text-xl">Waiting for other players to join</strong>
           </span>
-          <span className="h-10">
+          <span className="h-10 text-6xl mb-4">
             <strong>{amountOfPlayers && minPlayers && `${amountOfPlayers}/${minPlayers}`}</strong>
           </span>
-          <div className="animate-spin rounded-full h-8 w-8 border-t-4 border-[#2c2171] border-solid"></div>
+
+          <div className="mt-4 animate-spin rounded-full h-40 w-40 border-t-4 border-[#2c2171] border-solid"></div>
         </div>
       </div>
     </div>

@@ -238,6 +238,17 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
             </button>
           </div>
         </div>
+        {!isMobile && (
+          <div className="flex items-center justify-center glow-purple overflow-hidden rounded-2xl">
+            <Image
+              src="/sami-team.webp"
+              className="object-cover h-auto w-auto"
+              alt="Game Banner"
+              width={500}
+              height={500}
+            />
+          </div>
+        )}
       </div>
     </>
   );
