@@ -11,7 +11,7 @@ RUN corepack enable \
 # Copia solo los archivos necesarios para instalar dependencias
 COPY package*.json yarn*.lock ./
 COPY /packages/backend/package*.json ./packages/backend/
-RUN yarn install --immutable
+RUN yarn install
 
 WORKDIR /app/packages/backend
 

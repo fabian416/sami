@@ -11,7 +11,7 @@ RUN corepack enable \
 # Copia solo los archivos necesarios para instalar dependencias
 COPY package*.json yarn*.lock ./
 COPY /packages/nextjs/package*.json ./packages/nextjs/
-RUN yarn install --immutable
+RUN yarn install
 
 # Cambia al directorio del backend y ejecuta el build
 WORKDIR /app/packages/nextjs
@@ -36,7 +36,7 @@ RUN corepack enable \
 # Copia solo los archivos esenciales desde la etapa de construcción
 COPY --from=builder /app/packages/nextjs/ ./
 
-RUN yarn install --immutable
+RUN yarn install
 
 # Exponer el puerto (asegúrate de que Next.js se ejecuta en este puerto en development)
 EXPOSE 3001
