@@ -17,4 +17,4 @@ RUN yarn install
 EXPOSE 3001
 
 # Ejecutar Next.js en modo desarrollo
-CMD ["yarn", "start"]
+CMD ["yarn", "next:start"]
