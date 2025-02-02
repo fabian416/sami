@@ -1,12 +1,27 @@
 import { ethers } from "ethers";
-import gameServiceEmitter from "./gameService";
-//import { sendPrize } from "./";
-import { provider, contract } from "../config/contractConfig";
+import gameServiceEmitter, { createNewGame, findAvailableGame, games, joinGame } from "./gameService";
+import { contract } from "../config/contractConfig";
+import { io } from "../server"; // Assuming `server.ts` exports `io`
+import { createOrJoin } from "./gameService";
 
-// Listen when someone purchase a ticket
-contract.on("TicketBought", async (owner, ticketId) => {
-    console.log(`🎟️ Ticket comprado: ${ticketId} por ${owner}`);
-    gameServiceEmitter.emit("ticketBought", { owner, ticketId });
+// Listen when someone purchases a ticket
+gameServiceEmitter.on("ticketBought", async ({ owner, ticketId }) => {
+    console.log(`📢 Handling ticket purchase for ${owner}, Ticket ID: ${ticketId}`);
+
+    // 🔹 Buscar una partida de apuestas disponible
+    let game = findAvailableGame(true); // Solo partidas de apuestas
+
+    // 🔹 Si no hay, crear una nueva partida de apuestas
+    if (!game) {
+        const newRoomId = `room-${Object.keys(games).length + 1}`;
+        game = createNewGame(newRoomId, true); // `true` significa partida de apuestas
+    }
+
+    // 🔹 Marcar el ticket como usado ANTES de unir al jugador
+    await contract.useTicket(ticketId);
+
+    // 🔹 Unir al jugador a la partida de apuestas
+    joinGame(game.roomId, owner);
 });
 
 // Ticket used by

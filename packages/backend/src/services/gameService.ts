@@ -7,6 +7,7 @@ import {
 import { EventEmitter } from "events";
 import { v4 as uuidv4 } from "uuid";
 import _ from "lodash";
+import { contract } from "../config/contractConfig";
 
 class GameServiceEmitter extends EventEmitter {}
 
@@ -28,34 +29,40 @@ interface Game {
 // Simulation and store of data base  in memory
 export const games: { [key: string]: Game } = {};
 
+// Modificar `findAvailableGame` para buscar partidas según `isBetGame`
+export const findAvailableGame = (isBetGame: boolean): Game | null => {
+  return _.find(
+    _.reverse(Object.values(games)),
+    (game) => game.status === "waiting" && game.players.length < MIN_PLAYERS && game.isBetGame === isBetGame
+  ) || null;
+};
+
 // Main function to handle the creation or join to a new match
 export const createOrJoin = (
   playerId: string,
   socket: Socket,
-  io: Server
+  io: Server,
+  isBetGame: boolean = false // Por defecto, las partidas son gratuitas
 ): { roomId: string; success: boolean } => {
-  // Search available match
-  let game = findAvailableGame();
+  let game = findAvailableGame(isBetGame);
 
-  // If no available match, create a new one
   if (!game) {
     const newRoomId = `room-${Object.keys(games).length + 1}`;
-    game = createNewGame(newRoomId);
+    game = createNewGame(newRoomId, isBetGame);
   }
 
-  // Join the player to the match
   const success = joinGame(game.roomId, playerId);
   return { roomId: game.roomId, success };
 };
 
 // Create a new Match
-export const createNewGame = (roomId: string) => {
+export const createNewGame = (roomId: string, isBetGame: boolean) => {
   const newGame = {
     roomId,
     players: [] as Player[],
     status: "waiting" as const,
     votes: {},
-    isBetGame: false,
+    isBetGame,
   };
 
   games[roomId] = newGame;
@@ -94,16 +101,10 @@ export const joinGame = (roomId: string, playerId: string): boolean => {
   return true;
 };
 
-
-export const findAvailableGame = (): Game | null => {
-  return _.find(_.reverse(Object.values(games)), (game) => game.status === "waiting" && game.players.length < MIN_PLAYERS) || null;
-};
-
 export const startGame = async (roomId: string) => {
   const game = games[roomId];
-  if (!game) return null; // Will need to show a proper error
+  if (!game) return null; 
 
-  // Shuffle the players randomly
   game.players = _.shuffle(game.players);
   game.status = "active";
 
@@ -111,16 +112,18 @@ export const startGame = async (roomId: string) => {
   console.log(`[${roomId}] Players in the game:`);
   game.players.forEach((player, index) => {
     game.players[index].index = index;
-    console.log(`Index: ${index}, ID: ${player.id}, Index: ${index}, Role: ${player.isAI ? "AI" : "Human"}`);
+    console.log(`Index: ${index}, ID: ${player.id}, Role: ${player.isAI ? "AI" : "Human"}`);
   });
 
-  await new Promise((resolve) => setTimeout(resolve, 500)); // Esperar 500ms
+  // Emitir evento de inicio de juego
+  await new Promise((resolve) => setTimeout(resolve, 500));
   const timeBeforeEnds = CONVERTATION_PHASE_TIME;
   const serverTime = Date.now();
   gameServiceEmitter.emit("gameStarted", { roomId, game, timeBeforeEnds, serverTime });
-  await new Promise((resolve) => setTimeout(resolve, 100)); // Esperar 100ms
 
+  await new Promise((resolve) => setTimeout(resolve, 100));
   gameServiceEmitter.emit("startConversation", { roomId, timeBeforeEnds, serverTime });
+
   setTimeout(() => endConversationPhase(roomId), timeBeforeEnds);
 
   return game;
