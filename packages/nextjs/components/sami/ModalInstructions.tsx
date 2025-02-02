@@ -14,13 +14,13 @@ export const ModalInstructions = ({ closeModal }: any) => {
       className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-100"
       onClick={handleBackdropClick}
     >
-      <div className="relative bg-[#1CA297] opacity-80 glow-cyan rounded-2xl items-center justify-center mx-4 md:mx-16  overflow-auto">
+      <div className="relative bg-[#1CA297] glow-cyan rounded-2xl items-center justify-center mx-4 md:mx-16  overflow-auto">
         <div className="absolute top-4 right-4">
           <CloseButton closeModal={closeModal} />
         </div>
         <div className="flex justify-between items-center md:mb-8 mb-6 mt-6">
           <div className="flex-grow text-center">
-            <span className="block text-5xl font-bold">Instructions</span>
+            <span className="block text-5xl sami-title">Game rules</span>
           </div>
         </div>
         <div className="flex justify-between items-between md:gap-12 gap-4 flex-col sm:flex-row pb-2 mx-4 overflow-scroll">

@@ -53,7 +53,7 @@ export const ChooseGame = ({ showGame }: any) => {
     };
   }, [socket, showGame, setRoomId, playerId, setPlayerIndex]);
 
-  const handleAllowanceChange = async () => {
+  const handleApprove = async () => {
     if (!connectedAddress) {
       notification.error("Please connect your wallet");
       return;
@@ -123,48 +123,53 @@ export const ChooseGame = ({ showGame }: any) => {
   return (
     <>
       {loading && <ModalWaitingForPlayers />}
-      <div className="flex md:flex-row flex-col justify-evenly items-center w-full gap-10 md:gap-8">
-        <div className="card bg-[#1CA297] opacity-80 text-white glow-cyan max-w-sm md:w-96 shadow-xl mx-4">
-          <div className="card-body flex justify-center items-center">
-            <h2 className="text-3xl sami-title">Play for free!</h2>
-            <p className="text-xl">Find SAMI among the players!</p>
-            <div className="card-actions justify-end">
-              <button
-                className="btn btn-primary text-2xl px-32 bg-white text-[#1CA297] hover:text-[#1CA297] hover:bg-white  border-0"
-                onClick={handleEnterGame}
-                disabled={loading}
-              >
-                {loading ? "Looking for a game..." : "Enter"}
-              </button>
+      <div className="flex flex-col items-center w-full">
+        <div className="mb-8">
+          <h1 className="sami-title text-7xl mb-8 text-center">Where is SAMI?!1</h1>
+        </div>
+        <div className="flex md:flex-row flex-col justify-evenly items-center w-full gap-10 md:gap-8">
+          <div className="card bg-[#1CA297] opacity-80 text-white glow-cyan max-w-sm md:w-96 shadow-xl mx-4">
+            <div className="card-body text-center">
+              <h2 className="text-3xl sami-title">Play for free!</h2>
+              <p className="text-xl">Find SAMI among the players!</p>
+              <div className="card-actions justify-end">
+                <button
+                  className="btn btn-primary text-2xl px-32 bg-white text-[#1CA297] hover:text-[#1CA297] hover:bg-white border-0"
+                  onClick={handleEnterGame}
+                  disabled={loading}
+                >
+                  {loading ? "Looking for a game..." : "Enter"}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-        <div className="card bg-[#2c2171] opacity-80 text-white glow-purple max-w-sm md:w-96 shadow-xl mx-4">
-          <div className="card-body flex justify-center items-center">
-            <h2 className="text-3xl sami-title">
-              Bet <span className="text-[#1CA297]">100 $MODE</span>!
-            </h2>
-            <p className="text-xl">Double or nothing! Do you dare?</p>
-            <div className="card-actions justify-end">
-              {connectedAddress ? (
-                allowance && allowance >= BigInt(2 * 1e18) ? (
-                  <button
-                    onClick={handleBetAndPlay}
-                    className="btn btn-primary text-2xl px-32 glow-cyan bg-[#1CA297] hover:bg-[#1B9086] dark:bg-[#249C8E] dark:hover:bg-[#1B9086] text-white border-0"
-                  >
-                    Bet 100 $MODE
-                  </button>
+          <div className="card bg-[#2c2171] opacity-80 text-white glow-purple max-w-sm md:w-96 shadow-xl mx-4">
+            <div className="card-body text-center">
+              <h2 className="text-3xl sami-title">
+                Bet <span className="text-[#1CA297]">100 $MODE</span>!
+              </h2>
+              <p className="text-xl">Double or nothing! Do you dare?</p>
+              <div className="card-actions justify-center">
+                {connectedAddress ? (
+                  allowance && allowance >= BigInt(2 * 1e18) ? (
+                    <button
+                      onClick={handleBetAndPlay}
+                      className="btn btn-primary text-2xl px-32 glow-cyan bg-[#1CA297] hover:bg-[#1B9086] dark:bg-[#249C8E] dark:hover:bg-[#1B9086] text-white border-0"
+                    >
+                      {loading ? "Looking for a game..." : "Enter"}
+                    </button>
+                  ) : (
+                    <button
+                      onClick={handleApprove}
+                      className="btn btn-primary text-2xl px-32 glow-cyan bg-[#1CA297] hover:bg-[#1B9086] dark:bg-[#249C8E] dark:hover:bg-[#1B9086] text-white border-0"
+                    >
+                      Approve
+                    </button>
+                  )
                 ) : (
-                  <button
-                    onClick={handleAllowanceChange}
-                    className="btn btn-primary text-2xl px-12 glow-cyan bg-[#1CA297] hover:bg-[#1B9086] dark:bg-[#249C8E] dark:hover:bg-[#1B9086] text-white border-0"
-                  >
-                    Approve 100 $MODE
-                  </button>
-                )
-              ) : (
-                <RainbowKitCustomConnectButton />
-              )}
+                  <RainbowKitCustomConnectButton />
+                )}
+              </div>
             </div>
           </div>
         </div>
