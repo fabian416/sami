@@ -27,11 +27,6 @@ gameServiceEmitter.on("voteSubmitted", (data: {roomId: string, voterId: string, 
   io.to(data.roomId).emit("voteSubmitted", { voterId: data.voterId, votedId: data.votedId });
 });
 
-gameServiceEmitter.on("playerEliminated", (data: { roomId: string, playerId: string }) => {
-  console.log(`[${data.roomId}] Player ${data.playerId} was eliminated.`);
-  io.to(data.roomId).emit("playerEliminated", { playerId: data.playerId });
-});
-
 gameServiceEmitter.on("startVoting", (data: {roomId: string, timeBeforeEnds: number, serverTime: number}) => {
   const game = games[data.roomId];
   if (!game) return;
@@ -61,12 +56,27 @@ gameServiceEmitter.on("gameStarted", ({ roomId, game, timeBeforeEnds, serverTime
   });
 });
 
-gameServiceEmitter.on('gameOver', ({ roomId, winner }) => {
-    console.log(`[${roomId}] Game finished and the winner is/are ${winner}.`);
-    io.to(roomId).emit('gameOver', {
-        winner,
-        message: `Game over. Winner: ${winner === 'ia' ? 'IA' : 'Humans'}`,
-    });
+gameServiceEmitter.on("playerWon", ({ roomId, playerId }) => {
+  console.log(`[${roomId}] 🎉 ¡Jugador ${playerId} won!`);
+  io.to(roomId).emit("playerWon", {
+      playerId,
+      message: `Congratulations ${playerId}, you found SAMI!!!`
+  });
+});
+
+gameServiceEmitter.on("playerLost", ({ roomId, playerId }) => {
+  console.log(`[${roomId}] ❌ Player ${playerId} lost`);
+  io.to(roomId).emit("playerLost", {
+      playerId,
+      message: ` Sorry ${playerId}, you didn't choose wisely.`
+  });
+});
+
+gameServiceEmitter.on("gameOver", ({ roomId }) => {
+  console.log(`[${roomId}] Game over`);
+  io.to(roomId).emit("gameOver", {
+      message: "The game has over, thanks for playing!"
+  });
 });
 
 

@@ -26,6 +26,7 @@ interface Game {
   status: "waiting" | "active" | "voting" | "finished";
   round: number;
   votes: { [playerId: string]: string }; // Mapping who vote who
+  isBetGame: boolean,
 }
 // Simulation and store of data base  in memory
 export const games: { [key: string]: Game } = {};
@@ -58,6 +59,7 @@ export const createNewGame = (roomId: string) => {
     status: "waiting" as const,
     round: 0,
     votes: {},
+    isBetGame: false,
   };
 
   games[roomId] = newGame;
@@ -271,65 +273,28 @@ export const endVotingPhase = (roomId: string) => {
   if (!game || game.status !== "voting") return; // Make sure game is in 'voting' phase
   console.log(`[${roomId}] Ending voting phase...`);
 
-  // 1. Count votes
-  const voteCount = _.countBy(Object.values(game.votes));
-  // 2. Identify the maximum number of votes
-  const maxVotes = _.max(Object.values(voteCount));
-  // 3. Find all players with max votes
-  const maxVotedPlayers = Object.entries(voteCount)
-    .filter(([, count]) => count === maxVotes)
-    .map(([playerId]) => playerId);
+  // Evaluar every player independently
+  game.players.forEach((player) => {
+    const votedPlayerId = game.votes[player.id];
+    const votedPlayer = _.find(game.players, { id: votedPlayerId });
 
-  // 4. If there's only one player with max votes, eliminate them. Otherwise, no one is eliminated.
-  const eliminatedPlayerId = maxVotedPlayers.length === 1 ? maxVotedPlayers[0] : null;
-  const votedPlayer: Player | null = typeof eliminatedPlayerId === "number"
-    ? _.find(game.players, { id: eliminatedPlayerId }) ?? null
-    : null;
-
-  // Process the result of the votation
-  if (votedPlayer) {
-    eliminatePlayer(votedPlayer);
-
-    // Check if the player eliminated was the IA
-    if (votedPlayer.isAI) {
-      game.status = "finished";
-      gameServiceEmitter.emit("gameOver", { roomId, winner: "humans" });
-      return;
+    if (!votedPlayer) {
+        console.log(`[${roomId}] ${player.id} no votó correctamente.`);
+        gameServiceEmitter.emit("playerLost", { roomId, playerId: player.id });
+        return;
     }
 
-    // Emit an event to inform clients
-    gameServiceEmitter.emit("playerEliminated", {
-      roomId,
-      playerId: votedPlayer.id,
-    });
-    
-  }
+    if (votedPlayer.isAI) {
+        console.log(`[${roomId}] ¡${player.id} ganó! Identificó a SAMI.`);
+        gameServiceEmitter.emit("playerWon", { roomId, playerId: player.id });
+    } else {
+        console.log(`[${roomId}] ${player.id} falló. SAMI gana.`);
+        gameServiceEmitter.emit("playerLost", { roomId, playerId: player.id });
+    }
+});
 
-  // Decide what continue after the votation
-  if (game.round === 1) {
-    game.round++; // Go into the next round, round 2
-    game.status = "active"; // Cambiar el estado para seguir jugando
-    setTimeout(() => startConversationPhase(roomId), 1000); // Initiate another phase of conversation after 1 second
-  } else {
-    console.log(`[${roomId}] Maximum rounds reached and no clear decision.`);
-    game.status = "finished"; // Finalizar el juego después de las rondas máximas
-    gameServiceEmitter.emit("gameOver", { roomId, winner: "ia" });
-  }
+game.status = "finished";
 };
-
-function startConversationPhase(roomId: string) {
-  const game = games[roomId];
-  if (!game || game.status !== "active") return;
-
-  game.votes = {}; // Reset votes for the new round
-  console.log(`[${roomId}] Starting conversation phase...`);
-  
-  const timeBeforeEnds = CONVERTATION_PHASE_TIME;
-  const serverTime = Date.now();
-  gameServiceEmitter.emit("startConversation", { roomId, timeBeforeEnds, serverTime });
-  setTimeout(() => { endConversationPhase(roomId) }, timeBeforeEnds);
-}
-
 
 
 // AUXILIAR FUNCTIONS

@@ -9,11 +9,9 @@ dotenv.config();
 const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
 
 // Dirección del contrato desplegado (debe estar en `.env`)
-const contractAddress = process.env.CONTRACT_ADDRESS;
+const modeContractAddress = "0x5ba1b40c2503b716bcb67c439a63bbfe3071147d";
 
-// ABI del contrato (puedes importar el JSON generado por Hardhat/Foundry)
-
-// Instancia del contrato
-const contract = new ethers.Contract(contractAddress, SimpleSAMI.abi, provider);
+// Instance of the contract
+const contract = new ethers.Contract(modeContractAddress, SimpleSAMI.abi, provider);
 
 export { provider, contract };
