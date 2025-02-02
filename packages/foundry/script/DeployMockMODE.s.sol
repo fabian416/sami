@@ -26,6 +26,7 @@ contract DeployMockMODE is ScaffoldETHDeploy {
      */
     function run() external ScaffoldEthDeployerRunner returns (address) {
         MockMODE mode = new MockMODE();
+        console.logString(string.concat("MockMODE deployed at: ", vm.toString(address(mode))));
         return address(mode);
     }
 }

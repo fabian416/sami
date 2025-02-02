@@ -28,7 +28,7 @@ scroll = "https://rpc.scroll.io"
 pgn = "https://rpc.publicgoods.network"
 pgnTestnet = "https://sepolia.publicgoods.network"
 mode = ""
-modeTestnet = "https://sepolia.mode.network"
+modeTestnet = "https://sepolia.mode.network/"
 
 
 [etherscan]

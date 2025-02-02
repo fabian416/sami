@@ -131,18 +131,18 @@ export const ChooseGame = ({ showGame }: any) => {
             Who is <span className="text-[#1CA297]">SAMI</span>?!1
           </h1>
         </div>
-        <div className="flex md:flex-row flex-col justify-evenly items-center w-full gap-10 md:gap-8">
+        <div className="flex md:flex-row flex-col justify-center items-center w-full gap-10 md:gap-8">
           <div className="card bg-[#1CA297] opacity-80 text-white glow-cyan max-w-sm md:w-96 shadow-xl mx-4">
             <div className="card-body text-center">
-              <h2 className="text-3xl sami-title">Play for free!</h2>
-              <p className="text-xl">Find SAMI among 5 anons!</p>
+              <h2 className="text-3xl sami-title">Play for free</h2>
+              <p className="text-xl">Find SAMI among 5 anons</p>
               <div className="card-actions justify-end">
                 <button
                   className="btn btn-primary text-2xl px-32 bg-white text-[#1CA297] hover:text-[#1CA297] hover:bg-white border-0"
                   onClick={handleEnterGame}
                   disabled={loading}
                 >
-                  {loading ? "Looking for a game..." : "Enter"}
+                  {loading ? "Enter" : "Enter"}
                 </button>
               </div>
             </div>
@@ -163,17 +163,16 @@ export const ChooseGame = ({ showGame }: any) => {
                 </span>
               </h2>
               <p className="text-xl">
-                5 players, 1 AI. <br />
+                Guess and{" "}
                 <span className="text-[#1CA297]">
-                  500{" "}
+                  win 500{" "}
                   <Image
                     src="/mode.png"
                     alt="MODE Network Logo"
-                    width="30"
-                    height="30"
+                    width="25"
+                    height="25"
                     className="inline-block align-middle" // Add this to align the image with the text
                   />{" "}
-                  prize pool!
                 </span>
               </p>
               <div className="card-actions justify-center">
@@ -188,7 +187,7 @@ export const ChooseGame = ({ showGame }: any) => {
                   ) : (
                     <button
                       onClick={handleApprove}
-                      className="btn btn-primary text-2xl px-8 glow-cyan bg-[#1CA297] hover:bg-[#1B9086] dark:bg-[#249C8E] dark:hover:bg-[#1B9086] text-white border-0"
+                      className="btn btn-primary text-2xl px-16 glow-cyan bg-[#1CA297] hover:bg-[#1B9086] dark:bg-[#249C8E] dark:hover:bg-[#1B9086] text-white border-0"
                     >
                       Approve 100{" "}
                       <Image

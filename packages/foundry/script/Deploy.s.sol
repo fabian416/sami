@@ -13,15 +13,16 @@ import { DeployMockMODE } from "./DeployMockMODE.s.sol";
  * Example: yarn deploy # runs this script(without`--file` flag)
  */
 contract DeployScript is ScaffoldETHDeploy {
+    // address public MODE_TOKEN = 0x56C4c8dbb6E9598b90119686c40271a969e1eE44;
     function run() external {
         // Deploys all your contracts sequentially
         // Add new deployments here when needed
 
-        // DeployMockMODE deployMockMode = new DeployMockMODE();
-        // address modeToken = deployMockMode.run();
+        DeployMockMODE deployMockMode = new DeployMockMODE();
+        address modeToken = deployMockMode.run();
 
         DeploySimpleSAMI deploySami = new DeploySimpleSAMI();
-        deploySami.run();
+        deploySami.run(modeToken);
 
         // Deploy another contract
         // DeployMyContract myContract = new DeployMyContract();
