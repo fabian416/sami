@@ -3,6 +3,11 @@ FROM node:23.3.0-slim AS builder
 
 WORKDIR /app
 
+# Habilitar Corepack para usar Yarn 3+
+RUN corepack enable \
+    && corepack prepare yarn@3.2.3 --activate \
+    && yarn set version 3.2.3
+
 # Copia solo los archivos necesarios para instalar dependencias
 COPY package*.json ./
 RUN yarn install
