@@ -198,10 +198,11 @@ export const endVotingPhase = (roomId: string) => {
     if (votedPlayer.isAI) {
       console.log(`[${roomId}] ¡${player.id} ganó! Identificó a SAMI.`);
       results.push({ playerId: player.id, won: true });
+      if (game.isBetGame) {
+        sendPrizeToWinner(player.id);
+      }
     }
-    if (game.isBetGame) {
-      sendPrizeToWinner(player.id);
-    }
+    
 
     else {
       console.log(`[${roomId}] ${player.id} falló. SAMI gana.`);
