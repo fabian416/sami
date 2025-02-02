@@ -8,7 +8,6 @@ RUN corepack enable \
     && corepack prepare yarn@3.2.3 --activate \
     && yarn set version 3.2.3
 
-
 # Copia solo los archivos necesarios para instalar dependencias
 COPY package*.json yarn*.lock ./
 COPY /packages/nextjs/package*.json ./packages/nextjs/
@@ -20,6 +19,7 @@ WORKDIR /app/packages/nextjs
 # Copia el resto del código fuente y compila
 COPY /packages/nextjs/ ./
 
+RUN yarn install
 
 # Etapa 2: Producción
 FROM node:23.3.0-slim
@@ -29,11 +29,15 @@ RUN apt-get update && apt-get install -y curl
 
 WORKDIR /app
 
+# Habilitar Corepack para usar Yarn 3+
+RUN corepack enable \
+    && corepack prepare yarn@3.2.3 --activate \
+    && yarn set version 3.2.3
+
 # Copia solo los archivos esenciales desde la etapa de construcción
 COPY --from=builder /app/packages/nextjs/ ./
 
 RUN yarn install
-
 
 # Exponer el puerto (asegúrate de que Next.js se ejecuta en este puerto en development)
 EXPOSE 3001
