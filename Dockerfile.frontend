@@ -1,0 +1,20 @@
+# Usa la imagen base de Node.js
+FROM node:23.3.0-slim
+
+WORKDIR /app
+
+# Habilitar Corepack para usar Yarn 3+
+RUN corepack enable \
+    && corepack prepare yarn@3.2.3 --activate \
+    && yarn set version 3.2.3
+
+COPY . .
+
+# Instalar dependencias antes de copiar el código fuente para aprovechar la cache
+RUN yarn install
+
+# Exponer el puerto (asegúrate de que Next.js se ejecuta en este puerto en development)
+EXPOSE 3001
+
+# Ejecutar Next.js en modo desarrollo
+CMD ["yarn", "start"]

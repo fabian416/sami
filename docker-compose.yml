@@ -6,15 +6,15 @@ services:
     restart: always
     networks:
       - sami_network
-    depends_on:
-      - ai-agent
     environment:
       - NODE_ENV=production
       - PORT=5001
       - HOST=0.0.0.0
 
   frontend:
-    build: ./packages/nextjs
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
     ports:
       - "3001:3001"
     restart: always
@@ -23,6 +23,7 @@ services:
     depends_on:
       - backend
     environment:
+      - NODE_ENV=test
       - PORT=3001
 
   ai-agent:

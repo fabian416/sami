@@ -7,13 +7,15 @@ const HOST = process.env.HOST || 'localhost';
 const PORT = parseInt(process.env.PORT || '5001', 10);
 
 const server = http.createServer(app);
+
 // Socket configuration.IO for the server
 export const io = new Server(server, {
     cors: {
         origin: '*', // Allowing connections from any origin
-        methods: ['GET', 'POST'],
+        methods: ['GET', 'POST', 'OPTIONS'],
     },
-  transports: ["polling"]
+    transports: ["websocket", "polling"],
+    allowEIO3: true
 });
 
 const players: any = {};
@@ -96,6 +98,14 @@ io.on('connection', (socket) => {
         console.log("Player disconnected", socket.id)
     });
 
+});
+
+setInterval(() => {
+    console.log(`Sockets activos: ${io.sockets.sockets.size}`);
+}, 5000);
+
+app.get('/socket-test', (req, res) => {
+    res.send(io.sockets.sockets.size > 0 ? `Sockets activos: ${io.sockets.sockets.size}` : "No hay sockets activos");
 });
 
 server.listen(PORT, HOST, () => {

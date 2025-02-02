@@ -23,8 +23,8 @@ interface SocketContextType {
 const SocketContext = createContext<SocketContextType | undefined>(undefined);
 
 // URL del servidor WebSocket
-const SERVER_URL = NODE_ENV === "production" ? "http://backend:5001" : "http://localhost:5001";
-//const SERVER_URL = NODE_ENV === "production" ? "http://backend:5001" : "https://8lh8dmll-5001.brs.devtunnels.ms";
+const SERVER_URL = NODE_ENV === "test" ? "http://backend:5001" : "http://localhost:5001";
+//const SERVER_URL = NODE_ENV === "test" ? "http://backend:5001" : "https://8lh8dmll-5001.brs.devtunnels.ms";
 
 // Proveedor del contexto
 export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -39,7 +39,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     console.log("Intentando conectar a:", SERVER_URL);
     // Inicializar el socket
     const socketInstance = io(SERVER_URL, {
-      transports: ["polling"],
+      transports: ["websocket", "polling"],
     });
 
     // Eventos de conexión y desconexión
