@@ -64,7 +64,7 @@ export const ChooseGame = ({ showGame }: any) => {
     try {
       const contractResponse = await MODEwriteContractAsync({
         functionName: "approve",
-        args: [simpleSamiContractData?.address, BigInt(2 * 1e18)],
+        args: [simpleSamiContractData?.address, BigInt(100 * 1e18)],
       });
 
       if (contractResponse) {
