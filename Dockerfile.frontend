@@ -8,12 +8,10 @@ RUN corepack enable \
     && corepack prepare yarn@3.2.3 --activate \
     && yarn set version 3.2.3
 
-# Copia solo los archivos necesarios para instalar dependencias
-COPY /packages/nextjs/package*.json ./
-RUN yarn install
+COPY . .
 
-# Copia el resto del código fuente y compila
-COPY /packages/nextjs/ .
+# Instalar dependencias antes de copiar el código fuente para aprovechar la cache
+RUN yarn install
 
 # Exponer el puerto (asegúrate de que Next.js se ejecuta en este puerto en development)
 EXPOSE 3001
