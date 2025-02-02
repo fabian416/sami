@@ -19,6 +19,8 @@ WORKDIR /app/packages/backend
 # Copia el resto del código fuente y compila
 COPY /packages/backend/ ./
 
+RUN yarn install
+
 RUN yarn build
 
 
