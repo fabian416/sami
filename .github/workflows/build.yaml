@@ -22,6 +22,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Enable Corepack & Set Yarn version
+        run: |
+          corepack enable
+          corepack prepare yarn@3.2.3 --activate
+
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -51,6 +56,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Enable Corepack & Set Yarn version
+        run: |
+          corepack enable
+          corepack prepare yarn@3.2.3 --activate
+
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -79,6 +89,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: Enable Corepack & Set Yarn version
+        run: |
+          corepack enable
+          corepack prepare yarn@3.2.3 --activate
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
