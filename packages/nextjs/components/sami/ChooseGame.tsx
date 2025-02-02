@@ -128,7 +128,18 @@ export const ChooseGame = ({ showGame }: any) => {
       <div className="flex flex-col items-center w-full">
         <div className="mb-8">
           <h1 className="sami-title text-7xl mb-8 text-center">
-            Who is <span className="text-[#1CA297]">SAMI</span>?!1
+            Who is{" "}
+            <span className="text-[#3DCCE1]">
+              SAMI{" "}
+              <Image
+                src="/logo.png"
+                alt="SAMI Logo"
+                width="90"
+                height="90"
+                className="inline-block align-middle" // Add this to align the image with the text
+              />{" "}
+            </span>
+            ?!1
           </h1>
         </div>
         <div className="flex md:flex-row flex-col justify-center items-center w-full gap-10 md:gap-8">
