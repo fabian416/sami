@@ -29,7 +29,7 @@ interface Game {
 // Simulation and store of data base  in memory
 export const games: { [key: string]: Game } = {};
 
-// Modificar `findAvailableGame` para buscar partidas según `isBetGame`
+// Find games using isBet parameter
 export const findAvailableGame = (isBetGame: boolean): Game | null => {
   return _.find(
     _.reverse(Object.values(games)),
@@ -198,6 +198,7 @@ export const endVotingPhase = (roomId: string) => {
     if (votedPlayer.isAI) {
       console.log(`[${roomId}] ¡${player.id} ganó! Identificó a SAMI.`);
       results.push({ playerId: player.id, won: true });
+
       if (game.isBetGame) {
         sendPrizeToWinner(player.id);
       }
@@ -216,7 +217,6 @@ export const endVotingPhase = (roomId: string) => {
   // Actualizar el estado del juego
   game.status = "finished";
 };
-
 
 // AUXILIAR FUNCTIONS
 // Get a Match by his ID

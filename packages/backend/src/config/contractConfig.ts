@@ -25,6 +25,15 @@ export const sendPrizeToWinner = async (winner: string) => {
     }
 };
 
-
+export const useTicket = async (ticketId: number) => {
+    try {
+        console.log(`Using ticket ${ticketId}`);
+        const tx = await contract.useTicket(ticketId);
+        await tx.wait();
+        console.log(`Ticket ${ticketId} has been used`);
+    } catch (error) {
+        console.error(`Error using ticket ${ticketId}:`, error);
+    }
+};
 
 export { provider, contract };

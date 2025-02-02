@@ -31,7 +31,7 @@ contract.on("ticketBought", async ({ owner, ticketId }) => {
 
 // Ticket used by
 contract.on("TicketUsed", (owner, ticketId) => {
-    console.log(`🎯 Ticket ${ticketId} usado por ${owner}`);
+    console.log(`Ticket ${ticketId} usado por ${owner}`);
 });
 
 // Listen when a prize is sent

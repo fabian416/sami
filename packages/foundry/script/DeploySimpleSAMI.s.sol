@@ -24,8 +24,11 @@ contract DeploySimpleSAMI is ScaffoldETHDeploy {
      *      - Setup correct `deployer` account and fund it
      *      - Export contract addresses & ABIs to `nextjs` packages
      */
-    function run(address _mode) external ScaffoldEthDeployerRunner {
+    function run() external ScaffoldEthDeployerRunner {
+           address _mode = 0x2A16146DC0AF3D068BB1550Da1334D2C03759230;
         SimpleSAMI simpleSAMI = new SimpleSAMI(_mode);
         console.logString(string.concat("SimpleSAMI deployed at: ", vm.toString(address(simpleSAMI))));
+
+        simpleSAMI.setBetAmount(100 * 1e18);
     }
 }
