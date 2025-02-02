@@ -55,8 +55,9 @@ contract SimpleSAMI is Ownable {
 
     /// @notice Allows a user to buy a ticket by transferring the bet amount
     /// @dev The user must approve the contract to spend the bet amount of MODE tokens
-    function buyTicket() public  {
-        require(MODE_TOKEN.transferFrom(msg.sender, address(this), betAmount), "Transfer failed");
+    function buyTicket() public {
+        bool success = MODE_TOKEN.transferFrom(msg.sender, address(this), betAmount);
+        require(success, "Transfer failed");
 
         ticketCounter++;
         ticketToOwner[ticketCounter] = msg.sender;
@@ -72,7 +73,6 @@ contract SimpleSAMI is Ownable {
         require(!ticketUsed[_ticketId], "Ticket already used");
 
         ticketUsed[_ticketId] = true;
-  
 
         emit TicketUsed(msg.sender, _ticketId);
     }
