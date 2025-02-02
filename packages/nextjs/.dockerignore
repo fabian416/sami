@@ -4,16 +4,19 @@ npm-debug.log
 yarn-debug.log
 yarn-error.log
 
+# Ignorar archivos de configuración de entorno local
+.DS_Store
+
 # Archivos de logs y cache
 logs
 *.log
 *.log.*
 /*.cache
 /.turbo
+/out
 
 # Ignorar Git y editor configs
 .git
 .gitignore
 .vscode
 .idea
-.DS_Store
