@@ -1,0 +1,63 @@
+services:
+  backend:
+    build: ./packages/backend
+    ports:
+      - "5001:5001"
+    restart: always
+    networks:
+      - sami_network
+    environment:
+      - NODE_ENV=production
+      - PORT=5001
+      - HOST=0.0.0.0
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "3001:3001"
+    restart: always
+    networks:
+      - sami_network
+    depends_on:
+      - backend
+    environment:
+      - NODE_ENV=test
+      - PORT=3001
+
+  ai-agent:
+    build: ./packages/ai/sami
+    ports:
+      - "3000:3000"
+    restart: always
+    networks:
+      - sami_network
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+
+  caddy:
+    image: caddy:latest
+    container_name: caddy
+    restart: always
+    depends_on:
+      - frontend
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    networks:
+      - sami_network
+    environment:
+      - SAMI_SITE=playsami.fun
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+
+volumes:
+  caddy_data: {}
+
+networks:
+  sami_network:
+    driver: bridge

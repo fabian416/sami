@@ -1,0 +1,10 @@
+{
+        {$CADDY_GLOBAL_OPTIONS}
+}
+
+{$CADDY_EXTRA_CONFIG}
+
+
+{$SAMI_SITE} {
+        reverse_proxy frontend:3001
+}
