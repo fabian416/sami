@@ -70,15 +70,8 @@ export const Header = () => {
 
   return (
     <div className="sticky lg:static top-0 navbar bg-base-100 min-h-0 flex-shrink-0 justify-between z-20 shadow-md shadow-secondary px-0 sm:px-2">
-      <div className="navbar-start w-auto lg:w-1/2 mx-1">
-        <button
-          className="btn btn-primary bg-[#1CA297] hover:bg-[#33B3A8] text-white border-0 glow-cyan btn-sm text-xl"
-          onClick={openModal}
-        >
-          ?
-        </button>
-
-        <Link href="/" passHref className="hidden lg:flex items-center gap-2 ml-4 mr-6 shrink-0">
+      <div className="navbar-start w-auto lg:w-1/2">
+        <Link href="/" passHref className="hidden lg:flex items-center gap-2 ml-2 mr-6 shrink-0">
           <div className="flex relative w-8 h-8">
             <Image alt="SE2 logo" className="w-auto h-auto cursor-pointer" fill src="/logo.png" />
           </div>
@@ -94,6 +87,12 @@ export const Header = () => {
         <RainbowKitCustomConnectButtonOpaque />
         <FaucetButton />
       </div>
+      <button
+        className="btn btn-primary bg-[#1CA297] hover:bg-[#33B3A8] mr-2 text-white border-0 glow-cyan btn-sm text-xl"
+        onClick={openModal}
+      >
+        ?
+      </button>
 
       {isModalOpen && <ModalInstructions closeModal={closeModal} />}
     </div>
