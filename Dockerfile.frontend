@@ -19,7 +19,6 @@ WORKDIR /app/packages/nextjs
 # Copia el resto del código fuente y compila
 COPY /packages/nextjs/ ./
 
-RUN yarn install
 
 # Etapa 2: Producción
 FROM node:23.3.0-slim
