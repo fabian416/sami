@@ -8,9 +8,6 @@ RUN corepack enable \
     && corepack prepare yarn@3.2.3 --activate \
     && yarn set version 3.2.3
 
-# Copia solo los archivos necesarios para instalar dependencias
-COPY package*.json yarn*.lock ./
-
 # Copia el resto del código fuente después de instalar dependencias
 COPY /packages/backend/ ./
 
