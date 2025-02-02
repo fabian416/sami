@@ -16,11 +16,8 @@ RUN yarn install
 # Cambia al directorio del backend y ejecuta el build
 WORKDIR /app/packages/backend
 
-RUN yarn install
-
 # Copia el resto del código fuente y compila
-COPY /packages/backend ./
-
+COPY /packages/backend/ ./
 
 RUN yarn build
 

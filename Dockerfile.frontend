@@ -18,7 +18,7 @@ RUN yarn install
 WORKDIR /app/packages/frontend
 
 # Copia el resto del código fuente y compila
-COPY /packages/frontend ./
+COPY /packages/frontend/ ./
 
 
 # Etapa 2: Producción
@@ -30,7 +30,7 @@ RUN apt-get update && apt-get install -y curl
 WORKDIR /app
 
 # Copia solo los archivos esenciales desde la etapa de construcción
-COPY --from=builder /app/packages/frontend ./
+COPY --from=builder /app/packages/frontend/ ./
 
 RUN yarn install
 
