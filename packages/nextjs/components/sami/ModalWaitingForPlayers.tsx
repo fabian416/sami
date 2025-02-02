@@ -44,11 +44,12 @@ export const ModalWaitingForPlayers = () => {
           <span className="text-[#2c2171]">
             <strong className="text-xl">Waiting for other players to join</strong>
           </span>
-          <span className="h-10 text-6xl mb-4">
-            <strong>{amountOfPlayers && minPlayers && `${amountOfPlayers}/${minPlayers}`}</strong>
-          </span>
-
-          <div className="mt-4 animate-spin rounded-full h-40 w-40 border-t-4 border-[#2c2171] border-solid"></div>
+          <div className="flex items-center justify-center gap-4">
+            <span className="text-6xl">
+              <strong>{amountOfPlayers && minPlayers && `${amountOfPlayers}/${minPlayers}`}</strong>
+            </span>
+            <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-[#2c2171] border-solid"></div>
+          </div>
         </div>
       </div>
     </div>

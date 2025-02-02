@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import { BugAntIcon, ClockIcon, CurrencyDollarIcon } from "@heroicons/react/24/outline";
 
@@ -20,21 +21,30 @@ export const ModalInstructions = ({ closeModal }: any) => {
         </div>
         <div className="flex justify-between items-center md:mb-8 mb-6 mt-6">
           <div className="flex-grow text-center">
-            <span className="block text-5xl sami-title">Game rules</span>
+            <span className="block text-5xl sami-title">SAMI rules!</span>
           </div>
         </div>
         <div className="flex justify-between items-between md:gap-12 gap-4 flex-col sm:flex-row pb-2 mx-4 overflow-scroll">
           <div className="flex flex-col bg-[#2c2171]  p-4 text-center items-center max-w-xs rounded-3xl md:ml-4">
-            <BugAntIcon className="h-20 w-20 fill-secondary" />
-            <p className="text-2xl">Chat with strangers and try to figure out who is SAMI, the AI agent.</p>
+            {/* <BugAntIcon className="h-20 w-20 fill-secondary" /> */}
+            <Image src="/logo.png" alt="SAMI Logo" width="100" height="100" />
+            <p className="text-2xl">
+              Chat with strangers and <span className="text-[#1CA297]">figure out who is SAMI, the AI agent.</span>
+            </p>
           </div>
           <div className="flex flex-col bg-[#2c2171] p-4 text-center items-center max-w-xs rounded-3xl">
-            <ClockIcon className="h-20 w-20 fill-secondary" />
-            <p className="text-2xl">After 2 minutes, vote on who you think SAMI was in the chat.</p>
+            <ClockIcon className="h-24 w-24 fill-secondary" />
+            <p className="text-2xl">
+              After 2 minutes, <span className="text-[#1CA297]">vote on who you think SAMI was</span> in the chat.
+            </p>
           </div>
           <div className="flex flex-col bg-[#2c2171] p-4 text-center items-center max-w-xs rounded-3xl">
-            <CurrencyDollarIcon className="h-20 w-20 fill-secondary" />
-            <p className="text-2xl">Play for free, or bet 100 $MODE, and if you guess, you get the double.</p>
+            {/* <CurrencyDollarIcon className="h-20 w-20 fill-secondary" /> */}
+            <Image src="/mode.png" alt="MODE Network Logo" width="100" height="100" />
+            <p className="text-2xl">
+              Bet 100 $MODE, and if you guess, you get 500.{" "}
+              <span className="text-[#1CA297]">Free version available.</span>
+            </p>
           </div>
         </div>
       </div>

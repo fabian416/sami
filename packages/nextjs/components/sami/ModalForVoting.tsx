@@ -44,10 +44,10 @@ export const ModalForVoting = ({
 const WaitingOtherToVote = () => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-[#1CA297] rounded-2xl items-center justify-center p-8 opacity-80">
+      <div className="bg-[#1CA297] opacity-80 rounded-2xl items-center justify-center p-8">
         <div className="flex items-center justify-center text-center flex-col gap-4">
           <span>
-            <strong>Waiting for other players to vote</strong>
+            <strong className="text-xl">Waiting for other players to vote</strong>
           </span>
           <div className="animate-spin rounded-full h-20 w-20 border-t-4 border-[#2c2171] border-solid"></div>
         </div>

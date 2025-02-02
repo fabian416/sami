@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import { RainbowKitCustomConnectButton } from "../scaffold-eth";
 import { ModalWaitingForPlayers } from "./ModalWaitingForPlayers";
 import { v4 as uuidv4 } from "uuid";
@@ -125,7 +127,9 @@ export const ChooseGame = ({ showGame }: any) => {
       {loading && <ModalWaitingForPlayers />}
       <div className="flex flex-col items-center w-full">
         <div className="mb-8">
-          <h1 className="sami-title text-7xl mb-8 text-center">Where is SAMI?!1</h1>
+          <h1 className="sami-title text-7xl mb-8 text-center">
+            Who is <span className="text-[#1CA297]">SAMI</span>?!1
+          </h1>
         </div>
         <div className="flex md:flex-row flex-col justify-evenly items-center w-full gap-10 md:gap-8">
           <div className="card bg-[#1CA297] opacity-80 text-white glow-cyan max-w-sm md:w-96 shadow-xl mx-4">
@@ -146,9 +150,32 @@ export const ChooseGame = ({ showGame }: any) => {
           <div className="card bg-[#2c2171] opacity-80 text-white glow-purple max-w-sm md:w-96 shadow-xl mx-4">
             <div className="card-body text-center">
               <h2 className="text-3xl sami-title">
-                Bet <span className="text-[#1CA297]">100 $MODE</span>!
+                Bet{" "}
+                <span className="text-[#1CA297]">
+                  100{" "}
+                  <Image
+                    src="/mode.png"
+                    alt="MODE Network Logo"
+                    width="40"
+                    height="40"
+                    className="inline-block align-middle" // Add this to align the image with the text
+                  />{" "}
+                </span>
               </h2>
-              <p className="text-xl">Double or nothing! Do you dare?</p>
+              <p className="text-xl">
+                5 players, 1 AI. <br />
+                <span className="text-[#1CA297]">
+                  500{" "}
+                  <Image
+                    src="/mode.png"
+                    alt="MODE Network Logo"
+                    width="30"
+                    height="30"
+                    className="inline-block align-middle" // Add this to align the image with the text
+                  />{" "}
+                  prize pool!
+                </span>
+              </p>
               <div className="card-actions justify-center">
                 {connectedAddress ? (
                   allowance && allowance >= BigInt(2 * 1e18) ? (
@@ -161,9 +188,16 @@ export const ChooseGame = ({ showGame }: any) => {
                   ) : (
                     <button
                       onClick={handleApprove}
-                      className="btn btn-primary text-2xl px-28 glow-cyan bg-[#1CA297] hover:bg-[#1B9086] dark:bg-[#249C8E] dark:hover:bg-[#1B9086] text-white border-0"
+                      className="btn btn-primary text-2xl px-8 glow-cyan bg-[#1CA297] hover:bg-[#1B9086] dark:bg-[#249C8E] dark:hover:bg-[#1B9086] text-white border-0"
                     >
-                      Approve
+                      Approve 100{" "}
+                      <Image
+                        src="/mode.png"
+                        alt="MODE Network Logo"
+                        width="25"
+                        height="25"
+                        className="inline-block align-middle" // Add this to align the image with the text
+                      />{" "}
                     </button>
                   )
                 ) : (
@@ -172,6 +206,21 @@ export const ChooseGame = ({ showGame }: any) => {
               </div>
             </div>
           </div>
+        </div>
+        <div className="mt-8">
+          <h2 className="sami-title text-4xl mt-8 text-center">
+            Powered by{" "}
+            <Link href="https://mode.network/" passHref target="_blank">
+              <Image
+                src="/mode.png"
+                alt="MODE Network Logo"
+                width="50"
+                height="50"
+                className="inline-block align-middle" // Add this to align the image with the text
+              />{" "}
+              <span className="underline">MODE Network</span>
+            </Link>
+          </h2>
         </div>
       </div>
     </>
