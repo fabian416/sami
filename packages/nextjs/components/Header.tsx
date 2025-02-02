@@ -72,7 +72,7 @@ export const Header = () => {
     <div className="sticky lg:static top-0 navbar bg-base-100 min-h-0 flex-shrink-0 justify-between z-20 shadow-md shadow-secondary px-0 sm:px-2">
       <div className="navbar-start w-auto lg:w-1/2 mx-1">
         <button
-          className="btn btn-primary bg-[#2c2171] hover:bg-[#1CA297] text-white border-0 glow-purple btn-sm text-xl"
+          className="btn btn-primary bg-[#1CA297] hover:bg-[#33B3A8] text-white border-0 glow-cyan btn-sm text-xl"
           onClick={openModal}
         >
           ?

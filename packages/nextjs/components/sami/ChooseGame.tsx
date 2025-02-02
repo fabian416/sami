@@ -138,7 +138,7 @@ export const ChooseGame = ({ showGame }: any) => {
               <p className="text-xl">Find SAMI among 5 anons</p>
               <div className="card-actions justify-end">
                 <button
-                  className="btn btn-primary text-2xl px-32 bg-white text-[#1CA297] hover:text-[#1CA297] hover:bg-white border-0"
+                  className="btn btn-primary rounded-lg text-2xl px-32 bg-white text-[#1CA297] hover:text-[#1CA297] hover:bg-white border-0"
                   onClick={handleEnterGame}
                   disabled={loading}
                 >
@@ -178,17 +178,11 @@ export const ChooseGame = ({ showGame }: any) => {
               <div className="card-actions justify-center">
                 {connectedAddress ? (
                   allowance && allowance >= BigInt(2 * 1e18) ? (
-                    <button
-                      onClick={handleBetAndPlay}
-                      className="btn btn-primary text-2xl px-8 glow-cyan bg-[#1CA297] hover:bg-[#1B9086] dark:bg-[#249C8E] dark:hover:bg-[#1B9086] text-white border-0"
-                    >
+                    <button onClick={handleBetAndPlay} className="cool-button">
                       {loading ? "Bet 100 $MODE" : "Bet 100 $MODE"}
                     </button>
                   ) : (
-                    <button
-                      onClick={handleApprove}
-                      className="btn btn-primary text-2xl px-16 glow-cyan bg-[#1CA297] hover:bg-[#1B9086] dark:bg-[#249C8E] dark:hover:bg-[#1B9086] text-white border-0"
-                    >
+                    <button onClick={handleApprove} className="cool-button">
                       Approve 100{" "}
                       <Image
                         src="/mode.png"
