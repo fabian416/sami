@@ -211,25 +211,6 @@ export const getGameById = (roomId: string) => {
   return games[roomId] || null;
 };
 
-const getPlayerByIndex = (roomId: string, playerIndex: number) => {
-  const game = games[roomId];
-
-  return _.find(game.players, { index: playerIndex });
-}
-
-const getSafePlayerIndex = (roomId: string, agentMessage: string, agentId: number) => {
-  let parsedIndex = parseInt(agentMessage);
-
-  // Si el parseo falla (es NaN), se elige un número válido aleatorio entre 0 y 5
-  if (isNaN(parsedIndex) || parsedIndex === agentId) {
-    do {
-      parsedIndex = Math.floor(Math.random() * MIN_PLAYERS); // Número entre 0 y 5
-    } while (parsedIndex === agentId); // Asegurar que no sea el mismo que agentId
-  }
-
-  return getPlayerByIndex(roomId, parsedIndex);
-};
-
 export const calculateNumberOfPlayers = ({roomId}: {roomId: string}) => {
   const game = getGameById(roomId);
   if (!game) return [-1, -1];
