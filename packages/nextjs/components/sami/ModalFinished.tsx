@@ -5,15 +5,15 @@ export const ModalFinished = ({ winner }: any) => {
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-[#2c2171] glow-purple rounded-2xl items-center justify-center">
         <div className="flex items-center justify-center text-center text-2xl flex-col gap-2 py-8 px-16">
-          {winner === "humans" ? <strong>Humans won</strong> : <strong>SAMI won</strong>}
+          {winner === "You win" ? <strong>You won</strong> : <strong>SAMI won</strong>}
           <div className="w-48 h-48">
-            {winner === "humans" ? (
+            {winner === "You win" ? (
               <div className="flex relative w-48 h-48">
-                <Image alt="SE2 logo" className="cursor-pointer" fill src="/humans-won.webp" />
+                <Image alt="You Win Image" className="cursor-pointer" fill src="/humans-won.webp" />
               </div>
             ) : (
               <div className="flex relative w-48 h-48">
-                <Image alt="SE2 logo" className="cursor-pointer" fill src="/sami-won.webp" />
+                <Image alt="SAMI Wins Image" className="cursor-pointer" fill src="/sami-won.webp" />
               </div>
             )}
           </div>

@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import gameServiceEmitter from "./gameService";
-import { sendPrize } from "./";
+//import { sendPrize } from "./";
 import { provider, contract } from "../config/contractConfig";
 
 // Listen when someone purchase a ticket

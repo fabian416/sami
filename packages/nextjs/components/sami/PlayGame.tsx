@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import CountdownClock from "../CountdownClock";
-import { ModalEliminated } from "./ModalEliminated";
 import { ModalFinished } from "./ModalFinished";
 import { ModalForVoting } from "./ModalForVoting";
 import { useTheme } from "next-themes";
@@ -64,7 +63,6 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
   const [currentPhase, setCurrentPhase] = useState<"conversation" | "voting" | "finished">("conversation");
   const [clockTimer, setClockTimer] = useState<Clock | null>(null);
   const [winner, setWinner] = useState<string | null>(null);
-  const [isEliminatedModalOpen, setIsEliminatedModalOpen] = useState<boolean>(false);
   const [shuffledColors, setShuffledColors] = useState<string[]>([]);
   const [shuffledNames, setShuffledNames] = useState<string[]>([]);
 
@@ -75,7 +73,7 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
   const { resolvedTheme } = useTheme();
 
   const isDarkMode = resolvedTheme === "dark";
-  const disabledChat = isPlayerEliminated || currentPhase === "voting";
+  const disabledChat = currentPhase === "voting";
 
   useEffect(() => {
     setShuffledColors(shuffleArray([...COLORS]));
@@ -124,9 +122,16 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
       },
     );
 
-    socket.on("gameOver", (data: { winner: string; message: string }) => {
+    socket.on("gameOver", (data: { message: string; results: { playerId: string; won: boolean }[] }) => {
+      const { results } = data;
+
+      // Obtener el resultado del jugador actual
+      const playerResult = results.find(r => r.playerId === playerId);
+      if (playerResult) {
+        setWinner(playerResult.won ? "You win" : "sami");
+      }
+
       setCurrentPhase("finished");
-      setWinner(data.winner);
     });
 
     return () => {
@@ -145,23 +150,22 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
     socket.emit("message", { roomId, playerId, playerIndex, message });
   };
 
-  const handleCloseEliminatedModal = () => {
-    setIsEliminatedModalOpen(false);
-  };
-
   return (
     <>
+      {/* Voting modal */}
       {currentPhase === "voting" && (
         <ModalForVoting
           players={players}
-          setIsEliminatedModalOpen={setIsEliminatedModalOpen}
-          setMessages={setMessages}
           shuffledColors={shuffledColors}
           shuffledNames={shuffledNames}
+          setMessages={undefined}
         />
       )}
+
+      {/* Modal Finished  */}
       {currentPhase === "finished" && <ModalFinished winner={winner} />}
-      {isEliminatedModalOpen && isPlayerEliminated && <ModalEliminated closeModal={handleCloseEliminatedModal} />}
+
+      {/* Clock */}
       <CountdownClock setClockTimer={setClockTimer} clockTimer={clockTimer} />
 
       <div className="flex-grow grid grid-cols-2 gap-3 rounded-2xl backdrop-brightness-95 flex-col md:h-[calc(100vh-8rem)]">
@@ -176,18 +180,15 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
             />
           </div>
         )}
+
         <div
           className={`col-span-2 md:col-span-1 flex flex-col items-center justify-between p-4 rounded-2xl shadow-lg overflow-y-scroll max-w-screen-sm
-          ${!isPlayerEliminated && isDarkMode ? "bg-[#2c2171] glow-purple" : !isPlayerEliminated ? "bg-white glow-purple" : "bg-base-100"}`}
+          ${isDarkMode ? "bg-[#2c2171] glow-purple" : "bg-white glow-purple"}`}
         >
+          {/* Chat messages */}
           <div className="flex-1 w-full p-2 overflow-y-scroll">
-            {isPlayerEliminated ? (
-              <div className="text-gray-500">Eliminated</div>
-            ) : (
-              <div className="text-gray-300">Welcome! Ask questions to figure out who SAMI is.</div>
-            )}
             <div className={`mt-4 ${isDarkMode ? "text-white" : "text-black"}`}>
-              {messages.map((msg: any, index) => {
+              {messages.map((msg, index) => {
                 const color = shuffledColors[Number(msg.playerIndex)];
                 const name = shuffledNames[Number(msg.playerIndex)];
                 return (
@@ -207,13 +208,15 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
               <div ref={bottomRef} />
             </div>
           </div>
+
+          {/* Input messages */}
           <div className="flex w-full mt-4">
             <input
               ref={inputRef}
               type="text"
-              disabled={disabledChat}
-              className={`flex-1 p-2 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${isPlayerEliminated ? "bg-gray-500 border-gray-300" : "border-gray-300"}`}
-              placeholder={isPlayerEliminated ? "" : "Type your message..."}
+              disabled={currentPhase === "voting"}
+              className={`flex-1 p-2 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 border-gray-300`}
+              placeholder="Type your message..."
               onKeyDown={e => {
                 if (e.key === "Enter" && inputRef.current?.value.trim()) {
                   sendMessage(inputRef.current.value.trim());
@@ -222,8 +225,8 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
               }}
             />
             <button
-              disabled={disabledChat}
-              className={`p-2  text-white focus:outline-none focus:ring-2 rounded-r-lg ${isPlayerEliminated ? "bg-gray-600 hover:bg-gray-800  focus:ring-gray-500" : "bg-[#1CA297] hover:bg-[#33B3A8] focus:ring-[#1CA297]"}`}
+              disabled={currentPhase === "voting"}
+              className="p-2 text-white focus:outline-none focus:ring-2 rounded-r-lg bg-[#1CA297] hover:bg-[#33B3A8] focus:ring-[#1CA297]"
               onClick={() => {
                 if (inputRef.current?.value.trim()) {
                   sendMessage(inputRef.current.value.trim());

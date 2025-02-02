@@ -3,11 +3,9 @@ import {
   Player,
   createPlayer,
   assignIARole,
-  eliminatePlayer,
 } from "./playerService";
 import { EventEmitter } from "events";
 import { v4 as uuidv4 } from "uuid";
-import { io } from "../server";
 import _ from "lodash";
 
 class GameServiceEmitter extends EventEmitter {}
@@ -153,7 +151,7 @@ export const recordVote = (
   console.log(`[${roomId}] ${voterId} votó por ${votedPlayerId}.`);
   gameServiceEmitter.emit("voteSubmitted", { roomId, voterId, votedId: votedPlayerId });
 
-  // ✅ Verify that all the players have voted
+  //  Verify that all the players have voted
   if (Object.keys(game.votes).length === game.players.length - 1) {
     endVotingPhase(roomId);
   }
@@ -175,33 +173,39 @@ const endConversationPhase = async (roomId: string) => {
   gameServiceEmitter.emit("startVoting", { roomId, timeBeforeEnds, serverTime });
   setTimeout(() => endVotingPhase(roomId), timeBeforeEnds);
 }
-
 export const endVotingPhase = (roomId: string) => {
   const game = games[roomId];
-  if (!game || game.status !== "voting") return; // Make sure game is in 'voting' phase
+  if (!game || game.status !== "voting") return; // Asegurarse de que el juego está en fase de votación
   console.log(`[${roomId}] Ending voting phase...`);
 
-  // Evaluar every player independently
+  // Objeto para almacenar resultados de los jugadores
+  const results: { playerId: string; won: boolean }[] = [];
+
+  // Evaluar cada jugador
   game.players.forEach((player) => {
     const votedPlayerId = game.votes[player.id];
     const votedPlayer = _.find(game.players, { id: votedPlayerId });
 
     if (!votedPlayer) {
-        console.log(`[${roomId}] ${player.id} no votó correctamente.`);
-        gameServiceEmitter.emit("playerLost", { roomId, playerId: player.id });
-        return;
+      console.log(`[${roomId}] ${player.id} no votó correctamente.`);
+      results.push({ playerId: player.id, won: false });
+      return;
     }
 
     if (votedPlayer.isAI) {
-        console.log(`[${roomId}] ¡${player.id} ganó! Identificó a SAMI.`);
-        gameServiceEmitter.emit("playerWon", { roomId, playerId: player.id });
+      console.log(`[${roomId}] ¡${player.id} ganó! Identificó a SAMI.`);
+      results.push({ playerId: player.id, won: true });
     } else {
-        console.log(`[${roomId}] ${player.id} falló. SAMI gana.`);
-        gameServiceEmitter.emit("playerLost", { roomId, playerId: player.id });
+      console.log(`[${roomId}] ${player.id} falló. SAMI gana.`);
+      results.push({ playerId: player.id, won: false });
     }
-});
+  });
 
-game.status = "finished";
+  // Emitir el evento `gameOver` con los resultados al final
+  gameServiceEmitter.emit("gameOver", { roomId, results });
+
+  // Actualizar el estado del juego
+  game.status = "finished";
 };
 
 

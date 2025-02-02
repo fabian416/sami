@@ -1,64 +1,20 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Player } from "./PlayGame";
 import { useSocket } from "~~/app/socketContext";
 
 export const ModalForVoting = ({
   players,
-  setIsEliminatedModalOpen,
-  setMessages,
   shuffledColors,
   shuffledNames,
 }: {
   players: Player[];
-  setIsEliminatedModalOpen: any;
   setMessages: any;
   shuffledColors: string[];
   shuffledNames: string[];
 }) => {
   const [castedVote, setCastedVote] = useState(false);
-  const { socket, isConnected, playerId, roomId, isPlayerEliminated, setIsPlayerEliminated } = useSocket();
+  const { socket, isConnected, playerId, roomId } = useSocket();
   const playersToVote = players.filter(player => player.id !== playerId);
-
-  useEffect(() => {
-    if (!socket) return;
-    if (!playerId) return;
-
-    const handlePlayerElimited = (data: { roomId: string; playerId: string }) => {
-      const eliminatedPlayer = players.find(player => player.id === data.playerId);
-      if (eliminatedPlayer) {
-        const eliminatedMessage = { message: `Player ${eliminatedPlayer.index + 1} was eliminated` };
-        setMessages((prev: any) => [...prev, eliminatedMessage]);
-      }
-
-      if (data.playerId === playerId) {
-        setIsPlayerEliminated(true);
-        setIsEliminatedModalOpen(true);
-      }
-    };
-
-    socket.on("playerEliminated", handlePlayerElimited);
-    return () => {
-      socket.off("playerEliminated", handlePlayerElimited);
-    };
-  }, [socket, playerId, players, setIsEliminatedModalOpen, setIsPlayerEliminated, setMessages]);
-
-  useEffect(() => {
-    if (!socket) return;
-    if (!playerId) return;
-
-    const handlePlayerVoted = (data: { roomId: string; voterId: string; votedId: string }) => {
-      const voterPlayer: any = players.find(player => player.id === data.voterId);
-      const votedPlayer: any = players.find(player => player.id === data.votedId);
-
-      const votedMessage = { message: `Player ${voterPlayer.index + 1} voted for Player ${votedPlayer.index + 1}` };
-      setMessages((prev: any) => [...prev, votedMessage]);
-    };
-
-    socket.on("voteSubmitted", handlePlayerVoted);
-    return () => {
-      socket.off("voteSubmitted", handlePlayerVoted);
-    };
-  }, [socket, playerId, players, setIsEliminatedModalOpen, setIsPlayerEliminated, setMessages]);
 
   const handleVote = (votedPlayerIndex: number, votedPlayerId: string) => {
     if (!isConnected || !socket) {
@@ -72,7 +28,7 @@ export const ModalForVoting = ({
 
   return (
     <>
-      {!isPlayerEliminated && !castedVote && (
+      {!castedVote && (
         <VoteModal
           players={playersToVote}
           handleVote={handleVote}
@@ -80,7 +36,7 @@ export const ModalForVoting = ({
           shuffledNames={shuffledNames}
         />
       )}
-      {!isPlayerEliminated && castedVote && <WaitingOtherToVote />}
+      {castedVote && <WaitingOtherToVote />}
     </>
   );
 };

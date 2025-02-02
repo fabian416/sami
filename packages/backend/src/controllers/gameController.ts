@@ -56,29 +56,13 @@ gameServiceEmitter.on("gameStarted", ({ roomId, game, timeBeforeEnds, serverTime
   });
 });
 
-gameServiceEmitter.on("playerWon", ({ roomId, playerId }) => {
-  console.log(`[${roomId}] 🎉 ¡Jugador ${playerId} won!`);
-  io.to(roomId).emit("playerWon", {
-      playerId,
-      message: `Congratulations ${playerId}, you found SAMI!!!`
-  });
-});
-
-gameServiceEmitter.on("playerLost", ({ roomId, playerId }) => {
-  console.log(`[${roomId}] Player ${playerId} lost`);
-  io.to(roomId).emit("playerLost", {
-      playerId,
-      message: `Sorry ${playerId}, you didn't choose wisely.`
-  });
-});
-
-gameServiceEmitter.on("gameOver", ({ roomId }) => {
+gameServiceEmitter.on("gameOver", ({ roomId, results }) => {
   console.log(`[${roomId}] Game over`);
   io.to(roomId).emit("gameOver", {
-      message: "The game has over, thanks for playing!"
+    message: "The game is over! Here are the results:",
+    results, // Array con los resultados de todos los jugadores
   });
 });
-
 
 // Create or join a new match
 export const getNumberOfPlayers = (data: any, socket: Socket, io: Server) => {
