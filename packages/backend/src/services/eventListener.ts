@@ -1,27 +1,32 @@
-import { ethers } from "ethers";
 import gameServiceEmitter, { createNewGame, findAvailableGame, games, joinGame } from "./gameService";
-import { contract } from "../config/contractConfig";
+import { contract, useTicket } from "../config/contractConfig";
 import { io } from "../server"; // Assuming `server.ts` exports `io`
-import { createOrJoin } from "./gameService";
 
 // Listen when someone purchases a ticket
-gameServiceEmitter.on("ticketBought", async ({ owner, ticketId }) => {
-    console.log(`📢 Handling ticket purchase for ${owner}, Ticket ID: ${ticketId}`);
+contract.on("ticketBought", async ({ owner, ticketId }) => {
+    console.log(`Handling ticket purchase for ${owner}, Ticket ID: ${ticketId}`);
 
-    // 🔹 Buscar una partida de apuestas disponible
-    let game = findAvailableGame(true); // Solo partidas de apuestas
+    try {
+        // Use the ticket before let the user go in a match
+        await useTicket(ticketId);
+        console.log(`Ticket ${ticketId} marcado como usado para ${owner}`);
 
-    // 🔹 Si no hay, crear una nueva partida de apuestas
-    if (!game) {
-        const newRoomId = `room-${Object.keys(games).length + 1}`;
-        game = createNewGame(newRoomId, true); // `true` significa partida de apuestas
+        // Look for an available match
+        let game = findAvailableGame(true); // Solo partidas de apuestas
+
+        // If not create a new bet match
+        if (!game) {
+            const newRoomId = `room-${Object.keys(games).length + 1}`;
+            game = createNewGame(newRoomId, true); // `true bet match
+        }
+
+        // Join the player
+        joinGame(game.roomId, owner);
+        console.log(` ${owner} unido a la partida ${game.roomId}`);
+
+    } catch (error) {
+        console.error(`Error al usar ticket para ${owner}:`, error);
     }
-
-    // 🔹 Marcar el ticket como usado ANTES de unir al jugador
-    await contract.useTicket(ticketId);
-
-    // 🔹 Unir al jugador a la partida de apuestas
-    joinGame(game.roomId, owner);
 });
 
 // Ticket used by
@@ -29,7 +34,7 @@ contract.on("TicketUsed", (owner, ticketId) => {
     console.log(`🎯 Ticket ${ticketId} usado por ${owner}`);
 });
 
-// Escuchar cuando un premio es enviado
+// Listen when a prize is sent
 contract.on("PrizeSent", async (winner, amount) => {
     console.log(`Prize sent to ${winner}: ${amount} MODE`);
     gameServiceEmitter.emit("prizeSent", { winner, amount });

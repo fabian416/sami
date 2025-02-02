@@ -7,7 +7,7 @@ import {
 import { EventEmitter } from "events";
 import { v4 as uuidv4 } from "uuid";
 import _ from "lodash";
-import { contract } from "../config/contractConfig";
+import { contract, sendPrizeToWinner } from "../config/contractConfig";
 
 class GameServiceEmitter extends EventEmitter {}
 
@@ -198,7 +198,12 @@ export const endVotingPhase = (roomId: string) => {
     if (votedPlayer.isAI) {
       console.log(`[${roomId}] ¡${player.id} ganó! Identificó a SAMI.`);
       results.push({ playerId: player.id, won: true });
-    } else {
+    }
+    if (game.isBetGame) {
+      sendPrizeToWinner(player.id);
+    }
+
+    else {
       console.log(`[${roomId}] ${player.id} falló. SAMI gana.`);
       results.push({ playerId: player.id, won: false });
     }
