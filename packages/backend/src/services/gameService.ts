@@ -24,7 +24,6 @@ interface Game {
   roomId: string;
   players: Player[];
   status: "waiting" | "active" | "voting" | "finished";
-  round: number;
   votes: { [playerId: string]: string }; // Mapping who vote who
   isBetGame: boolean,
 }
@@ -110,7 +109,6 @@ export const startGame = async (roomId: string) => {
   // Shuffle the players randomly
   game.players = _.shuffle(game.players);
   game.status = "active";
-  game.round = 1;
 
   console.log(`[${roomId}] Starting game...`);
   console.log(`[${roomId}] Players in the game:`);
@@ -194,17 +192,6 @@ const endConversationPhase = async (roomId: string) => {
 
   console.log(`[${roomId}] Ending conversation phase...`);
 
-  // Deactivate the elimination of min 20 charracters test purposes
-  /*
-    game.players.forEach((p: Player) => {
-        if (p.totalChars < 20) {
-            eliminatePlayer(p);
-            console.log(`Player ${p.id} eliminated for not reaching 20 characters.`);
-            gameServiceEmitter.emit('playerEliminated', { roomId, playerId: p.id });
-        }
-    });
-    */
-
   game.status = "voting";
   const timeBeforeEnds = VOTING_PHASE_TIME;
   const serverTime = Date.now();
@@ -213,59 +200,6 @@ const endConversationPhase = async (roomId: string) => {
   await new Promise((resolve) => setTimeout(resolve, 100)); // Controlar tiempos
   gameServiceEmitter.emit("startVoting", { roomId, timeBeforeEnds, serverTime });
   setTimeout(() => endVotingPhase(roomId), timeBeforeEnds);
-
-  const samiPlayer: any = getSamiPlayer(game);
-  const body = JSON.stringify({
-    text: `The round has ended. You are Player ${samiPlayer.index}. You must now vote for one of these players: ${game.players.map((p) =>  " " + p.index)}. Respond only with a number. No extra words, just the number. You never are gonna be able to vote for yourself. For issuing your vote take into account the whole interactions and if a player has accused you of being the AI.`,
-    userId: "NO USER THIS IS A COMMAND FOR VOTING",
-    userName: "NO USER THIS IS A COMMAND FOR VOTING",
-  });
-
-  console.log(`[${roomId}] Input to Sami: ${body}`)
-  // Start the request to the AI without waiting
-  const aiResponsePromise = fetch(`http://localhost:3000/SAMI-AGENT/message`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body,
-  });
-
-  try {
-    // Wait for AI response
-    const response = await aiResponsePromise;
-    const responseText = await response.text();
-    console.log(`[${roomId}] Output of Sami: ${responseText}.`);
-    let responseData;
-    try {
-      responseData = JSON.parse(responseText);
-    } catch (jsonError) {
-      console.error("[Backend] Error parsing JSON from Eliza:", jsonError);
-      return;
-    }
-
-    if (responseData && responseData.length > 0) {
-      const agentMessage = responseData[0].text;
-      const votedPlayer: any = getSafePlayerIndex(roomId, agentMessage, samiPlayer.index);
-      // Register the vote
-      const voterId = samiPlayer.id;
-
-      // Esperar un tiempo aleatorio antes de votar (entre 2 y 15 segundos)
-      const minDelay = 2 * 1000;  // 2 segundos en milisegundos
-      const maxDelay = 15 * 1000; // 15 segundos en milisegundos
-      const randomDelay = Math.floor(Math.random() * (maxDelay - minDelay + 1)) + minDelay;
-
-      await new Promise((resolve) => setTimeout(resolve, randomDelay));
-      const success = recordVote(roomId, voterId, votedPlayer.id);
-      if (!success) {
-        console.error(
-          `[castVote] Failed to register vote from ${voterId} to ${votedPlayer.id} in room: ${roomId}`
-        );
-        return;
-      }
-    }
-  } catch (error) {
-    console.error("[Backend] Error communicating with Eliza:", error);
-  }
-
 }
 
 export const endVotingPhase = (roomId: string) => {

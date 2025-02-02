@@ -65,10 +65,10 @@ gameServiceEmitter.on("playerWon", ({ roomId, playerId }) => {
 });
 
 gameServiceEmitter.on("playerLost", ({ roomId, playerId }) => {
-  console.log(`[${roomId}] ❌ Player ${playerId} lost`);
+  console.log(`[${roomId}] Player ${playerId} lost`);
   io.to(roomId).emit("playerLost", {
       playerId,
-      message: ` Sorry ${playerId}, you didn't choose wisely.`
+      message: `Sorry ${playerId}, you didn't choose wisely.`
   });
 });
 
