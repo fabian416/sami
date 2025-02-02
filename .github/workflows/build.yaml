@@ -99,7 +99,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./packages/ai/sami
-          file: Dockerfile
+          file: ./packages/ai/sami/Dockerfile
           push: true
           tags: ${{env.IMAGE_TAG_AI_AGENT}}:${{env.IMAGE_VERSION}}
           cache-from: type=gha
