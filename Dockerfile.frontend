@@ -11,14 +11,14 @@ RUN corepack enable \
 
 # Copia solo los archivos necesarios para instalar dependencias
 COPY package*.json yarn*.lock ./
-COPY /packages/frontend/package*.json ./packages/frontend/
+COPY /packages/nextjs/package*.json ./packages/nextjs/
 RUN yarn install
 
 # Cambia al directorio del backend y ejecuta el build
-WORKDIR /app/packages/frontend
+WORKDIR /app/packages/nextjs
 
 # Copia el resto del código fuente y compila
-COPY /packages/frontend/ ./
+COPY /packages/nextjs/ ./
 
 
 # Etapa 2: Producción
@@ -30,7 +30,7 @@ RUN apt-get update && apt-get install -y curl
 WORKDIR /app
 
 # Copia solo los archivos esenciales desde la etapa de construcción
-COPY --from=builder /app/packages/frontend/ ./
+COPY --from=builder /app/packages/nextjs/ ./
 
 RUN yarn install
 
