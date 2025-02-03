@@ -79,8 +79,25 @@ const ParticleBackground = () => {
 
     animate();
 
+    // Función para manejar el resize
+    const handleResize = () => {
+      const width = mount.clientWidth;
+      const height = mount.clientHeight;
+
+      // Actualizar el tamaño del renderer
+      renderer.setSize(width, height);
+
+      // Actualizar la relación de aspecto y la cámara
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+    };
+
+    // Agregar event listener para el resize
+    window.addEventListener("resize", handleResize);
+
     // Cleanup on unmount
     return () => {
+      window.removeEventListener("resize", handleResize);
       mount.removeChild(renderer.domElement);
     };
   }, [resolvedTheme, isDarkMode]);
