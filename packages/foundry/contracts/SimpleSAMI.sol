@@ -81,7 +81,7 @@ contract SimpleSAMI is Ownable {
     /// @dev The contract must have sufficient reserves to send the prize
     /// @param _winner The address of the winner to receive the prize
     function sendPrize(address _winner) public onlyOwner {
-        uint256 prize = betAmount * 2;
+        uint256 prize = betAmount * 5;
         require(samiReserves >= prize, "No prize to send");
         samiReserves -= prize;
         require(MODE_TOKEN.transfer(_winner, prize), "Transfer failed");

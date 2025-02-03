@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { Socket, io } from "socket.io-client";
+import { useAccount } from "wagmi";
 
 const NODE_ENV = process.env.NODE_ENV;
 
@@ -34,6 +35,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [playerIndex, setPlayerIndex] = useState<number | null>(null);
   const [roomId, setRoomId] = useState<string | null>(null);
   const [isPlayerEliminated, setIsPlayerEliminated] = useState<boolean | undefined>(false);
+  const { address } = useAccount();
 
   useEffect(() => {
     console.log("Intentando conectar a:", SERVER_URL);
@@ -66,6 +68,14 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       socketInstance.disconnect();
     };
   }, []);
+
+  // Register the wallet
+  useEffect(() => {
+    if (socket && address) {
+      socket.emit("registerWallet", { walletAddress: address });
+      console.log(`Wallet registered: ${address}`);
+    }
+  }, [socket, address]); // 📌 Escucha cambios en `address`
 
   return (
     <SocketContext.Provider

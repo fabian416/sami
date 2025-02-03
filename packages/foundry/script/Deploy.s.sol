@@ -22,7 +22,7 @@ contract DeployScript is ScaffoldETHDeploy {
         address modeToken = deployMockMode.run();
 
         DeploySimpleSAMI deploySami = new DeploySimpleSAMI();
-        deploySami.run(modeToken);
+        deploySami.run();
 
         // Deploy another contract
         // DeployMyContract myContract = new DeployMyContract();

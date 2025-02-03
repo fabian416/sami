@@ -8,7 +8,7 @@ import {
   getSamiPlayer,
 } from "../services/gameService";
 import { Server, Socket } from "socket.io";
-import { io } from "../server";
+import { io, players } from "../server";
 import gameServiceEmitter from "../services/gameService";
 
 const NODE_ENV = process.env.NODE_ENV;
@@ -82,22 +82,34 @@ export const getNumberOfPlayers = (data: any, socket: Socket, io: Server) => {
 
 // Create or join a new match
 export const createOrJoinGame = (data: any, socket: Socket, io: Server) => {
-  const { playerId } = data;
+  const { playerId, isBetGame } = data; // Extract `isBetGame`
 
-  // Delegate to the service, passing `socket` and `io`
-  const { roomId, success } = createOrJoin(playerId, socket, io);
+  console.log(`Creating or joining game. Player: ${playerId}, isBetGame: ${isBetGame}`);
+
+  // Delegate to the service, passing `socket`, `io`, and `isBetGame`
+  const { roomId, success } = createOrJoin(playerId, socket, io, isBetGame);
 
   if (!success) {
-    socket.emit("error", {
-      message: "There was an error creating or joining the match",
-    });
-    console.error(`Error joining the player ${playerId} into the room ${roomId}`);
-    return;
+    console.error(` Error joining the player ${playerId} into the room ${roomId}`);
+    return socket.emit("error", { message: "There was an error creating or joining the match" });
+  }
+  // Store playerId inside `players`
+  if (players[socket.id]) {
+    players[socket.id].playerId = playerId;
+    players[playerId] = { ...players[socket.id] };  // Store playerId separately
+    console.log(`📌 Mapped playerId: ${playerId} to wallet: ${players[socket.id].walletAddress}`);
+  } else {
+    console.warn(`⚠️ No socket entry found for player ${playerId}`);
   }
 
-  // Notify the client a player joined
+  // Notify the client that the player joined successfully
   socket.join(roomId);
   io.to(roomId).emit("playerJoined", { playerId, roomId });
+
+  // Send response to the specific player who joined
+  socket.emit("gameJoined", { roomId, success, isBetGame });
+
+  console.log(` Player ${playerId} joined room ${roomId} (isBetGame: ${isBetGame})`);
 };
 
 
@@ -162,7 +174,7 @@ export const handleMessage = async (data: any, socket: Socket, io: Server) => {
   // Validar si la sala existe
   const game = games[roomId];
   if (!game) {
-    return socket.emit("error", { message: "La sala no existe" });
+    return socket.emit("error", { message: "Room doesn't exist" });
   }
 
   // Verificar si la partida está activa

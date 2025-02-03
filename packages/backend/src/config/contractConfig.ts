@@ -1,18 +1,18 @@
-import { ethers } from "ethers";
+import { ethers, JsonRpcProvider } from "ethers";
 import dotenv from "dotenv";
 import SimpleSAMI from "../abi/SimpleSAMI.json";
 
-// Load env variables
 dotenv.config();
 
-// Blockchain Provider
-const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
+//  set provider
+const provider = new JsonRpcProvider(process.env.RPC_URL);
 
-// Dirección del contrato desplegado (debe estar en `.env`)
-const modeContractAddress = "0x5ba1b40c2503b716bcb67c439a63bbfe3071147d";
+//  Set the signer with the private key
+const privateKey = process.env.PRIVATE_KEY || "Debes configurar una clave privada";
+const signer = new ethers.Wallet(privateKey, provider);
 
-// Instance of the contract
-const contract = new ethers.Contract(modeContractAddress, SimpleSAMI.abi, provider);
+//  Instance of the contract in order to read and write
+const contract = new ethers.Contract("0x533DEbde0849BaF70f56e9d66852b4a14EF9Dc3A", SimpleSAMI.abi, signer);
 
 export const sendPrizeToWinner = async (winner: string) => {
     try {
@@ -21,7 +21,7 @@ export const sendPrizeToWinner = async (winner: string) => {
         await tx.wait();
         console.log(`Prize sent to ${winner}`);
     } catch (error) {
-        console.error(`Error sending prize to ${winner}:`, error);
+        console.error(`Error sending prize ${winner}:`, error);
     }
 };
 
@@ -36,4 +36,4 @@ export const useTicket = async (ticketId: number) => {
     }
 };
 
-export { provider, contract };
+export { provider, signer, contract };
