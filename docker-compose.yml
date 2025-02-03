@@ -9,7 +9,7 @@ services:
     networks:
       - sami_network
     environment:
-      - NODE_ENV=production
+      - AGENT_URL=http://ai-agent:3000
       - PORT=5001
       - HOST=0.0.0.0
       - PRIVATE_KEY=${PRIVATE_KEY}
@@ -27,7 +27,7 @@ services:
     depends_on:
       - backend
     environment:
-      - NEXT_PUBLIC_APP_ENV=test
+      - NEXT_PUBLIC_API_URL=http://backend:5001
       - PORT=3001
 
   ai-agent:
@@ -38,7 +38,7 @@ services:
     networks:
       - sami_network
     environment:
-      - NODE_ENV=production
+      - AGENT_URL=http://ai-agent:3000
       - PORT=3000
 
 networks:

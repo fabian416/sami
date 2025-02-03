@@ -11,8 +11,8 @@ import { Server, Socket } from "socket.io";
 import { io, players } from "../server";
 import gameServiceEmitter from "@services/gameService";
 
-const NODE_ENV = process.env.NODE_ENV;
-export const SAMI_URI = NODE_ENV === "production" ? "http://ai-agent:3000" : "http://localhost:3000";
+const AGENT_URL = process.env.AGENT_URL;
+export const SAMI_URI = AGENT_URL || "http://localhost:3000";
 
 
 gameServiceEmitter.on("startConversation", (data: { roomId: string, timeBeforeEnds: number, serverTime: number }) => {

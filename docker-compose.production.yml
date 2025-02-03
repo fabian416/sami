@@ -7,7 +7,7 @@ services:
     networks:
       - sami_network
     environment:
-      - NODE_ENV=production
+      - AGENT_URL=http://79.143.94.144:5001
       - PORT=5001
       - HOST=0.0.0.0
       - PRIVATE_KEY=${PRIVATE_KEY}
@@ -23,7 +23,7 @@ services:
     depends_on:
       - backend
     environment:
-      - NEXT_PUBLIC_APP_ENV=test
+      - NEXT_PUBLIC_API_URL=http://79.143.94.144:5001
       - PORT=3001
 
   ai-agent:
@@ -34,7 +34,7 @@ services:
     networks:
       - sami_network
     environment:
-      - NODE_ENV=production
+      - AGENT_API=http://79.143.94.144:3000
       - PORT=3000
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - USE_OPENAI_EMBEDDING=${USE_OPENAI_EMBEDDING}
