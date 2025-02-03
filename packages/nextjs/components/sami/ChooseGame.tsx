@@ -242,7 +242,7 @@ export const ChooseGame = ({ showGame }: any) => {
                       onClick={handleApprove}
                       className="cool-button !flex !flex-row !justify-center !items-center"
                     >
-                      <div className="text-[#3DCCE1]">Approve</div>&nbsp;<>100</>&nbsp;
+                      <div className="text-[#b3ca06]">Approve</div>&nbsp;<>100</>&nbsp;
                       <Image
                         src="/mode.png"
                         alt="MODE Network Logo"
