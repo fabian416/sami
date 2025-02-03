@@ -7,6 +7,8 @@ import { EventEmitter } from "events";
 import { v4 as uuidv4 } from "uuid";
 import _ from "lodash";
 import { contract, sendPrizeToWinner } from "../config/contractConfig";
+import { players } from "../server"; // Import player mapping
+
 
 class GameServiceEmitter extends EventEmitter {}
 
@@ -15,7 +17,7 @@ const gameServiceEmitter = new GameServiceEmitter();
 export default gameServiceEmitter;
 
 const MIN_PLAYERS = 3;
-const CONVERTATION_PHASE_TIME = 2 * 60 * 1000;
+const CONVERTATION_PHASE_TIME = 20 * 1000;
 const VOTING_PHASE_TIME = 30 * 1000;
 
 interface Game {
@@ -28,11 +30,18 @@ interface Game {
 // Simulation and store of data base  in memory
 export const games: { [key: string]: Game } = {};
 
-// Find games using isBet parameter
-export const findAvailableGame = (isBetGame: boolean): Game | null => {
+// Encuentra una partida SOLO si es del mismo tipo (apuesta o gratuita)
+export const findBetGame = (): Game | null => {
   return _.find(
     _.reverse(Object.values(games)),
-    (game) => game.status === "waiting" && game.players.length < MIN_PLAYERS && game.isBetGame === isBetGame
+    (game) => game.status === "waiting" && game.players.length < MIN_PLAYERS && game.isBetGame === true
+  ) || null;
+};
+
+export const findFreeGame = (): Game | null => {
+  return _.find(
+    _.reverse(Object.values(games)),
+    (game) => game.status === "waiting" && game.players.length < MIN_PLAYERS && game.isBetGame === false
   ) || null;
 };
 
@@ -41,40 +50,60 @@ export const createOrJoin = (
   playerId: string,
   socket: Socket,
   io: Server,
-  isBetGame: boolean = false // Por defecto, las partidas son gratuitas
+  isBetGame: boolean = false
 ): { roomId: string; success: boolean } => {
-  let game = findAvailableGame(isBetGame);
+  let game = isBetGame ? findBetGame() : findFreeGame(); // find based on type bet or not
 
   if (!game) {
     const newRoomId = `room-${Object.keys(games).length + 1}`;
     game = createNewGame(newRoomId, isBetGame);
   }
 
-  const success = joinGame(game.roomId, playerId);
-  return { roomId: game.roomId, success };
+  if (!game) {
+    console.error(`Error creating the match for ${playerId} (isBetGame: ${isBetGame})`);
+    return { roomId: "", success: false };
+  }
+
+  const success = joinGame(game.roomId, playerId, isBetGame);
+
+  if (!success) {
+    console.warn(`⚠️ The player ${playerId} could not join the game${game.roomId}`);
+    return { roomId: "", success: false };
+  }
+
+  console.log(`Player ${playerId} joined the match ${game.roomId} (isBetGame: ${isBetGame})`);
+  return { roomId: game.roomId, success: true };
 };
 
 // Create a new Match
 export const createNewGame = (roomId: string, isBetGame: boolean) => {
-  const newGame = {
+  const newGame: Game = {
     roomId,
     players: [] as Player[],
-    status: "waiting" as const,
+    status: "waiting",
     votes: {},
-    isBetGame,
+    isBetGame, 
   };
 
-  games[roomId] = newGame;
+  games[roomId] = newGame; //  Se almacena en la memoria correctamente
+  console.log(`New match created ${roomId} | Bet: ${isBetGame}`);
+
   return newGame;
 };
 
-export const joinGame = (roomId: string, playerId: string): boolean => {
+export const joinGame = (roomId: string, playerId: string, isBetGame: boolean): boolean => {
   // Get instance of the created game
   const game = games[roomId];
   if (!game) return false;
 
   // Forbid joining if game is active or finished
   if (game.status !== "waiting") return false;
+
+  if (game.isBetGame !== isBetGame) {
+    console.warn(`Player ${playerId} tried to join a mismatched game type (expected: ${game.isBetGame}, received: ${isBetGame})`);
+    return false;
+  }
+
 
   // Check if the player already exists
   const existingPlayer = _.find(game.players, { id: playerId });
@@ -114,7 +143,7 @@ export const startGame = async (roomId: string) => {
     console.log(`Index: ${index}, ID: ${player.id}, Role: ${player.isAI ? "AI" : "Human"}`);
   });
 
-  // Emitir evento de inicio de juego
+  // Emit event start of the game
   await new Promise((resolve) => setTimeout(resolve, 500));
   const timeBeforeEnds = CONVERTATION_PHASE_TIME;
   const serverTime = Date.now();
@@ -144,13 +173,13 @@ export const recordVote = (
   const votedPlayer = _.find(game.players, { id: votedPlayerId });
 
   if (!voter || !votedPlayer) {
-    console.warn(`[recordVote] Voto inválido en room: ${roomId}`);
+    console.warn(`[recordVote]Invalid vote in room : ${roomId}`);
     return false;
   }
 
   // Register the vote
   game.votes[voterId] = votedPlayerId;
-  console.log(`[${roomId}] ${voterId} votó por ${votedPlayerId}.`);
+  console.log(`[${roomId}] ${voterId} Voted for ${votedPlayerId}.`);
   gameServiceEmitter.emit("voteSubmitted", { roomId, voterId, votedId: votedPlayerId });
 
   //  Verify that all the players have voted
@@ -175,15 +204,15 @@ const endConversationPhase = async (roomId: string) => {
   gameServiceEmitter.emit("startVoting", { roomId, timeBeforeEnds, serverTime });
   setTimeout(() => endVotingPhase(roomId), timeBeforeEnds);
 }
+
 export const endVotingPhase = (roomId: string) => {
   const game = games[roomId];
-  if (!game || game.status !== "voting") return; // Asegurarse de que el juego está en fase de votación
+  if (!game || game.status !== "voting") return; // Ensure game is in the voting phase
   console.log(`[${roomId}] Ending voting phase...`);
 
-  // Objeto para almacenar resultados de los jugadores
+  // Store results
   const results: { playerId: string; won: boolean }[] = [];
 
-  // Evaluar cada jugador
   game.players.forEach((player) => {
     const votedPlayerId = game.votes[player.id];
     const votedPlayer = _.find(game.players, { id: votedPlayerId });
@@ -199,21 +228,26 @@ export const endVotingPhase = (roomId: string) => {
       results.push({ playerId: player.id, won: true });
 
       if (game.isBetGame) {
-        sendPrizeToWinner(player.id);
-      }
-    }
-    
+        const winnerAddress = players[player.id]?.walletAddress;
 
-    else {
+        if (winnerAddress) {
+          console.log(`Sending prize to${winnerAddress}`);
+          sendPrizeToWinner(winnerAddress);
+        } else {
+          console.error(` No wallet address found for player ID: ${player.id}`);
+          console.log("Players mapping:", players);
+        }
+      }
+    } else {
       console.log(`[${roomId}] ${player.id} falló. SAMI gana.`);
       results.push({ playerId: player.id, won: false });
     }
   });
 
-  // Emitir el evento `gameOver` con los resultados al final
+  // Emit game over event
   gameServiceEmitter.emit("gameOver", { roomId, results });
 
-  // Actualizar el estado del juego
+  // Mark game as finished
   game.status = "finished";
 };
 
@@ -223,14 +257,15 @@ export const getGameById = (roomId: string) => {
   return games[roomId] || null;
 };
 
-export const calculateNumberOfPlayers = ({roomId}: {roomId: string}) => {
+export const calculateNumberOfPlayers = ({ roomId }: { roomId: string }) => {
   const game = getGameById(roomId);
   if (!game) return [-1, -1];
 
-  const partialAmountOfPlayers = _.size(game.players);
-  const amountOfPlayers = partialAmountOfPlayers > MIN_PLAYERS ? MIN_PLAYERS : partialAmountOfPlayers;
+  //  Only count players in the same game, no need for `player.isBetGame`
+  const amountOfPlayers = game.players.length > MIN_PLAYERS ? MIN_PLAYERS : game.players.length;
+
   return [amountOfPlayers, MIN_PLAYERS];
-}
+};
 
 export const getSamiPlayer = (game: Game) => {
   return _.find(game.players, { isAI: true });

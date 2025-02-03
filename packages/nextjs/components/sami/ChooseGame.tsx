@@ -33,6 +33,7 @@ export const ChooseGame = ({ showGame }: any) => {
     args: [connectedAddress, simpleSamiContractData?.address],
     watch: true,
   });
+  const [isBetGame, setIsBetGame] = useState<boolean>(false);
 
   useEffect(() => {
     if (!socket) return;
@@ -77,7 +78,7 @@ export const ChooseGame = ({ showGame }: any) => {
   };
 
   const handleBetAndPlay = async () => {
-    if (!connectedAddress) {
+    if (!connectedAddress || !socket) {
       notification.error("Please connect your wallet");
       return;
     }
@@ -90,9 +91,32 @@ export const ChooseGame = ({ showGame }: any) => {
 
       if (contractResponse) {
         notification.success("Ticket for a game bought successfully!");
+
+        // 🔹 Generar un ID único para el jugador
+        const randomPlayerId = uuidv4();
+        setPlayerId(randomPlayerId);
+        setIsBetGame(true);
+
+        setLoading(true);
+
+        // 🔥 **Emitir evento al backend para unirse a la partida**
+        socket.emit(
+          "createOrJoinGame",
+          { playerId: randomPlayerId, isBetGame: true }, // ✅ Se marca como partida de apuestas
+          (response: { success: boolean; roomId: string }) => {
+            setLoading(false);
+
+            if (response.success && response.roomId) {
+              setRoomId(response.roomId); // ✅ Almacena `roomId` en el contexto
+            } else {
+              console.error("Failed to join game:", response);
+              alert("Error joining the game. Please try again.");
+            }
+          },
+        );
       }
     } catch (error) {
-      console.error("Error increasing buying ticket:", error);
+      console.error("Error buying ticket:", error);
       notification.error("Buying ticket failed, please try again.");
     }
   };
@@ -105,11 +129,12 @@ export const ChooseGame = ({ showGame }: any) => {
 
     const randomPlayerId = uuidv4();
     setPlayerId(randomPlayerId);
+    setIsBetGame(false);
 
     setLoading(true);
     socket.emit(
       "createOrJoinGame",
-      { playerId: randomPlayerId },
+      { playerId: randomPlayerId, isBet: false },
       (response: { message(arg0: string, message: any): unknown; success: boolean; roomId: string }) => {
         setLoading(false);
         if (response.success && response.roomId) {
@@ -124,7 +149,7 @@ export const ChooseGame = ({ showGame }: any) => {
 
   return (
     <>
-      {loading && <ModalWaitingForPlayers />}
+      {loading && <ModalWaitingForPlayers isBetGame={isBetGame} />}
       <div className="flex flex-col items-center w-full">
         <div className="mb-12">
           <h1 className="sami-title text-7xl mb-8 text-center">

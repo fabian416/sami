@@ -1,41 +1,39 @@
-import gameServiceEmitter, { createNewGame, findAvailableGame, games, joinGame } from "./gameService";
+import gameServiceEmitter, { createOrJoin } from "./gameService";
 import { contract, useTicket } from "../config/contractConfig";
-import { io } from "../server"; // Assuming `server.ts` exports `io`
+import { io } from "../server";
+import { players } from "../server";  
+const main = async () => {
+    console.log(" Starting event listeners...");
 
-// Listen when someone purchases a ticket
-contract.on("ticketBought", async ({ owner, ticketId }: any) => {
-    console.log(`Handling ticket purchase for ${owner}, Ticket ID: ${ticketId}`);
+    // Remove previous listeners 
+    contract.removeAllListeners();
 
-    try {
-        // Use the ticket before let the user go in a match
-        await useTicket(ticketId);
-        console.log(`Ticket ${ticketId} marcado como usado para ${owner}`);
-
-        // Look for an available match
-        let game = findAvailableGame(true); // Solo partidas de apuestas
-
-        // If not create a new bet match
-        if (!game) {
-            const newRoomId = `room-${Object.keys(games).length + 1}`;
-            game = createNewGame(newRoomId, true); // `true bet match
+    // Listen when someoen purchase a ticket
+    contract.on(contract.filters.TicketBought, async (owner, ticketId) => {
+        console.log(`Handling ticket purchase for ${owner}, Ticket ID: ${ticketId}`);
+        
+        try {
+            // Solo marcar el ticket como usado, sin crear partidas
+            await useTicket(ticketId);
+            console.log(` Ticket ${ticketId} used by ${owner}`);
+            
+        } catch (error) {
+            console.error(`Error using the ticket for ${owner}:`, error);
         }
+    });
 
-        // Join the player
-        joinGame(game.roomId, owner);
-        console.log(` ${owner} unido a la partida ${game.roomId}`);
+    // Emit when a ticket is used
+    contract.on(contract.filters.TicketUsed, (owner, ticketId) => {
+        console.log(`🎯 Ticket ${ticketId} used by ${owner}`);
+    });
 
-    } catch (error) {
-        console.error(`Error al usar ticket para ${owner}:`, error);
-    }
-});
+    // Listen when a prize is sent
+    contract.on(contract.filters.PrizeSent, async (winner, amount) => {
+        console.log(`Prize sent to ${winner}: ${amount} MODE`);
+        gameServiceEmitter.emit("prizeSent", { winner, amount });
+    });
 
-// Ticket used by
-contract.on("TicketUsed", (owner: any, ticketId: any) => {
-    console.log(`Ticket ${ticketId} usado por ${owner}`);
-});
+    console.log("Event listeners are now running.");
+};
 
-// Listen when a prize is sent
-contract.on("PrizeSent", async (winner: any, amount: any) => {
-    console.log(`Prize sent to ${winner}: ${amount} MODE`);
-    gameServiceEmitter.emit("prizeSent", { winner, amount });
-});
+main().catch((error) => console.error(" Error initializing event listeners:", error));

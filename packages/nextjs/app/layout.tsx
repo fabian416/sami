@@ -26,11 +26,11 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
         />
       </head>
       <body>
-        <ThemeProvider enableSystem>
-          <SocketProvider>
-            <ScaffoldEthAppWithProviders>{children}</ScaffoldEthAppWithProviders>
-          </SocketProvider>
-        </ThemeProvider>
+        <ScaffoldEthAppWithProviders>
+          <ThemeProvider enableSystem>
+            <SocketProvider>{children}</SocketProvider>
+          </ThemeProvider>
+        </ScaffoldEthAppWithProviders>
       </body>
     </html>
   );

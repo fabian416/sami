@@ -1408,7 +1408,7 @@ const deployedContracts = {
   },
   84532: {
     MockMODE: {
-      address: "0x008ff02992e2564e469f78a52efccda068f870ac",
+      address: "0x323B0C3Ab49Be9f752E19cFdEe21e92CA56692B3",
       abi: [
         {
           type: "constructor",

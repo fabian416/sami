@@ -1,39 +1,39 @@
-import { ethers } from "ethers";
+import { ethers, JsonRpcProvider } from "ethers";
 import dotenv from "dotenv";
 import SimpleSAMI from "../abi/SimpleSAMI.json";
 
-// Load env variables
 dotenv.config();
 
-// Blockchain Provider
-const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
+//  Configurar el provider
+const provider = new JsonRpcProvider(process.env.RPC_URL);
 
-// Dirección del contrato desplegado (debe estar en `.env`)
-const modeContractAddress = "0x5ba1b40c2503b716bcb67c439a63bbfe3071147d";
+//  Configurar el signer con la clave privada
+const privateKey = process.env.PRIVATE_KEY || "Debes configurar una clave privada";
+const signer = new ethers.Wallet(privateKey, provider);
 
-// Instance of the contract
-const contract = new ethers.Contract(modeContractAddress, SimpleSAMI.abi, provider);
+//  Instancia del contrato usando `signer` para leer/escribir
+const contract = new ethers.Contract("0x19AEC51fda7607bfCa72D38C935e4dF17Ec69dC6", SimpleSAMI.abi, signer);
 
 export const sendPrizeToWinner = async (winner: string) => {
     try {
-        console.log(`Sending prize to ${winner}`);
+        console.log(`Enviando premio a ${winner}`);
         const tx = await contract.sendPrize(winner);
         await tx.wait();
-        console.log(`Prize sent to ${winner}`);
+        console.log(`Premio enviado a ${winner}`);
     } catch (error) {
-        console.error(`Error sending prize to ${winner}:`, error);
+        console.error(`Error enviando premio a ${winner}:`, error);
     }
 };
 
 export const useTicket = async (ticketId: number) => {
     try {
-        console.log(`Using ticket ${ticketId}`);
+        console.log(`Usando ticket ${ticketId}`);
         const tx = await contract.useTicket(ticketId);
         await tx.wait();
-        console.log(`Ticket ${ticketId} has been used`);
+        console.log(`Ticket ${ticketId} ha sido usado`);
     } catch (error) {
-        console.error(`Error using ticket ${ticketId}:`, error);
+        console.error(`Error usando ticket ${ticketId}:`, error);
     }
 };
 
-export { provider, contract };
+export { provider, signer, contract };
