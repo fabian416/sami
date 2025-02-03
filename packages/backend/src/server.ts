@@ -1,9 +1,9 @@
 import http from 'http';
 import { Server } from 'socket.io';
 import app from './app';
-import * as gameController from '../src/controllers/gameController';
-import * as playerController from '../src/controllers/playerController';
-import "./services/eventListener"; 
+import * as gameController from '@controllers/gameController';
+import * as playerController from '@controllers/playerController';
+import "@services/eventListener"; 
 const HOST = process.env.HOST || 'localhost';
 const PORT = parseInt(process.env.PORT || '5001', 10);
 

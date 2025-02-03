@@ -10,6 +10,8 @@ services:
       - NODE_ENV=production
       - PORT=5001
       - HOST=0.0.0.0
+      - PRIVATE_KEY=${PRIVATE_KEY}
+      - RPC_URL=${RPC_URL}
 
   frontend:
     image: ghcr.io/fabian416/sami/frontend:latest

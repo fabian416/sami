@@ -1,8 +1,8 @@
 
-import PlayerServiceEmitter from "../services/playerService";
+import PlayerServiceEmitter from "@services/playerService";
 import { io } from "../server";
-import { games } from "../services/gameService";
-import { Player } from "../services/playerService";
+import { games } from "@services/gameService";
+import { Player } from "@services/playerService";
 import _ from 'lodash';
 
 

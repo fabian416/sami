@@ -1,6 +1,6 @@
 import { ethers, JsonRpcProvider } from "ethers";
 import dotenv from "dotenv";
-import SimpleSAMI from "../abi/SimpleSAMI.json";
+import SimpleSAMI from "@abi/SimpleSAMI.json";
 
 dotenv.config();
 

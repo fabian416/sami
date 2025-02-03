@@ -9,10 +9,9 @@ import {
 } from "../services/gameService";
 import { Server, Socket } from "socket.io";
 import { io, players } from "../server";
-import gameServiceEmitter from "../services/gameService";
+import gameServiceEmitter from "@services/gameService";
 
 const NODE_ENV = process.env.NODE_ENV;
-// URL del servidor WebSocket
 export const SAMI_URI = NODE_ENV === "production" ? "http://ai-agent:3000" : "http://localhost:3000";
 
 
