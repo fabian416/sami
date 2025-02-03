@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { hardhat } from "viem/chains";
 import { HeartIcon } from "@heroicons/react/24/outline";
@@ -30,10 +31,19 @@ export const Footer = () => {
               <span>Los pibes</span>
               <span>·</span> */}
               <div className="text-center">
-                <span className="mr-1">Follow SAMI on</span>
-                <Link className="link" href="https://x.com/sami_ai_agent" target="_blank" passHref>
-                  X (Twitter!)
-                </Link>
+                <h2 className="sami-title text-3xl md:text-sm mt-8 text-center">
+                  Powered by{" "}
+                  <Link href="https://mode.network/" passHref target="_blank">
+                    <Image
+                      src="/mode.png"
+                      alt="MODE Network Logo"
+                      width="25"
+                      height="25"
+                      className="inline-block align-middle" // Add this to align the image with the text
+                    />{" "}
+                    <span className="underline text-[#D8EA2D] underline-offset-8">MODE Network</span>
+                  </Link>
+                </h2>
               </div>
             </div>
           </div>

@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { XMarkIcon } from "@heroicons/react/20/solid";
-import { BugAntIcon, ClockIcon, CurrencyDollarIcon } from "@heroicons/react/24/outline";
+import { ClockIcon } from "@heroicons/react/24/outline";
 
 export const ModalInstructions = ({ closeModal }: any) => {
   const handleBackdropClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {

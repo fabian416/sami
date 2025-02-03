@@ -236,20 +236,11 @@ export const ChooseGame = ({ showGame }: any) => {
             </div>
           </div>
         </div>
-        <div className="mt-8 md:mt-12">
-          <h2 className="sami-title text-3xl md:text-4xl mt-8 text-center">
-            Powered by{" "}
-            <Link href="https://mode.network/" passHref target="_blank">
-              <Image
-                src="/mode.png"
-                alt="MODE Network Logo"
-                width="50"
-                height="50"
-                className="inline-block align-middle" // Add this to align the image with the text
-              />{" "}
-              <span className="underline">MODE Network</span>
-            </Link>
-          </h2>
+        <div className="mt-8 md:mt-12 text-4xl">
+          <span className="mr-1">Follow SAMI on</span>
+          <Link className="link" href="https://x.com/sami_ai_agent" target="_blank" passHref>
+            X (Twitter!)
+          </Link>
         </div>
       </div>
     </>
