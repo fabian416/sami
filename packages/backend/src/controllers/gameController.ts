@@ -59,10 +59,11 @@ gameServiceEmitter.on("gameStarted", ({ roomId, game, timeBeforeEnds, serverTime
   });
 });
 
-gameServiceEmitter.on("gameOver", ({ roomId, results }) => {
+gameServiceEmitter.on("gameOver", ({ roomId, isBetGame, results }) => {
   console.log(`[${roomId}] Game over`);
   io.to(roomId).emit("gameOver", {
     message: "The game is over! Here are the results:",
+    isBetGame,
     results, // Array con los resultados de todos los jugadores
   });
 });

@@ -49,27 +49,20 @@ const getPermutations = (str: string) => {
 
 export const NAMES = getPermutations("SAMI").filter(name => name !== "SAMI");
 
-const shuffleArray = (array: string[]) => {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-  return array;
-};
-
 export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [players, setPlayers] = useState<Player[]>([]);
   const [currentPhase, setCurrentPhase] = useState<"conversation" | "voting" | "finished">("conversation");
   const [clockTimer, setClockTimer] = useState<Clock | null>(null);
   const [winner, setWinner] = useState<string | null>(null);
+  const [isBetGame, setIsBetGame] = useState<boolean | null>(false);
   const [shuffledColors, setShuffledColors] = useState<string[]>([]);
   const [shuffledNames, setShuffledNames] = useState<string[]>([]);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  const { socket, playerIndex, playerId, setPlayerIndex, roomId, isPlayerEliminated } = useSocket();
+  const { socket, playerIndex, playerId, setPlayerIndex, roomId } = useSocket();
   const { resolvedTheme } = useTheme();
 
   const isDarkMode = resolvedTheme === "dark";
@@ -122,17 +115,21 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
       },
     );
 
-    socket.on("gameOver", (data: { message: string; results: { playerId: string; won: boolean }[] }) => {
-      const { results } = data;
+    socket.on(
+      "gameOver",
+      (data: { message: string; isBetGame: boolean; results: { playerId: string; won: boolean }[] }) => {
+        const { results, isBetGame } = data;
+        setIsBetGame(isBetGame);
 
-      // Obtener el resultado del jugador actual
-      const playerResult = results.find(r => r.playerId === playerId);
-      if (playerResult) {
-        setWinner(playerResult.won ? "You win" : "sami");
-      }
+        // Obtener el resultado del jugador actual
+        const playerResult = results.find(r => r.playerId === playerId);
+        if (playerResult) {
+          setWinner(playerResult.won ? "You win" : "sami");
+        }
 
-      setCurrentPhase("finished");
-    });
+        setCurrentPhase("finished");
+      },
+    );
 
     return () => {
       socket.off("newMessage");
@@ -163,7 +160,7 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
       )}
 
       {/* Modal Finished  */}
-      {currentPhase === "finished" && <ModalFinished winner={winner} />}
+      {currentPhase === "finished" && <ModalFinished winner={winner} isBetGame={isBetGame} />}
 
       {/* Clock */}
       <CountdownClock setClockTimer={setClockTimer} clockTimer={clockTimer} />

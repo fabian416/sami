@@ -17,7 +17,7 @@ const gameServiceEmitter = new GameServiceEmitter();
 export default gameServiceEmitter;
 
 const MIN_PLAYERS = 3;
-const CONVERTATION_PHASE_TIME = 2 * 60 * 1000;
+const CONVERTATION_PHASE_TIME = 2* 60 * 1000;
 const VOTING_PHASE_TIME = 30 * 1000;
 
 interface Game {
@@ -208,6 +208,7 @@ export const endVotingPhase = (roomId: string) => {
   const game = games[roomId];
   if (!game || game.status !== "voting") return; // Ensure game is in the voting phase
   console.log(`[${roomId}] Ending voting phase...`);
+  const isBetGame = games[roomId].isBetGame;
 
   // Store results
   const results: { playerId: string; won: boolean }[] = [];
@@ -226,7 +227,7 @@ export const endVotingPhase = (roomId: string) => {
       console.log(`[${roomId}] ¡${player.id} ganó! Identificó a SAMI.`);
       results.push({ playerId: player.id, won: true });
 
-      if (game.isBetGame) {
+      if (isBetGame) {
         const winnerAddress = players[player.id]?.walletAddress;
 
         if (winnerAddress) {
@@ -244,7 +245,7 @@ export const endVotingPhase = (roomId: string) => {
   });
 
   // Emit game over event
-  gameServiceEmitter.emit("gameOver", { roomId, results });
+  gameServiceEmitter.emit("gameOver", { roomId, isBetGame, results });
 
   // Mark game as finished
   game.status = "finished";
