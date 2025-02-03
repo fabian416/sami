@@ -6,7 +6,7 @@ import {
 import { EventEmitter } from "events";
 import { v4 as uuidv4 } from "uuid";
 import _ from "lodash";
-import { contract, sendPrizeToWinner } from "../config/contractConfig";
+import { sendPrizesToWinners } from "../config/contractConfig";
 import { players } from "../server"; // Import player mapping
 
 
@@ -210,8 +210,8 @@ export const endVotingPhase = (roomId: string) => {
   console.log(`[${roomId}] Ending voting phase...`);
   const isBetGame = games[roomId].isBetGame;
 
-  // Store results
   const results: { playerId: string; won: boolean }[] = [];
+  const winners: string[] = []; // Guardamos las direcciones de los ganadores
 
   game.players.forEach((player) => {
     const votedPlayerId = game.votes[player.id];
@@ -229,13 +229,10 @@ export const endVotingPhase = (roomId: string) => {
 
       if (isBetGame) {
         const winnerAddress = players[player.id]?.walletAddress;
-
         if (winnerAddress) {
-          console.log(`Sending prize to${winnerAddress}`);
-          sendPrizeToWinner(winnerAddress);
+          winners.push(winnerAddress); // Agregamos la dirección del ganador al array
         } else {
-          console.error(` No wallet address found for player ID: ${player.id}`);
-          console.log("Players mapping:", players);
+          console.error(`No wallet address found for player ID: ${player.id}`);
         }
       }
     } else {
@@ -243,6 +240,11 @@ export const endVotingPhase = (roomId: string) => {
       results.push({ playerId: player.id, won: false });
     }
   });
+
+  // Enviar premios a todos los ganadores en una sola transacción
+  if (winners.length > 0) {
+    sendPrizesToWinners(winners);
+  }
 
   // Emit game over event
   gameServiceEmitter.emit("gameOver", { roomId, isBetGame, results });

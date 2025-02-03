@@ -57,9 +57,9 @@
     },
     {
       "type": "function",
-      "name": "sendPrize",
+      "name": "sendPrizes",
       "inputs": [
-        { "name": "_winner", "type": "address", "internalType": "address" }
+        { "name": "_winners", "type": "address[]", "internalType": "address[]" }
       ],
       "outputs": [],
       "stateMutability": "nonpayable"
@@ -120,6 +120,25 @@
       ],
       "outputs": [],
       "stateMutability": "nonpayable"
+    },
+    {
+      "type": "event",
+      "name": "ErrorSendingPrize",
+      "inputs": [
+        {
+          "name": "winner",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "amount",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        }
+      ],
+      "anonymous": false
     },
     {
       "type": "event",
