@@ -16,8 +16,12 @@ RUN yarn install
 # Eliminar las carpetas no deseadas
 RUN rm -rf packages/backend packages/foundry packages/ai
 
+# Configurar variables de entorno correctamente
+ENV NODE_ENV=production
+ENV NODE_OPTIONS="--no-warnings"
+
 # Exponer el puerto (asegúrate de que Next.js se ejecuta en este puerto en development)
 EXPOSE 3001
 
 # Ejecutar Next.js en modo desarrollo
-CMD ["NODE_OPTIONS='--no-warnings'", "NODE_ENV=production", "yarn", "next:start"]
+CMD ["yarn", "next:start"]
