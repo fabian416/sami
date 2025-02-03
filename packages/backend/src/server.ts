@@ -4,8 +4,8 @@ import app from './app';
 import * as gameController from '../src/controllers/gameController';
 import * as playerController from '../src/controllers/playerController';
 import "./services/eventListener"; 
-
-const PORT = process.env.PORT || 5001;
+const HOST = process.env.HOST || 'localhost';
+const PORT = parseInt(process.env.PORT || '5001', 10);
 
 const server = http.createServer(app);
 
