@@ -230,7 +230,7 @@ export const handleMessage = async (data: any, socket: Socket, io: Server) => {
     const responseText = await Promise.race([
       aiResponsePromise.then((res) => res.text()), // Convierte Response a string antes de la carrera
       new Promise<string>((_, reject) =>
-        setTimeout(() => reject(new Error("Timeout: AI response took too long")), 20000)
+        setTimeout(() => reject(new Error("Timeout: AI response took too long")), 2 * 30 * 1000)
       ),
     ]);
   

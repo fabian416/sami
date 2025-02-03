@@ -104,7 +104,6 @@ export const joinGame = (roomId: string, playerId: string, isBetGame: boolean): 
     return false;
   }
 
-
   // Check if the player already exists
   const existingPlayer = _.find(game.players, { id: playerId });
   if (existingPlayer) {
