@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { RainbowKitCustomConnectButton } from "../scaffold-eth";
 import { ModalWaitingForPlayers } from "./ModalWaitingForPlayers";
+import { ModalWaitingForTransaction } from "./ModalWaitingForTransaction";
 import { v4 as uuidv4 } from "uuid";
 import { useAccount } from "wagmi";
 import { useSocket } from "~~/app/socketContext";
@@ -19,10 +20,9 @@ interface Player {
 
 export const ChooseGame = ({ showGame }: any) => {
   const [loading, setLoading] = useState(false);
+  const [loadingTransaction, setLoadingTransaction] = useState(false);
   const { socket, isConnected, playerId, setPlayerId, setPlayerIndex, setRoomId } = useSocket();
-
   const { address: connectedAddress } = useAccount();
-
   const { writeContractAsync: MODEwriteContractAsync } = useScaffoldWriteContract("MockMODE");
   const { writeContractAsync: simpleSamiwriteContractAsync } = useScaffoldWriteContract("SimpleSAMI");
   const { data: simpleSamiContractData } = useDeployedContractInfo("SimpleSAMI");
@@ -34,6 +34,10 @@ export const ChooseGame = ({ showGame }: any) => {
     watch: true,
   });
   const [isBetGame, setIsBetGame] = useState<boolean>(false);
+
+  useEffect(() => {
+    allowance && allowance >= BigInt(2 * 1e18) && setLoadingTransaction(false);
+  }, [allowance]);
 
   useEffect(() => {
     if (!socket) return;
@@ -62,6 +66,7 @@ export const ChooseGame = ({ showGame }: any) => {
       return;
     }
 
+    setLoadingTransaction(true);
     try {
       const contractResponse = await MODEwriteContractAsync({
         functionName: "approve",
@@ -75,6 +80,7 @@ export const ChooseGame = ({ showGame }: any) => {
       console.error("Error increasing allowance:", error);
       notification.error("Increasing allowance failed, please try again.");
     }
+    setLoadingTransaction(false);
   };
 
   const handleBetAndPlay = async () => {
@@ -83,6 +89,7 @@ export const ChooseGame = ({ showGame }: any) => {
       return;
     }
 
+    setLoadingTransaction(true);
     try {
       const contractResponse = await simpleSamiwriteContractAsync({
         functionName: "buyTicket",
@@ -119,6 +126,7 @@ export const ChooseGame = ({ showGame }: any) => {
       console.error("Error buying ticket:", error);
       notification.error("Buying ticket failed, please try again.");
     }
+    setLoadingTransaction(false);
   };
 
   const handleEnterGame = () => {
@@ -150,19 +158,21 @@ export const ChooseGame = ({ showGame }: any) => {
   return (
     <>
       {loading && <ModalWaitingForPlayers isBetGame={isBetGame} />}
+      {!loading && loadingTransaction && <ModalWaitingForTransaction />}
       <div className="flex flex-col items-center w-full">
         <div className="mb-8 md:mb-10">
           <h1 className="sami-title text-3xl md:text-7xl mb-8 text-center">
-            Who is{" "}
+            Who is&nbsp;
             <span className="text-[#3DCCE1]">
-              SAMI{" "}
+              SAMI&nbsp;
               <Image
                 src="/logo.png"
                 alt="SAMI Logo"
                 width="90"
                 height="90"
                 className="inline-block align-middle" // Add this to align the image with the text
-              />{" "}
+              />
+              &nbsp;
             </span>
             ?!1
           </h1>
@@ -185,48 +195,62 @@ export const ChooseGame = ({ showGame }: any) => {
           </div>
           <div className="card bg-[#2c2171] opacity-80 text-white glow-purple max-w-sm md:w-96 shadow-xl mx-4">
             <div className="card-body text-center">
-              <h2 className="text-3xl sami-title">
-                Bet{" "}
-                <span className="text-[#3DCCE1]">
-                  100{" "}
-                  <Image
-                    src="/mode.png"
-                    alt="MODE Network Logo"
-                    width="40"
-                    height="40"
-                    className="inline-block align-middle" // Add this to align the image with the text
-                  />
-                </span>
+              <h2 className="text-3xl sami-title flex flex-row justify-center items-center">
+                <>Bet&nbsp;</>
+                <span className="text-[#3DCCE1]">100&nbsp;</span>
+                <Image
+                  src="/mode.png"
+                  alt="MODE Network Logo"
+                  width="40"
+                  height="40"
+                  className="inline-block align-middle" // Add this to align the image with the text
+                />
               </h2>
-              <p className="text-xl">
-                Guess and{" "}
-                <span className="text-[#3DCCE1]">
-                  win 500 &nbsp;
-                  <Image
-                    src="/mode.png"
-                    alt="MODE Network Logo"
-                    width="25"
-                    height="25"
-                    className="inline-block align-middle" // Add this to align the image with the text
-                  />{" "}
-                </span>
+              <p className="text-xl flex flex-row justify-center items-center">
+                <>Guess and&nbsp;</>
+                <span className="text-[#3DCCE1]">win 500 &nbsp;</span>
+                <Image
+                  src="/mode.png"
+                  alt="MODE Network Logo"
+                  width="25"
+                  height="25"
+                  className="inline-block align-middle" // Add this to align the image with the text
+                />
+                &nbsp;
               </p>
               <div className="card-actions justify-center">
                 {connectedAddress ? (
                   allowance && allowance >= BigInt(2 * 1e18) ? (
-                    <button onClick={handleBetAndPlay} className="cool-button">
-                      {loading ? "Bet 100 $MODE" : "Bet 100 $MODE"}
-                    </button>
+                    <>
+                      <button
+                        onClick={handleBetAndPlay}
+                        className="cool-button !flex !flex-row !justify-center !items-center"
+                      >
+                        <div className="text-[#2c2171]">Bet</div>&nbsp;<>100</>&nbsp;
+                        <Image
+                          src="/mode.png"
+                          alt="MODE Network Logo"
+                          width="25"
+                          height="25"
+                          className="inline-block align-middle" // Add this to align the image with the text
+                        />
+                        &nbsp;
+                      </button>
+                    </>
                   ) : (
-                    <button onClick={handleApprove} className="cool-button">
-                      Approve 100{" "}
+                    <button
+                      onClick={handleApprove}
+                      className="cool-button !flex !flex-row !justify-center !items-center"
+                    >
+                      <div className="text-[#3DCCE1]">Approve</div>&nbsp;<>100</>&nbsp;
                       <Image
                         src="/mode.png"
                         alt="MODE Network Logo"
                         width="25"
                         height="25"
                         className="inline-block align-middle" // Add this to align the image with the text
-                      />{" "}
+                      />
+                      &nbsp;
                     </button>
                   )
                 ) : (
