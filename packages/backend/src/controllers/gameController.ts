@@ -67,16 +67,30 @@ gameServiceEmitter.on("gameOver", ({ roomId, results }) => {
   });
 });
 
-// Create or join a new match
 export const getNumberOfPlayers = (data: any, socket: Socket, io: Server) => {
-  const { roomId } = data;
-  if (!roomId) {
+  const { roomId, isBetGame } = data;
+
+  if (!roomId || isBetGame === undefined) {
     console.error(`[getNumberOfPlayers] Invalid data:`, data);
-    return socket.emit("error", { message: "Incomplete data for voting" });
+    return socket.emit("error", { message: "Incomplete data for retrieving number of players" });
   }
-  
-  const [amountOfPlayers, neededPlayers] = calculateNumberOfPlayers({roomId});
-  io.to(roomId).emit("numberOfPlayers", { roomId, amountOfPlayers, neededPlayers });
+
+  // Get info of the room
+  const game = games[roomId];
+  if (!game) {
+    console.error(`[getNumberOfPlayers] Room not found:`, roomId);
+    return socket.emit("error", { message: "Room not found" });
+  }
+
+  // Validar the type of the game match
+  if (game.isBetGame !== isBetGame) {
+    console.error(`[getNumberOfPlayers] Game type mismatch for room ${roomId}. Expected isBetGame: ${game.isBetGame}`);
+    return socket.emit("error", { message: "Game type mismatch" });
+  }
+
+  // Calculate number of players
+  const [amountOfPlayers, neededPlayers] = calculateNumberOfPlayers({ roomId });
+  io.to(roomId).emit("numberOfPlayers", { roomId, amountOfPlayers, neededPlayers, isBetGame });
 };
 
 // Create or join a new match
@@ -96,9 +110,9 @@ export const createOrJoinGame = (data: any, socket: Socket, io: Server) => {
   if (players[socket.id]) {
     players[socket.id].playerId = playerId;
     players[playerId] = { ...players[socket.id] };  // Store playerId separately
-    console.log(`📌 Mapped playerId: ${playerId} to wallet: ${players[socket.id].walletAddress}`);
+    console.log(`Mapped playerId: ${playerId} to wallet: ${players[socket.id].walletAddress}`);
   } else {
-    console.warn(`⚠️ No socket entry found for player ${playerId}`);
+    console.warn(`No socket entry found for player ${playerId}`);
   }
 
   // Notify the client that the player joined successfully

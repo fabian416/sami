@@ -25,16 +25,18 @@ export const ModalWaitingForPlayers = ({ isBetGame }: { isBetGame: boolean }) =>
 
   useEffect(() => {
     if (!socket || !roomId) return;
-    socket.emit("getNumberOfPlayers", { roomId });
+
+    // Emit `isBetGame` along with the request
+    socket.emit("getNumberOfPlayers", { roomId, isBetGame });
 
     const interval = setInterval(() => {
-      socket.emit("getNumberOfPlayers", { roomId });
+      socket.emit("getNumberOfPlayers", { roomId, isBetGame });
     }, 2000);
 
     return () => {
       clearInterval(interval);
     };
-  }, [socket, roomId]);
+  }, [socket, roomId, isBetGame]);
 
   useEffect(() => {
     if (!socket) return;
