@@ -76,8 +76,8 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
   const disabledChat = currentPhase === "voting";
 
   useEffect(() => {
-    setShuffledColors(shuffleArray([...COLORS]));
-    setShuffledNames(shuffleArray([...NAMES]));
+    setShuffledColors(COLORS);
+    setShuffledNames(NAMES);
   }, []);
 
   useEffect(() => {

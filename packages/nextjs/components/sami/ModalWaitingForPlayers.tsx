@@ -60,7 +60,7 @@ export const ModalWaitingForPlayers = ({ isBetGame }: { isBetGame: boolean }) =>
           <span className="text-[#2c2171]">
             <strong className="text-xl">Waiting for other players to join</strong>
           </span>
-          <div className="flex items-center justify-center gap-4">
+          <div className="flex items-center justify-center gap-4 flex-row">
             <span className="text-6xl">
               <strong>{amountOfPlayers && minPlayers && `${amountOfPlayers}/${minPlayers}`}</strong>
             </span>
