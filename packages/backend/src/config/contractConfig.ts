@@ -4,35 +4,35 @@ import SimpleSAMI from "../abi/SimpleSAMI.json";
 
 dotenv.config();
 
-//  Configurar el provider
+//  set provider
 const provider = new JsonRpcProvider(process.env.RPC_URL);
 
-//  Configurar el signer con la clave privada
+//  Set the signer with the private key
 const privateKey = process.env.PRIVATE_KEY || "Debes configurar una clave privada";
 const signer = new ethers.Wallet(privateKey, provider);
 
-//  Instancia del contrato usando `signer` para leer/escribir
-const contract = new ethers.Contract("0x19AEC51fda7607bfCa72D38C935e4dF17Ec69dC6", SimpleSAMI.abi, signer);
+//  Instance of the contract in order to read and write
+const contract = new ethers.Contract("0x533DEbde0849BaF70f56e9d66852b4a14EF9Dc3A", SimpleSAMI.abi, signer);
 
 export const sendPrizeToWinner = async (winner: string) => {
     try {
-        console.log(`Enviando premio a ${winner}`);
+        console.log(`Sending prize to ${winner}`);
         const tx = await contract.sendPrize(winner);
         await tx.wait();
-        console.log(`Premio enviado a ${winner}`);
+        console.log(`Prize sent to ${winner}`);
     } catch (error) {
-        console.error(`Error enviando premio a ${winner}:`, error);
+        console.error(`Error sending prize ${winner}:`, error);
     }
 };
 
 export const useTicket = async (ticketId: number) => {
     try {
-        console.log(`Usando ticket ${ticketId}`);
+        console.log(`Using ticket ${ticketId}`);
         const tx = await contract.useTicket(ticketId);
         await tx.wait();
-        console.log(`Ticket ${ticketId} ha sido usado`);
+        console.log(`Ticket ${ticketId} has been used`);
     } catch (error) {
-        console.error(`Error usando ticket ${ticketId}:`, error);
+        console.error(`Error using ticket ${ticketId}:`, error);
     }
 };
 

@@ -17,7 +17,7 @@ const gameServiceEmitter = new GameServiceEmitter();
 export default gameServiceEmitter;
 
 const MIN_PLAYERS = 3;
-const CONVERTATION_PHASE_TIME = 20 * 1000;
+const CONVERTATION_PHASE_TIME = 20 * 60 * 1000;
 const VOTING_PHASE_TIME = 30 * 1000;
 
 interface Game {
