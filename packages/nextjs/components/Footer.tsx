@@ -42,7 +42,7 @@ export const Footer = () => {
                       className="inline-block align-middle" // Add this to align the image with the text
                     />{" "}
                     <span className="underline text-[#D8EA2D] underline-offset-8">MODE Network</span>
-                  </Link>
+                  </Link>{" "}
                 </h2>
               </div>
             </div>
