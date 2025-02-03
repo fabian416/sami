@@ -23,7 +23,7 @@ services:
     depends_on:
       - backend
     environment:
-      - NEXT_PUBLIC_API_URL=http://79.143.94.144:5001
+      - NEXT_PUBLIC_API_URL=https://api.playsami.fun
       - NEXT_PUBLIC_IGNORE_BUILD_ERROR=true
       - PORT=3001
 
@@ -46,6 +46,7 @@ services:
     restart: always
     depends_on:
       - frontend
+      - backend
     ports:
       - "80:80"
       - "443:443"
@@ -54,6 +55,7 @@ services:
       - sami_network
     environment:
       - SAMI_SITE=playsami.fun
+      - SAMI_API=api.playsami.fun
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data

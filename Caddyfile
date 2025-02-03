@@ -8,3 +8,7 @@
 {$SAMI_SITE} {
         reverse_proxy frontend:3001
 }
+
+{$SAMI_API} {
+        reverse_proxy backend:5001
+}

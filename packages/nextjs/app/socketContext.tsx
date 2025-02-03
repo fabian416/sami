@@ -24,9 +24,9 @@ interface SocketContextType {
 const SocketContext = createContext<SocketContextType | undefined>(undefined);
 
 // URL del servidor WebSocket
-//const SERVER_URL = API_URL || "http://localhost:5001";
-const SERVER_URL =
-  API_URL || window.location.hostname === "localhost"
+const SERVER_URL = API_URL
+  ? API_URL
+  : window.location.hostname === "localhost"
     ? "http://localhost:5001"
     : "https://8lh8dmll-5001.brs.devtunnels.ms";
 
