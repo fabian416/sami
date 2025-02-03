@@ -22,22 +22,32 @@ git clone https://github.com/fabian416/sami.git
 cd sami
 ```
 
-2. Duplicate the .env.example template and fill the variable OPENAI_API_KEY with your own key
+2. Duplicate the .env.example template from ELIZA and fill the variable OPENAI_API_KEY with your own key
 
 ```bash
-cp .env.example .env
+cp packages/ai/sami/.env.example packages/ai/sami/.env
 ```
 
 OPENAI_API_KEY=sk-* # OpenAI API key, starting with sk-
 
 
-3. Start docker
+
+3. Duplicate the .env.example template from the ROOT and fill the variable PRIVATE_KEY with your own key
+
+```bash
+cp .env.example .env
+```
+
+PRIVATE_KEY= #Your private key
+
+
+4. Start docker
 
 ```bash
 docker compose up -d
 ```
 
-4. Enter to http://localhost:3001 and play with sami!
+5. Enter to http://localhost:3001 and play with sami!
 
 
 
@@ -69,7 +79,16 @@ yarn deploy
 
 This command deploys a test smart contract to the local network. The contract is located in `packages/foundry/contracts` and can be modified to suit your needs. The `yarn deploy` command uses the deploy script located in `packages/foundry/script` to deploy the contract to the network. You can also customize the deploy script.
 
-4. On a third terminal, start your backend by running first:
+
+4. Duplicate the .env.example template from the BACKEND folder and fill the variable PRIVATE_KEY with your own key
+
+```bash
+cp packages/backend/.env.example packages/backend/.env
+```
+
+PRIVATE_KEY= #Your private key
+
+5. On a third terminal, start your backend by running first:
 
 ```
 yarn backend:build
@@ -81,7 +100,7 @@ And then running:
 yarn backend:dev
 ```
 
-5. On a fourth terminal, start your NextJS app:
+6. On a fourth terminal, start your NextJS app:
 
 ```
 yarn start
