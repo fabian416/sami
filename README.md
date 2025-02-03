@@ -12,6 +12,35 @@ Before you begin, you need to install the following tools:
 - Yarn ([v1](https://classic.yarnpkg.com/en/docs/install/) or [v2+](https://yarnpkg.com/getting-started/install))
 - [Git](https://git-scm.com/downloads)
 
+
+## Start with docker
+
+1. Clone this repo:
+
+```
+git clone https://github.com/fabian416/sami.git
+cd sami
+```
+
+2. Duplicate the .env.example template and fill the variable OPENAI_API_KEY with your own key
+
+```bash
+cp .env.example .env
+```
+
+OPENAI_API_KEY=sk-* # OpenAI API key, starting with sk-
+
+
+3. Start docker
+
+```bash
+docker compose up -d
+```
+
+4. Enter to http://localhost:3001 and play with sami!
+
+
+
 ## Quickstart
 
 To get started with SAMI, follow the steps below:
@@ -61,6 +90,7 @@ yarn start
 Visit your app on: `http://localhost:3000`. You can interact with your smart contract using the `Debug Contracts` page. You can tweak the app config in `packages/nextjs/scaffold.config.ts`.
 
 Run smart contract test with `yarn foundry:test`
+
 
 ## Architecture
 
