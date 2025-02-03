@@ -1,8 +1,6 @@
 services:
   backend:
-    build:
-      context: .
-      dockerfile: Dockerfile.backend
+    image: ghcr.io/fabian416/sami/backend:latest
     ports:
       - "5001:5001"
     restart: always
@@ -14,9 +12,7 @@ services:
       - HOST=0.0.0.0
 
   frontend:
-    build:
-      context: .
-      dockerfile: Dockerfile.frontend
+    image: ghcr.io/fabian416/sami/frontend:latest
     ports:
       - "3001:3001"
     restart: always
@@ -29,7 +25,7 @@ services:
       - PORT=3001
 
   ai-agent:
-    build: ./packages/ai/sami
+    image: ghcr.io/fabian416/sami/ai-agent:latest
     ports:
       - "3000:3000"
     restart: always
