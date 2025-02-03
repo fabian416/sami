@@ -23,7 +23,7 @@ services:
     depends_on:
       - backend
     environment:
-      - NODE_ENV=test
+      - APP_ENV=test
       - PORT=3001
 
   ai-agent:
