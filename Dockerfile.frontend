@@ -13,6 +13,9 @@ COPY . .
 # Instalar dependencias antes de copiar el código fuente para aprovechar la cache
 RUN yarn install
 
+# Eliminar las carpetas no deseadas
+RUN rm -rf packages/backend packages/foundry packages/ai
+
 # Exponer el puerto (asegúrate de que Next.js se ejecuta en este puerto en development)
 EXPOSE 3001
 
