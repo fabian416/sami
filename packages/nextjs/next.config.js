@@ -3,7 +3,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: false,
-  swcMinify: true,         // Habilita minificación avanzada en prod
   typescript: {
     ignoreBuildErrors: true,  // No bloquee la build si hay errores de TypeScript
   },

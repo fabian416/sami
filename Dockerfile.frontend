@@ -17,7 +17,6 @@ RUN yarn install
 RUN rm -rf packages/backend packages/foundry packages/ai
 
 # Configurar variables de entorno correctamente
-ENV NODE_ENV=production
 ENV NODE_OPTIONS="--no-warnings"
 
 # Exponer el puerto (asegúrate de que Next.js se ejecuta en este puerto en development)
