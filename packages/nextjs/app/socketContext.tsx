@@ -4,7 +4,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { Socket, io } from "socket.io-client";
 import { useAccount } from "wagmi";
 
-const NODE_ENV = process.env.APP_ENV;
+const NODE_ENV = process.env.NEXT_PUBLIC_APP_ENV;
 
 // Define el tipo del contexto
 interface SocketContextType {

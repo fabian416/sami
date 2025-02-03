@@ -27,7 +27,7 @@ services:
     depends_on:
       - backend
     environment:
-      - APP_ENV=test
+      - NEXT_PUBLIC_APP_ENV=test
       - PORT=3001
 
   ai-agent:
