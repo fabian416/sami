@@ -151,7 +151,7 @@ export const ChooseGame = ({ showGame }: any) => {
     <>
       {loading && <ModalWaitingForPlayers isBetGame={isBetGame} />}
       <div className="flex flex-col items-center w-full">
-        <div className="mb-8 md:mb-20">
+        <div className="mb-8 md:mb-10">
           <h1 className="sami-title text-3xl md:text-7xl mb-8 text-center">
             Who is{" "}
             <span className="text-[#3DCCE1]">
@@ -187,7 +187,7 @@ export const ChooseGame = ({ showGame }: any) => {
             <div className="card-body text-center">
               <h2 className="text-3xl sami-title">
                 Bet{" "}
-                <span className="text-[#1CA297]">
+                <span className="text-[#3DCCE1]">
                   100{" "}
                   <Image
                     src="/mode.png"
@@ -195,12 +195,12 @@ export const ChooseGame = ({ showGame }: any) => {
                     width="40"
                     height="40"
                     className="inline-block align-middle" // Add this to align the image with the text
-                  />{" "}
+                  />
                 </span>
               </h2>
               <p className="text-xl">
                 Guess and{" "}
-                <span className="text-[#1CA297]">
+                <span className="text-[#3DCCE1]">
                   win 500 &nbsp;
                   <Image
                     src="/mode.png"

@@ -21,7 +21,7 @@ export const ModalInstructions = ({ closeModal }: any) => {
         </div>
         <div className="flex justify-between items-center md:mb-8 mb-6 mt-6">
           <div className="flex-grow text-center">
-            <span className="block text-3xl md:text-5xl sami-title text-white">SAMI rules!</span>
+            <span className="block text-5xl md:text-7xl sami-title text-white">SAMI rules!</span>
           </div>
         </div>
         <div className="flex justify-between items-between md:gap-12 gap-4 flex-col sm:flex-row pb-2 mx-4 overflow-scroll md:px-8 md:pb-8 md:pt-4">
@@ -30,14 +30,14 @@ export const ModalInstructions = ({ closeModal }: any) => {
             <Image src="/logo.png" alt="SAMI Logo" width="100" height="100" />
             <p className="text-xl">
               <span className="text-white">Chat with strangers and </span>
-              <span className="text-[#1CA297]">figure out who is SAMI, the AI agent.</span>
+              <span className="text-[#3DCCE1]">figure out who is SAMI, the AI agent.</span>
             </p>
           </div>
           <div className="flex flex-col bg-[#2c2171] p-4 text-center items-center max-w-xs rounded-3xl">
             <ClockIcon className="h-24 w-24 fill-secondary" />
-            <p className="text-xl">
+            <p className="text-xl mt-5">
               <span className="text-white"> After 2 minutes, </span>
-              <span className="text-[#1CA297]">vote on who you think SAMI was</span>
+              <span className="text-[#3DCCE1]">vote on who you think SAMI was</span>
               <span className="text-white"> in the chat.</span>
             </p>
           </div>
@@ -46,7 +46,7 @@ export const ModalInstructions = ({ closeModal }: any) => {
             <Image src="/mode.png" alt="MODE Network Logo" width="100" height="100" />
             <p className="text-xl">
               <span className="text-white"> Bet 100 $MODE, and if you guess, you get 500. </span>
-              <span className="text-[#1CA297]">Free version available.</span>
+              <span className="text-[#3DCCE1]">Free version available.</span>
             </p>
           </div>
         </div>
@@ -58,7 +58,7 @@ export const ModalInstructions = ({ closeModal }: any) => {
 const CloseButton = ({ closeModal }: any) => {
   return (
     <div className="flex justify-end md:m-4 ">
-      <button className="btn btn-ghost text-black bg-white hover:bg-[#2c2171]" onClick={closeModal}>
+      <button className="btn btn-ghost text-black bg-white hover:bg-gray-300" onClick={closeModal}>
         <XMarkIcon className="h-2/3" />
       </button>
     </div>
