@@ -20,4 +20,4 @@ RUN rm -rf packages/backend packages/foundry packages/ai
 EXPOSE 3001
 
 # Ejecutar Next.js en modo desarrollo
-CMD ["yarn", "next:start"]
+CMD ["NODE_OPTIONS='--no-warnings'", "NODE_ENV=production", "yarn", "next:start"]
