@@ -126,8 +126,8 @@ export const ChooseGame = ({ showGame }: any) => {
     <>
       {loading && <ModalWaitingForPlayers />}
       <div className="flex flex-col items-center w-full">
-        <div className="mb-12">
-          <h1 className="sami-title text-7xl mb-8 text-center">
+        <div className="mb-8 md:mb-20">
+          <h1 className="sami-title text-3xl md:text-7xl mb-8 text-center">
             Who is{" "}
             <span className="text-[#3DCCE1]">
               SAMI{" "}
@@ -142,7 +142,7 @@ export const ChooseGame = ({ showGame }: any) => {
             ?!1
           </h1>
         </div>
-        <div className="flex md:flex-row flex-col justify-center items-center w-full gap-10 md:gap-8">
+        <div className="flex md:flex-row flex-col justify-center items-center w-full gap-10 md:gap-20">
           <div className="card bg-[#1CA297] opacity-80 text-white glow-cyan max-w-sm md:w-96 shadow-xl mx-4">
             <div className="card-body text-center">
               <h2 className="text-3xl sami-title">Play for free</h2>
@@ -176,7 +176,7 @@ export const ChooseGame = ({ showGame }: any) => {
               <p className="text-xl">
                 Guess and{" "}
                 <span className="text-[#1CA297]">
-                  win 500{" "}
+                  win 500 &nbsp;
                   <Image
                     src="/mode.png"
                     alt="MODE Network Logo"
@@ -211,8 +211,8 @@ export const ChooseGame = ({ showGame }: any) => {
             </div>
           </div>
         </div>
-        <div className="mt-8">
-          <h2 className="sami-title text-4xl mt-8 text-center">
+        <div className="mt-8 md:mt-12">
+          <h2 className="sami-title text-3xl md:text-4xl mt-8 text-center">
             Powered by{" "}
             <Link href="https://mode.network/" passHref target="_blank">
               <Image

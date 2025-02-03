@@ -15,27 +15,27 @@ export const ModalInstructions = ({ closeModal }: any) => {
       className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-100"
       onClick={handleBackdropClick}
     >
-      <div className="relative bg-[#1CA297] glow-cyan rounded-2xl items-center justify-center mx-4 md:mx-16  overflow-auto">
-        <div className="absolute top-4 right-4">
+      <div className="relative bg-[#1CA297] glow-cyan rounded-2xl items-center justify-center mx-4 md:mx-16 overflow-auto">
+        <div className="absolute top-4 right-2 md:right-4">
           <CloseButton closeModal={closeModal} />
         </div>
         <div className="flex justify-between items-center md:mb-8 mb-6 mt-6">
           <div className="flex-grow text-center">
-            <span className="block text-5xl sami-title text-white">SAMI rules!</span>
+            <span className="block text-3xl md:text-5xl sami-title text-white">SAMI rules!</span>
           </div>
         </div>
-        <div className="flex justify-between items-between md:gap-12 gap-4 flex-col sm:flex-row pb-2 mx-4 overflow-scroll">
+        <div className="flex justify-between items-between md:gap-12 gap-4 flex-col sm:flex-row pb-2 mx-4 overflow-scroll md:px-8 md:pb-8 md:pt-4">
           <div className="flex flex-col bg-[#2c2171]  p-4 text-center items-center max-w-xs rounded-3xl md:ml-4">
             {/* <BugAntIcon className="h-20 w-20 fill-secondary" /> */}
             <Image src="/logo.png" alt="SAMI Logo" width="100" height="100" />
-            <p className="text-2xl">
+            <p className="text-xl">
               <span className="text-white">Chat with strangers and </span>
               <span className="text-[#1CA297]">figure out who is SAMI, the AI agent.</span>
             </p>
           </div>
           <div className="flex flex-col bg-[#2c2171] p-4 text-center items-center max-w-xs rounded-3xl">
             <ClockIcon className="h-24 w-24 fill-secondary" />
-            <p className="text-2xl">
+            <p className="text-xl">
               <span className="text-white"> After 2 minutes, </span>
               <span className="text-[#1CA297]">vote on who you think SAMI was</span>
               <span className="text-white"> in the chat.</span>
@@ -44,7 +44,7 @@ export const ModalInstructions = ({ closeModal }: any) => {
           <div className="flex flex-col bg-[#2c2171] p-4 text-center items-center max-w-xs rounded-3xl">
             {/* <CurrencyDollarIcon className="h-20 w-20 fill-secondary" /> */}
             <Image src="/mode.png" alt="MODE Network Logo" width="100" height="100" />
-            <p className="text-2xl">
+            <p className="text-xl">
               <span className="text-white"> Bet 100 $MODE, and if you guess, you get 500. </span>
               <span className="text-[#1CA297]">Free version available.</span>
             </p>
@@ -58,7 +58,7 @@ export const ModalInstructions = ({ closeModal }: any) => {
 const CloseButton = ({ closeModal }: any) => {
   return (
     <div className="flex justify-end md:m-4 ">
-      <button className="btn btn-ghost bg-red-600 hover:bg-red-500" onClick={closeModal}>
+      <button className="btn btn-ghost text-black bg-white hover:bg-[#2c2171]" onClick={closeModal}>
         <XMarkIcon className="h-2/3" />
       </button>
     </div>
