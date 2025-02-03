@@ -204,7 +204,6 @@ export const handleMessage = async (data: any, socket: Socket, io: Server) => {
   });
 
   console.log(`[${roomId}] Input to Sami: ${body}`);
-  console.log({SAMI_URI});
 
   // Iniciar solicitud a la IA sin esperar la respuesta (se manejará con timeout)
   const aiResponsePromise = fetch(`${SAMI_URI}/SAMI-AGENT/message`, {

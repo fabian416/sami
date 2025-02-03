@@ -63,7 +63,7 @@ export const ModalWaitingForPlayers = ({ isBetGame }: { isBetGame: boolean }) =>
             <strong className="text-xl">Waiting for other players to join</strong>
           </span>
           <div className="flex items-center justify-center gap-4 flex-row">
-            <span className="text-6xl">
+            <span className="text-5xl m-2">
               <strong>{amountOfPlayers && minPlayers && `${amountOfPlayers}/${minPlayers}`}</strong>
             </span>
             <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-[#2c2171] border-solid"></div>

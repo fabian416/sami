@@ -77,7 +77,11 @@ const VoteModal = ({
         </div>
         <div className="flex justify-center items-center gap-12 flex-col sm:flex-row pb-16">
           {players.map(player => (
-            <button key={player.index} className="cool-button" onClick={() => handleVote(player.index, player.id)}>
+            <button
+              key={player.index}
+              className={`cool-button after:bg-gray-200 !bg-[#1CA297] ${shuffledColors[player.index]}`}
+              onClick={() => handleVote(player.index, player.id)}
+            >
               {shuffledNames[player.index]}
             </button>
           ))}

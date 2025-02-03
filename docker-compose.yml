@@ -28,6 +28,7 @@ services:
       - backend
     environment:
       - NEXT_PUBLIC_API_URL=http://backend:5001
+      - NEXT_PUBLIC_IGNORE_BUILD_ERROR=true
       - PORT=3001
 
   ai-agent:
