@@ -16,7 +16,7 @@ contract ScaffoldETHDeploy is Script {
         string name;
         address addr;
     }
-
+    
     string root;
     string path;
     Deployment[] public deployments;

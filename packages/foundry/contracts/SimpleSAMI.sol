@@ -39,6 +39,11 @@ contract SimpleSAMI is Ownable {
     /// @param amount The amount of tokens sent as a prize
     event PrizeSent(address indexed winner, uint256 amount);
 
+    /// @notice Emitted when a error occurs sending the prize
+    /// @param winner The address of the winner
+    /// @param amount The amount of tokens that failed
+    event ErrorSendingPrize(address indexed winner, uint256 amount);
+
     //////////////////////////////////////////
     // Constructor
     //////////////////////////////////////////
@@ -61,7 +66,6 @@ contract SimpleSAMI is Ownable {
 
         ticketCounter++;
         ticketToOwner[ticketCounter] = msg.sender;
-        samiReserves += betAmount;
 
         emit TicketBought(msg.sender, ticketCounter);
     }
@@ -70,6 +74,7 @@ contract SimpleSAMI is Ownable {
     /// @dev The ticket must not have been used before
     /// @param _ticketId The ID of the ticket to be used
     function useTicket(uint256 _ticketId) public onlyOwner {
+         require(ticketToOwner[_ticketId] == msg.sender, "Not your ticket");
         require(!ticketUsed[_ticketId], "Ticket already used");
 
         ticketUsed[_ticketId] = true;
@@ -79,15 +84,24 @@ contract SimpleSAMI is Ownable {
 
     /// @notice Allows the owner to send the prize to a winner
     /// @dev The contract must have sufficient reserves to send the prize
-    /// @param _winner The address of the winner to receive the prize
-    function sendPrize(address _winner) public onlyOwner {
-        uint256 prize = betAmount * 5;
-        require(samiReserves >= prize, "No prize to send");
-        samiReserves -= prize;
-        require(MODE_TOKEN.transfer(_winner, prize), "Transfer failed");
+    /// @param _winners The address of the winner to receive the prize
+function sendPrizes(address[] memory _winners) public onlyOwner {
+    uint256 prize = betAmount * 5;
+    uint256 totalPrize = prize * _winners.length;
+    uint256 contractBalance = MODE_TOKEN.balanceOf(address(this));
 
-        emit PrizeSent(_winner, prize);
+    require(contractBalance >= totalPrize, "Not enough reserves to send prizes");
+
+    for (uint i = 0; i < _winners.length; i++) {
+        bool success = MODE_TOKEN.transfer(_winners[i], prize);
+
+        if (success) {
+            emit PrizeSent(_winners[i], prize);
+        } else {
+            emit ErrorSendingPrize(_winners[i], prize);
+        }
     }
+}
 
     /// @notice Allows the owner to set the bet amount required to buy a ticket
     /// @param _betAmount The new bet amount

@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   919: {
     SimpleSAMI: {
-      address: "0x533debde0849baf70f56e9d66852b4a14ef9dc3a",
+      address: "0xf29fad812f30e3a50b39c1c05e39704c3c91c3fb",
       abi: [
         {
           type: "constructor",
@@ -88,12 +88,12 @@ const deployedContracts = {
         },
         {
           type: "function",
-          name: "sendPrize",
+          name: "sendPrizes",
           inputs: [
             {
-              name: "_winner",
-              type: "address",
-              internalType: "address",
+              name: "_winners",
+              type: "address[]",
+              internalType: "address[]",
             },
           ],
           outputs: [],
@@ -204,6 +204,25 @@ const deployedContracts = {
         },
         {
           type: "event",
+          name: "ErrorSendingPrize",
+          inputs: [
+            {
+              name: "winner",
+              type: "address",
+              indexed: true,
+              internalType: "address",
+            },
+            {
+              name: "amount",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "event",
           name: "OwnershipTransferred",
           inputs: [
             {
@@ -302,7 +321,7 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deploymentFile: "run-1738546375.json",
+      deploymentFile: "run-1738614299.json",
       deploymentScript: "DeploySimpleSAMI.s.sol",
     },
     MockMODE: {
@@ -2038,12 +2057,12 @@ const deployedContracts = {
         },
         {
           type: "function",
-          name: "sendPrize",
+          name: "sendPrizes",
           inputs: [
             {
-              name: "_winner",
-              type: "address",
-              internalType: "address",
+              name: "_winners",
+              type: "address[]",
+              internalType: "address[]",
             },
           ],
           outputs: [],
@@ -2151,6 +2170,25 @@ const deployedContracts = {
           ],
           outputs: [],
           stateMutability: "nonpayable",
+        },
+        {
+          type: "event",
+          name: "ErrorSendingPrize",
+          inputs: [
+            {
+              name: "winner",
+              type: "address",
+              indexed: true,
+              internalType: "address",
+            },
+            {
+              name: "amount",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+          ],
+          anonymous: false,
         },
         {
           type: "event",

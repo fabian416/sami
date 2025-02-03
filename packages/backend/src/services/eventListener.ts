@@ -33,6 +33,12 @@ const main = async () => {
         gameServiceEmitter.emit("prizeSent", { winner, amount });
     });
 
+    // Listen when a en error happens sending prize
+       contract.on(contract.filters.ErrorSendingPrize, async (user, amount) => {
+        console.log(`Error sending prize to ${user}: ${amount} MODE`);
+        gameServiceEmitter.emit("ErrorSendingPrize", { user, amount });
+    });
+
     console.log("Event listeners are now running.");
 };
 
