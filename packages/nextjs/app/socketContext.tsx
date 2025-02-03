@@ -24,8 +24,11 @@ interface SocketContextType {
 const SocketContext = createContext<SocketContextType | undefined>(undefined);
 
 // URL del servidor WebSocket
-const SERVER_URL = API_URL || "http://localhost:5001";
-//const SERVER_URL = NODE_ENV === "test" ? "http://backend:5001" : "https://8lh8dmll-5001.brs.devtunnels.ms";
+//const SERVER_URL = API_URL || "http://localhost:5001";
+const SERVER_URL =
+  API_URL || window.location.hostname === "localhost"
+    ? "http://localhost:5001"
+    : "https://8lh8dmll-5001.brs.devtunnels.ms";
 
 // Proveedor del contexto
 export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
