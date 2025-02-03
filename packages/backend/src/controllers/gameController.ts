@@ -204,6 +204,7 @@ export const handleMessage = async (data: any, socket: Socket, io: Server) => {
   });
 
   console.log(`[${roomId}] Input to Sami: ${body}`);
+  console.log({SAMI_URI});
 
   // Iniciar solicitud a la IA sin esperar la respuesta (se manejará con timeout)
   const aiResponsePromise = fetch(`${SAMI_URI}/SAMI-AGENT/message`, {
@@ -229,7 +230,7 @@ export const handleMessage = async (data: any, socket: Socket, io: Server) => {
     const responseText = await Promise.race([
       aiResponsePromise.then((res) => res.text()), // Convierte Response a string antes de la carrera
       new Promise<string>((_, reject) =>
-        setTimeout(() => reject(new Error("Timeout: AI response took too long")), 8000)
+        setTimeout(() => reject(new Error("Timeout: AI response took too long")), 20000)
       ),
     ]);
   
