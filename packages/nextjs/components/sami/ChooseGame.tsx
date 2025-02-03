@@ -160,8 +160,8 @@ export const ChooseGame = ({ showGame }: any) => {
       {loading && <ModalWaitingForPlayers isBetGame={isBetGame} />}
       {!loading && loadingTransaction && <ModalWaitingForTransaction />}
       <div className="flex flex-col items-center w-full">
-        <div className="mb-8 md:mb-10">
-          <h1 className="sami-title text-3xl md:text-7xl mb-8 text-center">
+        <div className="mb-4 md:mb-10">
+          <h1 className="sami-title text-2xl md:text-7xl mb-2 md:mb-8 text-center">
             Who is&nbsp;
             <span className="text-[#3DCCE1]">
               SAMI&nbsp;
@@ -178,13 +178,13 @@ export const ChooseGame = ({ showGame }: any) => {
           </h1>
         </div>
         <div className="flex md:flex-row flex-col justify-center items-center w-full gap-10 md:gap-20">
-          <div className="card bg-[#1CA297] opacity-80 text-white glow-cyan max-w-sm md:w-96 shadow-xl mx-4">
+          <div className="card bg-[#1CA297] opacity-80 text-white glow-cyan w-full md:w-96 shadow-xl mx-4">
             <div className="card-body text-center">
               <h2 className="text-3xl sami-title">Play for free</h2>
               <p className="text-xl">Find SAMI among 5 anons</p>
-              <div className="card-actions justify-end">
+              <div className="card-actions justify-center">
                 <button
-                  className="btn btn-primary rounded-lg text-2xl px-32 bg-white text-[#1CA297] hover:text-[#1CA297] hover:bg-white border-0"
+                  className="btn btn-primary rounded-lg text-2xl w-full bg-white text-[#1CA297] hover:text-[#1CA297] hover:bg-white border-0"
                   onClick={handleEnterGame}
                   disabled={loading}
                 >
@@ -193,7 +193,7 @@ export const ChooseGame = ({ showGame }: any) => {
               </div>
             </div>
           </div>
-          <div className="card bg-[#2c2171] opacity-80 text-white glow-purple max-w-sm md:w-96 shadow-xl mx-4">
+          <div className="card bg-[#2c2171] opacity-80 text-white glow-purple w-full md:w-96 shadow-xl mx-4">
             <div className="card-body text-center">
               <h2 className="text-3xl sami-title flex flex-row justify-center items-center">
                 <>Bet&nbsp;</>
@@ -260,7 +260,7 @@ export const ChooseGame = ({ showGame }: any) => {
             </div>
           </div>
         </div>
-        <div className="mt-8 md:mt-12 text-4xl">
+        <div className="mt-4 md:mt-12 text-l md:text-4xl">
           <span className="mr-1">Follow SAMI on</span>
           <Link className="link" href="https://x.com/sami_ai_agent" target="_blank" passHref>
             X (Twitter!)
