@@ -20,7 +20,8 @@ interface Player {
 
 export const ChooseGame = ({ showGame }: any) => {
   const [loading, setLoading] = useState(false);
-  const [loadingTransaction, setLoadingTransaction] = useState(false);
+  const [loadingApprove, setLoadingApprove] = useState(false);
+  const [loadingBet, setLoadingBet] = useState(false);
   const { socket, isConnected, playerId, setPlayerId, setPlayerIndex, setRoomId } = useSocket();
   const { address: connectedAddress } = useAccount();
   const { writeContractAsync: MODEwriteContractAsync } = useScaffoldWriteContract("MockMODE");
@@ -36,7 +37,7 @@ export const ChooseGame = ({ showGame }: any) => {
   const [isBetGame, setIsBetGame] = useState<boolean>(false);
 
   useEffect(() => {
-    allowance && allowance >= BigInt(2 * 1e18) && setLoadingTransaction(false);
+    allowance && allowance >= BigInt(90 * 1e18) && setLoadingApprove(false);
   }, [allowance]);
 
   useEffect(() => {
@@ -66,7 +67,7 @@ export const ChooseGame = ({ showGame }: any) => {
       return;
     }
 
-    setLoadingTransaction(true);
+    setLoadingApprove(true);
     try {
       const contractResponse = await MODEwriteContractAsync({
         functionName: "approve",
@@ -80,7 +81,7 @@ export const ChooseGame = ({ showGame }: any) => {
       console.error("Error increasing allowance:", error);
       notification.error("Increasing allowance failed, please try again.");
     }
-    setLoadingTransaction(false);
+    setLoadingApprove(false);
   };
 
   const handleBetAndPlay = async () => {
@@ -89,7 +90,7 @@ export const ChooseGame = ({ showGame }: any) => {
       return;
     }
 
-    setLoadingTransaction(true);
+    setLoadingBet(true);
     try {
       const contractResponse = await simpleSamiwriteContractAsync({
         functionName: "buyTicket",
@@ -126,7 +127,7 @@ export const ChooseGame = ({ showGame }: any) => {
       console.error("Error buying ticket:", error);
       notification.error("Buying ticket failed, please try again.");
     }
-    setLoadingTransaction(false);
+    setLoadingBet(false);
   };
 
   const handleEnterGame = () => {
@@ -158,7 +159,7 @@ export const ChooseGame = ({ showGame }: any) => {
   return (
     <>
       {loading && <ModalWaitingForPlayers isBetGame={isBetGame} />}
-      {!loading && loadingTransaction && <ModalWaitingForTransaction />}
+      {!loading && (loadingApprove || loadingBet) && <ModalWaitingForTransaction />}
       <div className="flex flex-col items-center w-full">
         <div className="mb-4 md:mb-10">
           <h1 className="sami-title text-2xl md:text-7xl mb-2 md:mb-8 text-center">
@@ -220,13 +221,13 @@ export const ChooseGame = ({ showGame }: any) => {
               </p>
               <div className="card-actions justify-center">
                 {connectedAddress ? (
-                  allowance && allowance >= BigInt(2 * 1e18) ? (
+                  allowance && allowance >= BigInt(90 * 1e18) ? (
                     <>
                       <button
                         onClick={handleBetAndPlay}
                         className="cool-button !flex !flex-row !justify-center !items-center"
                       >
-                        <div className="text-[#2c2171]">Bet</div>&nbsp;<>100</>&nbsp;$MODE&nbsp;
+                        <div className="text-[#b3ca06]">Bet</div>&nbsp;<>100</>&nbsp;$MODE&nbsp;
                       </button>
                     </>
                   ) : (
@@ -234,7 +235,7 @@ export const ChooseGame = ({ showGame }: any) => {
                       onClick={handleApprove}
                       className="cool-button !flex !flex-row !justify-center !items-center"
                     >
-                      <div className="text-[#b3ca06]">Approve</div>&nbsp;<>100</>&nbsp;$MODE&nbsp;
+                      <div className="text-[#2c2171]">Approve</div>&nbsp;<>100</>&nbsp;$MODE&nbsp;
                     </button>
                   )
                 ) : (

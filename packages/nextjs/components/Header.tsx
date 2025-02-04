@@ -62,7 +62,6 @@ export const Header = () => {
     args: [connectedAddress],
     watch: true,
   });
-  console.log(balance);
 
   const handleMint = async () => {
     if (!connectedAddress) {
@@ -73,7 +72,7 @@ export const Header = () => {
     try {
       const contractResponse = await MODEwriteContractAsync({
         functionName: "mint",
-        args: [connectedAddress, BigInt(500 * 1e18)],
+        args: [connectedAddress, BigInt(200 * 1e18)],
       });
 
       if (contractResponse) {
@@ -117,21 +116,37 @@ export const Header = () => {
         </ul>
       </div>
       <div className="navbar-end flex-grow mr-4">
-        {isConnected && typeof balance !== "undefined" && balance < BigInt(100 * 1e18) && (
-          <button
-            className="btn btn-primary bg-[#B2CB00] hover:bg-[#A1CA00] mr-2 text-black border-0 shadow-[0_0_10px_#A1CA00] btn-sm text-xl"
-            onClick={handleMint}
-          >
-            <div className="text-sm">Mint 500 $MODE to start betting</div>
-            <Image
-              src="/mode.png"
-              alt="MODE Network Logo"
-              width="25"
-              height="25"
-              className="inline-block align-middle" // Add this to align the image with the text
-            />
-          </button>
-        )}
+        {isConnected &&
+          typeof balance !== "undefined" &&
+          (balance < BigInt(100 * 1e18) ? (
+            <button
+              className="btn btn-primary bg-[#B2CB00] hover:bg-[#A1CA00] mr-2 text-black border-0 shadow-[0_0_10px_#A1CA00] btn-sm text-xl"
+              onClick={handleMint}
+            >
+              <div className="text-sm">Mint 200 $MODE to start betting</div>
+              <Image
+                src="/mode.png"
+                alt="MODE Network Logo"
+                width="25"
+                height="25"
+                className="inline-block align-middle" // Add this to align the image with the text
+              />
+            </button>
+          ) : (
+            <button
+              className="btn btn-primary bg-[#B2CB00] hover:bg-[#A1CA00] mr-2 text-black border-0 shadow-[0_0_10px_#A1CA00] btn-sm text-xl"
+              onClick={handleMint}
+            >
+              <div className="text-sm">{(Number(balance) / 10 ** 18).toFixed(0)} $MODE</div>
+              <Image
+                src="/mode.png"
+                alt="MODE Network Logo"
+                width="25"
+                height="25"
+                className="inline-block align-middle" // Add this to align the image with the text
+              />
+            </button>
+          ))}
         <RainbowKitCustomConnectButtonOpaque />
         <FaucetButton />
       </div>
