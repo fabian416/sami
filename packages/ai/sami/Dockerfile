@@ -23,9 +23,6 @@ COPY tsconfig.json ./
 COPY ./src ./src
 COPY ./characters ./characters
 
-# Copia el .env solo si existe
-RUN test -f .env && cp .env /app/.env || echo ".env not found, skipping."
-
 # Install dependencies and build the project
 RUN pnpm i
 RUN pnpm build 
@@ -49,9 +46,6 @@ COPY --from=builder /app/characters /app/characters
 COPY --from=builder /app/dist /app/dist
 COPY --from=builder /app/tsconfig.json /app/
 COPY --from=builder /app/pnpm-lock.yaml /app/
-
-# Copia el .env solo si existe
-RUN test -f .env && cp .env /app/.env || echo ".env not found, skipping."
 
 EXPOSE 3000
 # Set the command to run the application

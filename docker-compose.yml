@@ -8,12 +8,10 @@ services:
     restart: always
     networks:
       - sami_network
+    env_file:
+      - .env
     environment:
-      - AGENT_URL=http://ai-agent:3000
-      - PORT=5001
       - HOST=0.0.0.0
-      - PRIVATE_KEY=${PRIVATE_KEY}
-      - RPC_URL=${RPC_URL}
 
   frontend:
     build:
@@ -26,9 +24,9 @@ services:
       - sami_network
     depends_on:
       - backend
+    env_file:
+      - .env
     environment:
-      - NEXT_PUBLIC_API_URL=http://backend:5001
-      - NEXT_PUBLIC_IGNORE_BUILD_ERROR=true
       - PORT=3001
 
   ai-agent:
@@ -38,9 +36,8 @@ services:
     restart: always
     networks:
       - sami_network
-    environment:
-      - AGENT_URL=http://ai-agent:3000
-      - PORT=3000
+    env_file:
+      - .env
 
 networks:
   sami_network:

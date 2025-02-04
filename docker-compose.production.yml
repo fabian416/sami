@@ -6,12 +6,10 @@ services:
     restart: always
     networks:
       - sami_network
+    env_file:
+      - .env
     environment:
-      - AGENT_URL=http://ai-agent:3000
-      - PORT=5001
       - HOST=0.0.0.0
-      - PRIVATE_KEY=${PRIVATE_KEY}
-      - RPC_URL=${RPC_URL}
 
   frontend:
     image: ghcr.io/fabian416/sami/frontend:latest
@@ -22,9 +20,9 @@ services:
       - sami_network
     depends_on:
       - backend
+    env_file:
+      - .env
     environment:
-      - NEXT_PUBLIC_API_URL=https://api.playsami.fun
-      - NEXT_PUBLIC_IGNORE_BUILD_ERROR=true
       - PORT=3001
 
   ai-agent:
@@ -34,11 +32,8 @@ services:
     restart: always
     networks:
       - sami_network
-    environment:
-      - AGENT_API=http://ai-agent:3000
-      - PORT=3000
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - USE_OPENAI_EMBEDDING=${USE_OPENAI_EMBEDDING}
+    env_file:
+      - .env
 
   caddy:
     image: caddy:latest

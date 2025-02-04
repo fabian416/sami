@@ -13,7 +13,7 @@ Before you begin, you need to install the following tools:
 - [Git](https://git-scm.com/downloads)
 
 
-## Start with docker
+## Start with Docker
 
 1. Clone this repo:
 
@@ -22,93 +22,21 @@ git clone https://github.com/fabian416/sami.git
 cd sami
 ```
 
-2. Duplicate the .env.example template from ELIZA and fill the variable OPENAI_API_KEY with your own key
-
-```bash
-cp packages/ai/sami/.env.example packages/ai/sami/.env
-```
-
-OPENAI_API_KEY=sk-* # OpenAI API key, starting with sk-
-
-
-
-3. Duplicate the .env.example template from the ROOT and fill the variable PRIVATE_KEY with your own key
+2. Duplicate the .env.example template from the ROOT and fill the variable PRIVATE_KEY and OPENAI_API_KEY with your own keys
 
 ```bash
 cp .env.example .env
 ```
-
 PRIVATE_KEY= #Your private key
+OPENAI_API_KEY=sk-* # OpenAI API key, starting with sk-
 
-
-4. Start docker
+3. Start docker
 
 ```bash
 docker compose up -d
 ```
 
-5. Enter to http://localhost:3001 and play with sami!
-
-
-
-## Quickstart
-
-To get started with SAMI, follow the steps below:
-
-1. Clone this repo and install dependencies:
-
-```
-git clone https://github.com/fabian416/sami.git
-cd sami
-yarn install
-```
-
-2. Run a local network in the first terminal:
-
-```
-yarn chain
-```
-
-This command starts a local Ethereum network using Foundry. The network runs on your local machine and can be used for testing and development. You can customize the network configuration in `packages/foundry/foundry.toml`.
-
-3. On a second terminal, deploy the test contract:
-
-```
-yarn deploy
-```
-
-This command deploys a test smart contract to the local network. The contract is located in `packages/foundry/contracts` and can be modified to suit your needs. The `yarn deploy` command uses the deploy script located in `packages/foundry/script` to deploy the contract to the network. You can also customize the deploy script.
-
-
-4. Duplicate the .env.example template from the BACKEND folder and fill the variable PRIVATE_KEY with your own key
-
-```bash
-cp packages/backend/.env.example packages/backend/.env
-```
-
-PRIVATE_KEY= #Your private key
-
-5. On a third terminal, start your backend by running first:
-
-```
-yarn backend:build
-```
-
-And then running:
-
-```
-yarn backend:dev
-```
-
-6. On a fourth terminal, start your NextJS app:
-
-```
-yarn start
-```
-
-Visit your app on: `http://localhost:3000`. You can interact with your smart contract using the `Debug Contracts` page. You can tweak the app config in `packages/nextjs/scaffold.config.ts`.
-
-Run smart contract test with `yarn foundry:test`
+4. Enter to http://localhost:3001 and play with sami!
 
 
 ## Architecture
