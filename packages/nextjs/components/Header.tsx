@@ -133,10 +133,7 @@ export const Header = () => {
               />
             </button>
           ) : (
-            <button
-              className="btn btn-primary bg-[#B2CB00] hover:bg-[#A1CA00] mr-2 text-black border-0 shadow-[0_0_10px_#A1CA00] btn-sm text-xl"
-              onClick={handleMint}
-            >
+            <button className="btn btn-primary bg-[#B2CB00] hover:bg-[#A1CA00] mr-2 text-black border-0 shadow-[0_0_10px_#A1CA00] btn-sm text-xl">
               <div className="text-sm">{(Number(balance) / 10 ** 18).toFixed(0)} $MODE</div>
               <Image
                 src="/mode.png"
