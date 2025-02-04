@@ -1,5 +1,6 @@
 # Etapa 1: Construcción
 FROM node:23.3.0-slim AS builder
+LABEL com.centurylinklabs.watchtower.enable="true"
 
 WORKDIR /app
 

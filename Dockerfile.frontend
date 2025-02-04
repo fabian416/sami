@@ -1,5 +1,6 @@
 # Usa la imagen base de Node.js
 FROM node:23.3.0-slim
+LABEL com.centurylinklabs.watchtower.enable="true"
 
 WORKDIR /app
 
