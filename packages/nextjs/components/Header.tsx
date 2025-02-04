@@ -5,7 +5,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ModalInstructions } from "./sami/ModalInstructions";
+import { useAccount } from "wagmi";
+import { CurrencyDollarIcon } from "@heroicons/react/24/outline";
 import { FaucetButton, RainbowKitCustomConnectButtonOpaque } from "~~/components/scaffold-eth";
+import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { notification } from "~~/utils/scaffold-eth";
 
 type HeaderMenuLink = {
   label: string;
@@ -50,7 +54,30 @@ export const HeaderMenuLinks = () => {
  * Site header
  */
 export const Header = () => {
+  const { writeContractAsync: MODEwriteContractAsync } = useScaffoldWriteContract("MockMODE");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { address: connectedAddress } = useAccount();
+
+  const handleMint = async () => {
+    if (!connectedAddress) {
+      notification.error("Please connect your wallet");
+      return;
+    }
+
+    try {
+      const contractResponse = await MODEwriteContractAsync({
+        functionName: "mint",
+        args: [connectedAddress, BigInt(500 * 1e18)],
+      });
+
+      if (contractResponse) {
+        notification.success("Tokens minted successfully!");
+      }
+    } catch (error) {
+      console.error("Error minting tokens:", error);
+      notification.error("Minting tokens failed, please try again.");
+    }
+  };
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -84,6 +111,19 @@ export const Header = () => {
         </ul>
       </div>
       <div className="navbar-end flex-grow mr-4">
+        <button
+          className="btn btn-primary bg-[#B2CB00] hover:bg-[#A1CA00] mr-2 text-black border-0 shadow-[0_0_10px_#A1CA00] btn-sm text-xl"
+          onClick={handleMint}
+        >
+          <div className="text-sm">Get 500 $MODE</div>
+          <Image
+            src="/mode.png"
+            alt="MODE Network Logo"
+            width="25"
+            height="25"
+            className="inline-block align-middle" // Add this to align the image with the text
+          />
+        </button>
         <RainbowKitCustomConnectButtonOpaque />
         <FaucetButton />
       </div>

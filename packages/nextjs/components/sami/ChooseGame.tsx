@@ -226,15 +226,7 @@ export const ChooseGame = ({ showGame }: any) => {
                         onClick={handleBetAndPlay}
                         className="cool-button !flex !flex-row !justify-center !items-center"
                       >
-                        <div className="text-[#2c2171]">Bet</div>&nbsp;<>100</>&nbsp;
-                        <Image
-                          src="/mode.png"
-                          alt="MODE Network Logo"
-                          width="25"
-                          height="25"
-                          className="inline-block align-middle" // Add this to align the image with the text
-                        />
-                        &nbsp;
+                        <div className="text-[#2c2171]">Bet</div>&nbsp;<>100</>&nbsp;$MODE&nbsp;
                       </button>
                     </>
                   ) : (
@@ -242,15 +234,7 @@ export const ChooseGame = ({ showGame }: any) => {
                       onClick={handleApprove}
                       className="cool-button !flex !flex-row !justify-center !items-center"
                     >
-                      <div className="text-[#b3ca06]">Approve</div>&nbsp;<>100</>&nbsp;
-                      <Image
-                        src="/mode.png"
-                        alt="MODE Network Logo"
-                        width="25"
-                        height="25"
-                        className="inline-block align-middle" // Add this to align the image with the text
-                      />
-                      &nbsp;
+                      <div className="text-[#b3ca06]">Approve</div>&nbsp;<>100</>&nbsp;$MODE&nbsp;
                     </button>
                   )
                 ) : (
