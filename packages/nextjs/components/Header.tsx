@@ -6,9 +6,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ModalInstructions } from "./sami/ModalInstructions";
 import { useAccount } from "wagmi";
-import { CurrencyDollarIcon } from "@heroicons/react/24/outline";
 import { FaucetButton, RainbowKitCustomConnectButtonOpaque } from "~~/components/scaffold-eth";
-import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { notification } from "~~/utils/scaffold-eth";
 
 type HeaderMenuLink = {
@@ -56,7 +55,14 @@ export const HeaderMenuLinks = () => {
 export const Header = () => {
   const { writeContractAsync: MODEwriteContractAsync } = useScaffoldWriteContract("MockMODE");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { address: connectedAddress } = useAccount();
+  const { address: connectedAddress, isConnected } = useAccount();
+  const { data: balance } = useScaffoldReadContract({
+    contractName: "MockMODE",
+    functionName: "balanceOf",
+    args: [connectedAddress],
+    watch: true,
+  });
+  console.log(balance);
 
   const handleMint = async () => {
     if (!connectedAddress) {
@@ -111,19 +117,21 @@ export const Header = () => {
         </ul>
       </div>
       <div className="navbar-end flex-grow mr-4">
-        <button
-          className="btn btn-primary bg-[#B2CB00] hover:bg-[#A1CA00] mr-2 text-black border-0 shadow-[0_0_10px_#A1CA00] btn-sm text-xl"
-          onClick={handleMint}
-        >
-          <div className="text-sm">Get 500 $MODE</div>
-          <Image
-            src="/mode.png"
-            alt="MODE Network Logo"
-            width="25"
-            height="25"
-            className="inline-block align-middle" // Add this to align the image with the text
-          />
-        </button>
+        {isConnected && typeof balance !== "undefined" && balance < BigInt(100 * 1e18) && (
+          <button
+            className="btn btn-primary bg-[#B2CB00] hover:bg-[#A1CA00] mr-2 text-black border-0 shadow-[0_0_10px_#A1CA00] btn-sm text-xl"
+            onClick={handleMint}
+          >
+            <div className="text-sm">Mint 500 $MODE to start betting</div>
+            <Image
+              src="/mode.png"
+              alt="MODE Network Logo"
+              width="25"
+              height="25"
+              className="inline-block align-middle" // Add this to align the image with the text
+            />
+          </button>
+        )}
         <RainbowKitCustomConnectButtonOpaque />
         <FaucetButton />
       </div>
