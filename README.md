@@ -26,8 +26,11 @@ cd sami
 ```bash
 cp .env.example .env
 ```
-PRIVATE_KEY= #Your private key
-OPENAI_API_KEY=sk-* # OpenAI API key, starting with sk-
+
+```
+PRIVATE_KEY= #Your private key  
+OPENAI_API_KEY=sk-* # OpenAI API key, starting with sk-  
+```
 
 3. Start docker
 
