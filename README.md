@@ -42,7 +42,7 @@ docker compose up -d
 
 ## You can play online with SAMI at:
 
-- <a href="https://playsami.fun" target="_blank">https://playsami.fun</a>
+- [https://playsami.fun](https://playsami.fun) _(Right-click → Open in new tab)_
 
 
 ## Architecture
