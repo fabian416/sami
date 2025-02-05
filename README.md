@@ -40,7 +40,7 @@ docker compose up -d
 
 4. Enter to http://localhost:3001 and play with sami!
 
-## You can play with SAMI online at:
+## You can play online with SAMI at:
 
 - [https://playsami.fun](https://playsami.fun)
 
