@@ -187,7 +187,7 @@ export const ChooseGame = ({ showGame }: any) => {
                 <button
                   className="btn btn-primary rounded-lg text-2xl w-full bg-white text-[#1CA297] hover:text-[#1CA297] hover:bg-white border-0"
                   onClick={handleEnterGame}
-                  disabled={loading}
+                  disabled={loading || !isConnected}
                 >
                   {loading ? "Enter" : "Enter"}
                 </button>
