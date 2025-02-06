@@ -53,9 +53,12 @@ export const HeaderMenuLinks = () => {
  * Site header
  */
 export const Header = () => {
-  const { writeContractAsync: MODEwriteContractAsync } = useScaffoldWriteContract("MockMODE");
   const [isModalOpen, setIsModalOpen] = useState(false);
+
   const { address: connectedAddress, isConnected } = useAccount();
+
+  const { writeContractAsync: MODEwriteContractAsync } = useScaffoldWriteContract("MockMODE");
+
   const { data: balance } = useScaffoldReadContract({
     contractName: "MockMODE",
     functionName: "balanceOf",
@@ -123,7 +126,7 @@ export const Header = () => {
               className="btn btn-primary bg-[#B2CB00] hover:bg-[#A1CA00] glow-yellow mr-2 text-black border-0 shadow-[0_0_10px_#A1CA00] btn-sm text-xl"
               onClick={handleMint}
             >
-              <div className="text-sm">Mint to start betting</div>
+              <div className="text-sm">Get $MODE</div>
               <Image
                 src="/mode.png"
                 alt="MODE Network Logo"
@@ -133,16 +136,18 @@ export const Header = () => {
               />
             </button>
           ) : (
-            <button className="btn btn-primary bg-[#B2CB00] hover:bg-[#A1CA00] glow-yellow mr-2 text-black border-0 shadow-[0_0_10px_#A1CA00] btn-sm text-xl">
-              <div className="text-sm">{(Number(balance) / 10 ** 18).toFixed(0)}</div>
-              <Image
-                src="/mode.png"
-                alt="MODE Network Logo"
-                width="25"
-                height="25"
-                className="inline-block align-middle" // Add this to align the image with the text
-              />
-            </button>
+            <>
+              <span className="bg-[#2c2171] glow-purple px-2 py-1 rounded-lg items-center justify-center gap-1 ml-4 text-lg text-blue-600 font-bold">
+                <Image
+                  src="/mode.png"
+                  alt="MODE Network Logo"
+                  width="25"
+                  height="25"
+                  className="inline-block align-bottom" // Add this to align the image with the text
+                />
+                <span className="ml-2 text-[#D8FF01]">{(Number(balance) / 10 ** 18).toFixed(0)}</span>
+              </span>
+            </>
           ))}
         <RainbowKitCustomConnectButtonOpaque />
         <FaucetButton />

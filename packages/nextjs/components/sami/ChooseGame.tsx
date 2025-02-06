@@ -251,14 +251,14 @@ export const ChooseGame = ({ showGame }: any) => {
         <div className="mt-8 md:mt-12 text-4xl">
           <Link className="link" href="https://x.com/sami_ai_agent" target="_blank" passHref>
             <div className=" p-2 rounded-lg  opacity-80">
-              <span className="sami-title text-black dark:text-white">Follow SAMI on </span>
-              <Image
+              <span className="sami-title text-black dark:text-white">Follow SAMI on X!</span>
+              {/* <Image
                 src={theme === "dark" ? "/x-white.png" : "/x.png"}
                 alt="X Logo"
                 width="40"
                 height="40"
                 className="dark:x-logo-dark inline-block align-top" // Add this to align the image with the text
-              />{" "}
+              />{" "} */}
             </div>
           </Link>
         </div>
