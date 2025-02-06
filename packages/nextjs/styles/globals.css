@@ -73,6 +73,36 @@ p {
   }
 }
 
+@keyframes glow-yellow-animation {
+  0%,
+  100% {
+    box-shadow: 0 0 15px 3px rgba(218, 251, 8, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 20px 7px rgba(218, 251, 8, 0.8);
+  }
+}
+
+@keyframes glow-white-animation {
+  0%,
+  100% {
+    box-shadow: 0 0 15px 5px rgba(255, 255, 255, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 20px 9px rgba(255, 255, 255, 0.8);
+  }
+}
+
+.glow-white {
+  box-shadow: 0 0 15px 7px rgba(255, 255, 255, 0.6);
+  animation: glow-white-animation 2s infinite;
+}
+
+.glow-yellow {
+  box-shadow: 0 0 15px 7px rgba(218, 251, 8, 0.6);
+  animation: glow-yellow-animation 2s infinite;
+}
+
 .glow-cyan {
   box-shadow: 0 0 10px 3px rgba(28, 162, 151, 0.6);
   animation: glow-cyan-animation 2s infinite;

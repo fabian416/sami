@@ -30,19 +30,21 @@ export const Footer = () => {
               <span>Los pibes</span>
               <span>·</span> */}
               <div className="text-center">
-                <h2 className="sami-title text-lg mt-8 text-center">
-                  Powered by{" "}
-                  <Link href="https://mode.network/" passHref target="_blank">
-                    <Image
-                      src="/mode.png"
-                      alt="MODE Network Logo"
-                      width="25"
-                      height="25"
-                      className="inline-block align-middle" // Add this to align the image with the text
-                    />{" "}
-                    <span className="underline text-[#D8EA2D] underline-offset-8">MODE Network</span>
-                  </Link>{" "}
-                </h2>
+                <div className="p-2 bg-[#2c2171] glow-yellow rounded-lg text-white">
+                  <h2 className="sami-title text-5xl md:text-sm mt-8 text-center">
+                    Powered by{" "}
+                    <Link href="https://mode.network/" passHref target="_blank">
+                      <Image
+                        src="/mode.png"
+                        alt="MODE Network Logo"
+                        width="25"
+                        height="25"
+                        className="inline-block align-middle" // Add this to align the image with the text
+                      />{" "}
+                      <span className="underline underline-offset-8 text-[#DAFB08]">MODE Network</span>
+                    </Link>{" "}
+                  </h2>
+                </div>
               </div>
             </div>
           </div>

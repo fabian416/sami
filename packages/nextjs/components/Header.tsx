@@ -120,7 +120,7 @@ export const Header = () => {
           typeof balance !== "undefined" &&
           (balance < BigInt(100 * 1e18) ? (
             <button
-              className="btn btn-primary bg-[#B2CB00] hover:bg-[#A1CA00] mr-2 text-black border-0 shadow-[0_0_10px_#A1CA00] btn-sm text-xl"
+              className="btn btn-primary bg-[#B2CB00] hover:bg-[#A1CA00] glow-yellow mr-2 text-black border-0 shadow-[0_0_10px_#A1CA00] btn-sm text-xl"
               onClick={handleMint}
             >
               <div className="text-sm">Mint to start betting</div>
@@ -133,7 +133,7 @@ export const Header = () => {
               />
             </button>
           ) : (
-            <button className="btn btn-primary bg-[#B2CB00] hover:bg-[#A1CA00] mr-2 text-black border-0 shadow-[0_0_10px_#A1CA00] btn-sm text-xl">
+            <button className="btn btn-primary bg-[#B2CB00] hover:bg-[#A1CA00] glow-yellow mr-2 text-black border-0 shadow-[0_0_10px_#A1CA00] btn-sm text-xl">
               <div className="text-sm">{(Number(balance) / 10 ** 18).toFixed(0)}</div>
               <Image
                 src="/mode.png"
