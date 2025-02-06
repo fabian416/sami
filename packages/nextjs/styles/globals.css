@@ -33,6 +33,10 @@ body {
   padding: 0;
 }
 
+.x-logo-dark {
+  filter: invert(1);
+}
+
 h1,
 h2,
 h3,

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { RainbowKitCustomConnectButton } from "../scaffold-eth";
 import { ModalWaitingForPlayers } from "./ModalWaitingForPlayers";
 import { ModalWaitingForTransaction } from "./ModalWaitingForTransaction";
+import { useTheme } from "next-themes";
 import { v4 as uuidv4 } from "uuid";
 import { useAccount } from "wagmi";
 import { useSocket } from "~~/app/socketContext";
@@ -27,6 +28,8 @@ export const ChooseGame = ({ showGame }: any) => {
   const { writeContractAsync: MODEwriteContractAsync } = useScaffoldWriteContract("MockMODE");
   const { writeContractAsync: simpleSamiwriteContractAsync } = useScaffoldWriteContract("SimpleSAMI");
   const { data: simpleSamiContractData } = useDeployedContractInfo("SimpleSAMI");
+
+  const { theme } = useTheme();
 
   const { data: allowance } = useScaffoldReadContract({
     contractName: "MockMODE",
@@ -162,7 +165,7 @@ export const ChooseGame = ({ showGame }: any) => {
       {!loading && (loadingApprove || loadingBet) && <ModalWaitingForTransaction />}
       <div className="flex flex-col items-center w-full">
         <div className="mb-4 md:mb-10">
-          <h1 className="sami-title text-2xl md:text-7xl mb-2 md:mb-8 text-center">
+          <h1 className="sami-title text-2xl md:text-7xl text-center">
             Who is&nbsp;
             <span className="text-[#3DCCE1]">
               SAMI&nbsp;
@@ -247,14 +250,14 @@ export const ChooseGame = ({ showGame }: any) => {
         </div>
         <div className="mt-8 md:mt-12 text-4xl">
           <Link className="link" href="https://x.com/sami_ai_agent" target="_blank" passHref>
-            <div className=" p-2 bg-white rounded-lg glow-white text-black opacity-80">
-              <span className="sami-title">Follow SAMI on </span>
+            <div className=" p-2 rounded-lg  opacity-80">
+              <span className="sami-title text-black dark:text-white">Follow SAMI on </span>
               <Image
-                src="/x.png"
+                src={theme === "dark" ? "/x-white.png" : "/x.png"}
                 alt="X Logo"
                 width="40"
                 height="40"
-                className="inline-block align-top" // Add this to align the image with the text
+                className="dark:x-logo-dark inline-block align-top" // Add this to align the image with the text
               />{" "}
             </div>
           </Link>
