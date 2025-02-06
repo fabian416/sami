@@ -31,7 +31,7 @@ export const Footer = () => {
               <span>·</span> */}
               <div className="text-center">
                 <div className="p-2 bg-[#2c2171] glow-yellow rounded-lg text-white">
-                  <h2 className="sami-title text-5xl md:text-sm mt-8 text-center">
+                  <h2 className="sami-title text-sm mt-8 text-center">
                     Powered by{" "}
                     <Link href="https://mode.network/" passHref target="_blank">
                       <Image

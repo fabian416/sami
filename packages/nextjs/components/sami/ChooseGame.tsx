@@ -251,7 +251,7 @@ export const ChooseGame = ({ showGame }: any) => {
         <div className="mt-4 text-4xl">
           <Link className="link" href="https://x.com/sami_ai_agent" target="_blank" passHref>
             <div className=" p-2 rounded-lg  opacity-80">
-              <span className="sami-title text-black dark:text-white">Follow SAMI on X!</span>
+              <span className="sami-title text-xl text-black dark:text-white">Follow SAMI on X!</span>
               {/* <Image
                 src={theme === "dark" ? "/x-white.png" : "/x.png"}
                 alt="X Logo"
