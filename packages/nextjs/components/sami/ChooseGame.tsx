@@ -164,7 +164,7 @@ export const ChooseGame = ({ showGame }: any) => {
       {loading && <ModalWaitingForPlayers isBetGame={isBetGame} />}
       {!loading && (loadingApprove || loadingBet) && <ModalWaitingForTransaction />}
       <div className="flex flex-col items-center w-full">
-        <div className="mb-4 md:mb-10">
+        <div className="mb-4">
           <h1 className="sami-title text-2xl md:text-7xl text-center">
             Who is&nbsp;
             <span className="text-[#3DCCE1]">
@@ -248,7 +248,7 @@ export const ChooseGame = ({ showGame }: any) => {
             </div>
           </div>
         </div>
-        <div className="mt-8 md:mt-12 text-4xl">
+        <div className="mt-4 text-4xl">
           <Link className="link" href="https://x.com/sami_ai_agent" target="_blank" passHref>
             <div className=" p-2 rounded-lg  opacity-80">
               <span className="sami-title text-black dark:text-white">Follow SAMI on X!</span>

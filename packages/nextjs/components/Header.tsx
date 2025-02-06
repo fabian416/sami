@@ -137,7 +137,7 @@ export const Header = () => {
             </button>
           ) : (
             <>
-              <span className="bg-[#2c2171] glow-purple px-2 py-1 rounded-lg items-center justify-center gap-1 ml-4 text-lg text-blue-600 font-bold">
+              <span className="bg-[#2c2171] glow-yellow px-2 py-1 rounded-lg items-center justify-center gap-1 ml-4 text-lg text-blue-600 font-bold">
                 <Image
                   src="/mode.png"
                   alt="MODE Network Logo"
