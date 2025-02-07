@@ -3,7 +3,7 @@ import Image from "next/image";
 export const ModalFinished = ({ winner, isBetGame }: any) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-[#2c2171] glow-purple rounded-2xl items-center justify-center pb-8 px-12">
+      <div className="bg-[#2c2171] glow-purple text-white rounded-2xl items-center justify-center pb-8 px-12">
         <div className="flex items-center justify-center text-center text-4xl pt-8 pb-2">
           {winner === "You win" ? <strong>You won</strong> : <strong>SAMI won</strong>}
         </div>

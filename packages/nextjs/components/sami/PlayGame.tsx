@@ -178,15 +178,24 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
                 const name = shuffledNames[Number(msg.playerIndex)];
                 return (
                   <div key={index} className={`text-left mb-1 ${color}`}>
-                    <span>
-                      {msg.playerId ? (
-                        <>
-                          <strong>{name}:</strong> {msg.message}
-                        </>
-                      ) : (
-                        <strong>{msg.message}</strong>
-                      )}
-                    </span>
+                    <div className="flex flex-row items-end justify-start">
+                      <strong className={`${color}`}>{name}:</strong>{" "}
+                      <div className="chat chat-start">
+                        <div
+                          className="chat-bubble bg-gray-200 dark:bg-gray-700 border-0
+                      "
+                        >
+                          {msg.playerId ? (
+                            <>
+                              {/* <strong className={`${color}`}>{name}:</strong>{" "} */}
+                              <span className={`${color} pr-3`}>{msg.message}</span>
+                            </>
+                          ) : (
+                            <strong>{msg.message}</strong>
+                          )}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 );
               })}
