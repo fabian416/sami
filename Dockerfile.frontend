@@ -39,6 +39,7 @@ COPY --from=builder /app/packages/nextjs/package*.json ./packages/nextjs/
 COPY --from=builder /app/packages/nextjs/tsconfig.json ./packages/nextjs/
 COPY --from=builder /app/packages/nextjs/node_modules ./packages/nextjs/node_modules
 COPY --from=builder /app/packages/nextjs/.next ./packages/nextjs/.next
+COPY --from=builder /app/packages/nextjs/public ./packages/nextjs/public
 COPY --from=builder /app/packages/nextjs/next.config.js ./packages/nextjs/next.config.js
 
 # Exponer el puerto (asegúrate de que Next.js se ejecuta en este puerto en development)
