@@ -1,5 +1,5 @@
 # Usa la imagen base de Node.js
-FROM node:23.3.0-slim
+FROM node:23.3.0-slim AS builder
 LABEL com.centurylinklabs.watchtower.enable="true"
 
 WORKDIR /app
@@ -14,14 +14,35 @@ COPY . .
 # Instalar dependencias antes de copiar el código fuente para aprovechar la cache
 RUN yarn install
 
-# Eliminar las carpetas no deseadas
-RUN rm -rf packages/backend packages/foundry packages/ai
+RUN yarn next:build
 
-# Configurar variables de entorno correctamente
-ENV NODE_OPTIONS="--no-warnings"
+# Etapa 2: Producción
+FROM node:23.3.0-slim
+
+# -- Add curl and any other needed utilities
+RUN apt-get update && apt-get install -y curl
+
+WORKDIR /app
+
+# Habilitar Corepack para usar Yarn 3+
+RUN corepack enable \
+    && corepack prepare yarn@3.2.3 --activate \
+    && yarn set version 3.2.3
+
+# Copia solo los archivos esenciales desde la etapa de construcción
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/yarn*.lock ./
+COPY --from=builder /app/.yarnrc.yml /app/
+COPY --from=builder /app/.yarn /app/.yarn
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/packages/nextjs/package*.json ./packages/nextjs/
+COPY --from=builder /app/packages/nextjs/tsconfig.json ./packages/nextjs/
+COPY --from=builder /app/packages/nextjs/node_modules ./packages/nextjs/node_modules
+COPY --from=builder /app/packages/nextjs/.next ./packages/nextjs/.next
+COPY --from=builder /app/packages/nextjs/next.config.js ./packages/nextjs/next.config.js
 
 # Exponer el puerto (asegúrate de que Next.js se ejecuta en este puerto en development)
 EXPOSE 3001
 
 # Ejecutar Next.js en modo desarrollo
-CMD ["yarn", "next:start"]
+CMD ["yarn", "next:serve"]
