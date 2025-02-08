@@ -211,8 +211,8 @@ export const ChooseGame = ({ showGame }: any) => {
                 />
               </h2>
               <p className="text-xl flex flex-row justify-center items-center">
-                <>Guess and&nbsp;</>
-                <span className="text-[#3DCCE1]">win 500 &nbsp;</span>
+                <></>
+                <span className="text-[#3DCCE1]">Double your</span>&nbsp;
                 <Image
                   src="/mode.png"
                   alt="MODE Network Logo"
@@ -220,7 +220,7 @@ export const ChooseGame = ({ showGame }: any) => {
                   height="25"
                   className="inline-block align-middle" // Add this to align the image with the text
                 />
-                &nbsp;
+                &nbsp;or lose it all.
               </p>
               <div className="card-actions justify-center">
                 {connectedAddress ? (
