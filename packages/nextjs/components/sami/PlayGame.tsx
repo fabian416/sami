@@ -187,8 +187,10 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
                 const name = shuffledNames[Number(msg.playerIndex)];
                 return (
                   <div key={index} className={`text-left mb-1 ${color}`}>
-                    <div className="flex flex-row items-end justify-start">
-                      <div className="chat chat-start">
+                    <div
+                      className={`flex flex-row items-end ${playerIndex === Number(msg.playerIndex) ? "justify-end" : "justify-start"}`}
+                    >
+                      <div className={`chat ${playerIndex === Number(msg.playerIndex) ? "chat-end" : "chat-start"}`}>
                         <div className="chat-image avatar">
                           <div className="w-10 rounded-full">
                             <img alt="Tailwind CSS chat bubble component" src={AVATARS[Number(msg.playerIndex)]} />
@@ -197,10 +199,7 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
                         <div className="chat-header">
                           <strong className={`${color}`}>{name}</strong>{" "}
                         </div>
-                        <div
-                          className="chat-bubble bg-gray-700 dark:bg-gray-200 border-0
-                      "
-                        >
+                        <div className="chat-bubble max-w-fit w-auto bg-gray-700 dark:bg-gray-200 border-0">
                           {msg.playerId ? (
                             <>
                               {/* <strong className={`${color}`}>{name}:</strong>{" "} */}
