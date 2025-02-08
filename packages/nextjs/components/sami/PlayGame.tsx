@@ -248,7 +248,7 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
           </div>
         </div>
         {!isMobile && (
-          <div className="flex items-center justify-center glow-cyan overflow-hidden rounded-2xl">
+          <div className="hidden md:flex items-center justify-center glow-cyan overflow-hidden rounded-2xl">
             <Image
               src="/sami-team.webp"
               className="object-cover h-auto w-auto"
