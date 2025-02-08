@@ -163,6 +163,7 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
           players={players}
           shuffledColors={shuffledColors}
           shuffledNames={shuffledNames}
+          avatars={AVATARS}
           setMessages={undefined}
         />
       )}

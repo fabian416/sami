@@ -6,9 +6,11 @@ export const ModalForVoting = ({
   players,
   shuffledColors,
   shuffledNames,
+  avatars,
 }: {
   players: Player[];
   setMessages: any;
+  avatars: string[];
   shuffledColors: string[];
   shuffledNames: string[];
 }) => {
@@ -32,6 +34,7 @@ export const ModalForVoting = ({
         <VoteModal
           players={playersToVote}
           handleVote={handleVote}
+          avatars={avatars}
           shuffledColors={shuffledColors}
           shuffledNames={shuffledNames}
         />
@@ -59,11 +62,13 @@ const WaitingOtherToVote = () => {
 const VoteModal = ({
   players,
   handleVote,
+  avatars,
   shuffledColors,
   shuffledNames,
 }: {
   players: Player[];
   handleVote: any;
+  avatars: string[];
   shuffledColors: string[];
   shuffledNames: string[];
 }) => {
@@ -77,13 +82,20 @@ const VoteModal = ({
         </div>
         <div className="flex justify-center items-center gap-12 flex-col sm:flex-row pb-16">
           {players.map(player => (
-            <button
-              key={player.index}
-              className={`cool-button after:bg-gray-200 !bg-[#1CA297] ${shuffledColors[player.index]}`}
-              onClick={() => handleVote(player.index, player.id)}
-            >
-              {shuffledNames[player.index]}
-            </button>
+            <div className="flex flex-col items-center justify-center gap-2" key={player.index}>
+              <div className="avatar">
+                <div className="w-10 rounded-full">
+                  <img alt="Tailwind CSS chat bubble component" src={avatars[Number(player.index)]} />
+                </div>
+              </div>
+              <button
+                key={player.index}
+                className={`cool-button after:bg-gray-200 !bg-[#1CA297] ${shuffledColors[player.index]}`}
+                onClick={() => handleVote(player.index, player.id)}
+              >
+                {shuffledNames[player.index]}
+              </button>
+            </div>
           ))}
         </div>
       </div>
