@@ -34,6 +34,15 @@ export const COLORS = [
   "!text-cyan-400",
 ];
 
+export const AVATARS = [
+  "/avatar/1.png",
+  "/avatar/2.png",
+  "/avatar/3.png",
+  "/avatar/4.png",
+  "/avatar/5.png",
+  "/avatar/6.png",
+];
+
 const getPermutations = (str: string) => {
   if (str.length <= 1) return [str];
   const permutations: string[] = [];
@@ -66,7 +75,6 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
   const { resolvedTheme } = useTheme();
 
   const isDarkMode = resolvedTheme === "dark";
-  const disabledChat = currentPhase === "voting";
 
   useEffect(() => {
     setShuffledColors(COLORS);
@@ -179,10 +187,17 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
                 return (
                   <div key={index} className={`text-left mb-1 ${color}`}>
                     <div className="flex flex-row items-end justify-start">
-                      <strong className={`${color}`}>{name}:</strong>{" "}
                       <div className="chat chat-start">
+                        <div className="chat-image avatar">
+                          <div className="w-10 rounded-full">
+                            <img alt="Tailwind CSS chat bubble component" src={AVATARS[Number(msg.playerIndex)]} />
+                          </div>
+                        </div>
+                        <div className="chat-header">
+                          <strong className={`${color}`}>{name}</strong>{" "}
+                        </div>
                         <div
-                          className="chat-bubble bg-gray-200 dark:bg-gray-700 border-0
+                          className="chat-bubble bg-gray-700 dark:bg-gray-200 border-0
                       "
                         >
                           {msg.playerId ? (
