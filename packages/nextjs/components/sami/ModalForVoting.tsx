@@ -74,7 +74,7 @@ const VoteModal = ({
 }) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-[#2c2171] text-white rounded-2xl items-center justify-center py-8 px-16">
+      <div className="bg-[#2c2171] glow-purple text-white rounded-2xl items-center justify-center py-8 px-16">
         <div className="flex justify-between items-center my-8">
           <div className="flex-grow text-center">
             <span className="block text-4xl font-bold">Who is SAMI?</span>

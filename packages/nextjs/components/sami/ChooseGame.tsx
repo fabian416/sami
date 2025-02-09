@@ -185,7 +185,7 @@ export const ChooseGame = ({ showGame }: any) => {
           <div className="card bg-[#1CA297] opacity-80 text-white glow-cyan w-full md:w-96 shadow-xl mx-4">
             <div className="card-body text-center">
               <h2 className="text-3xl sami-title">Play for free</h2>
-              <p className="text-xl">Find SAMI among 5 anons</p>
+              <p className="text-xl">Find SAMI among 3 anons</p>
               <div className="card-actions justify-center">
                 <button
                   className="btn btn-primary rounded-lg text-2xl w-full bg-white text-[#1CA297] hover:text-[#1CA297] hover:bg-white border-0"
@@ -220,7 +220,7 @@ export const ChooseGame = ({ showGame }: any) => {
                   height="25"
                   className="inline-block align-middle" // Add this to align the image with the text
                 />
-                &nbsp;or lose it all.
+                &nbsp;or lose it all
               </p>
               <div className="card-actions justify-center">
                 {connectedAddress ? (
