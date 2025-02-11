@@ -201,26 +201,25 @@ export const ChooseGame = ({ showGame }: any) => {
             <div className="card-body text-center">
               <h2 className="text-3xl sami-title flex flex-row justify-center items-center">
                 <>Bet&nbsp;</>
-                <span className="text-[#3DCCE1]">100&nbsp;</span>
+                <span className="text-[#3DCCE1]">1 USDC&nbsp;</span>
                 <Image
-                  src="/mode.png"
-                  alt="MODE Network Logo"
+                  src="/usdc.png"
+                  alt="USDC Logo"
                   width="40"
                   height="40"
                   className="inline-block align-middle" // Add this to align the image with the text
                 />
               </h2>
               <p className="text-xl flex flex-row justify-center items-center">
-                <></>
-                <span className="text-[#3DCCE1]">Double your</span>&nbsp;
+                <>Win and earn&nbsp;</>
+                <span className="text-[#3DCCE1]">3 USDC</span>&nbsp;
                 <Image
-                  src="/mode.png"
-                  alt="MODE Network Logo"
+                  src="/usdc.png"
+                  alt="USDC Logo"
                   width="25"
                   height="25"
                   className="inline-block align-middle" // Add this to align the image with the text
                 />
-                &nbsp;or lose it all
               </p>
               <div className="card-actions justify-center">
                 {connectedAddress ? (

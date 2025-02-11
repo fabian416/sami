@@ -12,10 +12,10 @@ export const ModalFinished = ({ winner, isBetGame }: any) => {
             <div className="flex justify-center items-center flex-col py-2">
               {isBetGame && (
                 <div className="flex flex-row py-2">
-                  <div>Your 500</div>&nbsp;
+                  <div>Your 3 USDC</div>&nbsp;
                   <Image
-                    src="/mode.png"
-                    alt="MODE Network Logo"
+                    src="/usdc.png"
+                    alt="USDC Logo"
                     width="25"
                     height="25"
                     className="inline-block align-middle" // Add this to align the image with the text
@@ -32,16 +32,15 @@ export const ModalFinished = ({ winner, isBetGame }: any) => {
             <div className="flex justify-center items-center flex-col py-2">
               {isBetGame && (
                 <div className="flex flex-row py-2">
-                  <div>Sami just claimed your 100</div>&nbsp;
+                  <div>Sami just claimed your 1 USDC</div>&nbsp;
                   <Image
-                    src="/mode.png"
-                    alt="MODE Network Logo"
+                    src="/usdc.png"
+                    alt="USDC Logo"
                     width="25"
                     height="25"
                     className="inline-block align-middle" // Add this to align the image with the text
                   />
-                  &nbsp;
-                  <div>tokens.</div>
+                  <div></div>
                 </div>
               )}
               <div className="flex relative w-48 h-48">
