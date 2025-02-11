@@ -45,7 +45,10 @@ export const ModalInstructions = ({ closeModal }: any) => {
             {/* <CurrencyDollarIcon className="h-20 w-20 fill-secondary" /> */}
             <Image src="/mode.png" alt="MODE Network Logo" width="100" height="100" />
             <p className="text-md md:text-xl">
-              <span className="text-white"> Bet 100 $MODE, and if you guess, you get 500. </span>
+              <span className="text-white">
+                {" "}
+                Bet 100 $MODE, and if you guess, you get the double. <br />
+              </span>
               <span className="text-[#3DCCE1]">Free version available.</span>
             </p>
           </div>
