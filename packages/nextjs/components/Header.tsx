@@ -137,7 +137,7 @@ export const Header = () => {
             </button>
           ) : (
             <>
-              <span className="bg-[#2c2171] glow-yellow px-2 py-1 rounded-lg items-center justify-center gap-1 ml-4 mr-2 text-lg text-blue-600 font-bold">
+              <span className="bg-[#DAFB08] text-black glow-yellow px-2 py-1 rounded-lg items-center justify-center gap-1 ml-4 mr-2 text-lg font-bold">
                 <Image
                   src="/mode.png"
                   alt="MODE Network Logo"
@@ -145,7 +145,7 @@ export const Header = () => {
                   height="25"
                   className="inline-block align-bottom" // Add this to align the image with the text
                 />
-                <span className="ml-2 text-[#D8FF01]">{(Number(balance) / 10 ** 18).toFixed(0)}</span>
+                <span className="ml-2">{(Number(balance) / 10 ** 18).toFixed(0)}</span>
               </span>
             </>
           ))}

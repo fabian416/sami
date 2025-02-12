@@ -29,11 +29,18 @@ export const Footer = () => {
               </p>
               <span>Los pibes</span>
               <span>·</span> */}
-              <div className="text-center">
-                <div className="p-2 bg-[#2c2171] glow-yellow rounded-lg text-white">
-                  <h2 className="sami-title text-sm mt-8 text-center">
-                    Powered by{" "}
-                    <Link href="https://mode.network/" passHref target="_blank">
+              <div className="flex flex-row gap-3 text-center">
+                <div className="text-center">
+                  <Link href="/SAMIpaper.pdf" className="text-white" passHref target="_blank">
+                    <div className="p-2 bg-[#DAFB08] glow-yellow rounded-lg text-black">
+                      <h2 className="sami-title text-sm mt-8 text-center">Whitepaper</h2>
+                    </div>
+                  </Link>{" "}
+                </div>
+                <Link href="https://mode.network/" passHref target="_blank">
+                  <div className="p-2 bg-[#2c2171] glow-purple rounded-lg text-white">
+                    <h2 className="sami-title text-sm mt-8 text-center">
+                      Powered by{" "}
                       <Image
                         src="/mode.png"
                         alt="MODE Network Logo"
@@ -42,9 +49,9 @@ export const Footer = () => {
                         className="inline-block align-middle" // Add this to align the image with the text
                       />{" "}
                       <span className="underline underline-offset-8 text-[#DAFB08]">MODE Network</span>
-                    </Link>{" "}
-                  </h2>
-                </div>
+                    </h2>
+                  </div>
+                </Link>
               </div>
             </div>
           </div>

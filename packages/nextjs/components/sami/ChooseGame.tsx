@@ -185,7 +185,7 @@ export const ChooseGame = ({ showGame }: any) => {
           <div className="card bg-[#1CA297] opacity-80 text-white glow-cyan w-full md:w-96 shadow-xl mx-4">
             <div className="card-body text-center">
               <h2 className="text-3xl sami-title">Play for free</h2>
-              <p className="text-xl">Find SAMI among 5 anons</p>
+              <p className="text-xl">Find SAMI among 3 anons</p>
               <div className="card-actions justify-center">
                 <button
                   className="btn btn-primary rounded-lg text-2xl w-full bg-white text-[#1CA297] hover:text-[#1CA297] hover:bg-white border-0"
@@ -200,19 +200,13 @@ export const ChooseGame = ({ showGame }: any) => {
           <div className="card bg-[#2c2171] opacity-80 text-white glow-purple w-full md:w-96 shadow-xl mx-4">
             <div className="card-body text-center">
               <h2 className="text-3xl sami-title flex flex-row justify-center items-center">
-                <>Bet&nbsp;</>
-                <span className="text-[#3DCCE1]">100&nbsp;</span>
-                <Image
-                  src="/mode.png"
-                  alt="MODE Network Logo"
-                  width="40"
-                  height="40"
-                  className="inline-block align-middle" // Add this to align the image with the text
-                />
+                <>Betting&nbsp;</>
+                <span className="text-[#DAFB08]">$MODE&nbsp;</span>
               </h2>
               <p className="text-xl flex flex-row justify-center items-center">
                 <></>
-                <span className="text-[#3DCCE1]">Double your</span>&nbsp;
+                <span>Bet&nbsp;</span>
+                <span className="text-[#3DCCE1]">100&nbsp;</span>
                 <Image
                   src="/mode.png"
                   alt="MODE Network Logo"
@@ -220,7 +214,15 @@ export const ChooseGame = ({ showGame }: any) => {
                   height="25"
                   className="inline-block align-middle" // Add this to align the image with the text
                 />
-                &nbsp;or lose it all.
+                <span>, win and earn </span>&nbsp;
+                <span className="text-[#3DCCE1]">300&nbsp;</span>
+                <Image
+                  src="/mode.png"
+                  alt="MODE Network Logo"
+                  width="25"
+                  height="25"
+                  className="inline-block align-middle" // Add this to align the image with the text
+                />
               </p>
               <div className="card-actions justify-center">
                 {connectedAddress ? (

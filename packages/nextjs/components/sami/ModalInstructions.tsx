@@ -29,8 +29,8 @@ export const ModalInstructions = ({ closeModal }: any) => {
             {/* <BugAntIcon className="h-20 w-20 fill-secondary" /> */}
             <Image src="/logo.png" alt="SAMI Logo" width="100" height="100" />
             <p className="text-md md:text-xl">
-              <span className="text-white">Chat with strangers and </span>
-              <span className="text-[#3DCCE1]">figure out who is SAMI, the AI agent.</span>
+              <span className="text-white">Chat with strangers and figure out </span>
+              <span className="text-[#3DCCE1]">who is SAMI, the AI agent.</span>
             </p>
           </div>
           <div className="flex flex-col bg-[#2c2171] p-4 text-center items-center max-w-xs rounded-3xl">
@@ -45,7 +45,10 @@ export const ModalInstructions = ({ closeModal }: any) => {
             {/* <CurrencyDollarIcon className="h-20 w-20 fill-secondary" /> */}
             <Image src="/mode.png" alt="MODE Network Logo" width="100" height="100" />
             <p className="text-md md:text-xl">
-              <span className="text-white"> Bet 100 $MODE, and if you guess, you get 500. </span>
+              <span className="text-white">
+                {" "}
+                Bet 100 $MODE, and if you guess, you get 300. <br />
+              </span>
               <span className="text-[#3DCCE1]">Free version available.</span>
             </p>
           </div>
