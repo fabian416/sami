@@ -4,7 +4,6 @@ import Link from "next/link";
 import { RainbowKitCustomConnectButton } from "../scaffold-eth";
 import { ModalWaitingForPlayers } from "./ModalWaitingForPlayers";
 import { ModalWaitingForTransaction } from "./ModalWaitingForTransaction";
-import { useTheme } from "next-themes";
 import { v4 as uuidv4 } from "uuid";
 import { useAccount } from "wagmi";
 import { useSocket } from "~~/app/socketContext";
@@ -28,8 +27,6 @@ export const ChooseGame = ({ showGame }: any) => {
   const { writeContractAsync: MODEwriteContractAsync } = useScaffoldWriteContract("MockMODE");
   const { writeContractAsync: simpleSamiwriteContractAsync } = useScaffoldWriteContract("SimpleSAMI");
   const { data: simpleSamiContractData } = useDeployedContractInfo("SimpleSAMI");
-
-  const { theme } = useTheme();
 
   const { data: allowance } = useScaffoldReadContract({
     contractName: "MockMODE",
