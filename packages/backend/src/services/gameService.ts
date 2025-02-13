@@ -8,13 +8,14 @@ import { v4 as uuidv4 } from "uuid";
 import _ from "lodash";
 import { sendPrizesToWinners } from "../config/contractConfig";
 import { players } from "../server"; // Import player mapping
-
+import supabase from "@config/supabaseClient";
 
 class GameServiceEmitter extends EventEmitter {}
-
 const gameServiceEmitter = new GameServiceEmitter();
-
 export default gameServiceEmitter;
+
+const AGENT_URL = process.env.AGENT_URL;
+export const SAMI_URI = AGENT_URL || "http://localhost:3000";
 
 const MIN_PLAYERS = 3;
 const CONVERTATION_PHASE_TIME = 2* 60 * 1000;
@@ -27,20 +28,29 @@ interface Game {
   votes: { [playerId: string]: string }; // Mapping who vote who
   isBetGame: boolean,
 }
-// Simulation and store of data base  in memory
-export const games: { [key: string]: Game } = {};
+
+export const rooms: { [key: string]: Game } = {};
+
+export interface Message {
+  roomId: string,
+  playerId: string,
+  playerIndex: number,
+  message: string
+}
+
+export const roomsCachedMessages: { [key: string]: Message[] } = {};
 
 // Encuentra una partida SOLO si es del mismo tipo (apuesta o gratuita)
 export const findBetGame = (): Game | null => {
   return _.find(
-    _.reverse(Object.values(games)),
+    _.reverse(Object.values(rooms)),
     (game) => game.status === "waiting" && game.players.length < MIN_PLAYERS && game.isBetGame === true
   ) || null;
 };
 
 export const findFreeGame = (): Game | null => {
   return _.find(
-    _.reverse(Object.values(games)),
+    _.reverse(Object.values(rooms)),
     (game) => game.status === "waiting" && game.players.length < MIN_PLAYERS && game.isBetGame === false
   ) || null;
 };
@@ -55,7 +65,7 @@ export const createOrJoin = (
   let game = isBetGame ? findBetGame() : findFreeGame(); // find based on type bet or not
 
   if (!game) {
-    const newRoomId = `room-${Object.keys(games).length + 1}`;
+    const newRoomId = `room-${Object.keys(rooms).length + 1}`;
     game = createNewGame(newRoomId, isBetGame);
   }
 
@@ -85,7 +95,7 @@ export const createNewGame = (roomId: string, isBetGame: boolean) => {
     isBetGame, 
   };
 
-  games[roomId] = newGame; //  Se almacena en la memoria correctamente
+  rooms[roomId] = newGame; //  Se almacena en la memoria correctamente
   console.log(`New match created ${roomId} | Bet: ${isBetGame}`);
 
   return newGame;
@@ -93,7 +103,7 @@ export const createNewGame = (roomId: string, isBetGame: boolean) => {
 
 export const joinGame = (roomId: string, playerId: string, isBetGame: boolean): boolean => {
   // Get instance of the created game
-  const game = games[roomId];
+  const game = rooms[roomId];
   if (!game) return false;
 
   // Forbid joining if game is active or finished
@@ -129,7 +139,7 @@ export const joinGame = (roomId: string, playerId: string, isBetGame: boolean): 
 };
 
 export const startGame = async (roomId: string) => {
-  const game = games[roomId];
+  const game = rooms[roomId];
   if (!game) return null; 
 
   game.players = _.shuffle(game.players);
@@ -161,7 +171,7 @@ export const recordVote = (
   voterId: string,
   votedPlayerId: string
 ): boolean => {
-  const game = games[roomId];
+  const game = rooms[roomId];
   if (!game) {
     console.error(`[recordVote] Game not found for room: ${roomId}`);
     return false;
@@ -189,8 +199,67 @@ export const recordVote = (
   return true;
 };
 
+export const sendMessageToAI = async (roomId: string) => {
+  const game = rooms[roomId];
+  const samiPlayer: any = getSamiPlayer(game);
+  // Copiar los mensajes actuales en una variable temporal
+  const cachedMessages = [...roomsCachedMessages[roomId]]; 
+  roomsCachedMessages[roomId].length = 0;
+
+  //const body: {[key: string]: any} = {};
+  let body;
+  for (const index in cachedMessages) {
+    const {playerIndex, message} = cachedMessages[0];
+    body = {
+      instruction: `YOU ARE PLAYER ${samiPlayer.index + 1} AND PLAYER ${playerIndex + 1} SENT THIS MESSAGE TO THE GROUP CHAT`,
+      message,
+    };
+  }
+  console.log(`[${roomId}] Input to Sami: ${JSON.stringify(body)}`);
+ 
+  try {
+    const startTime = Date.now();
+    // Iniciar solicitud a la IA sin esperar la respuesta (se manejará con timeout)
+    const aiResponse = await fetch(`${SAMI_URI}/SAMI-AGENT/message`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+
+    // Convertir la respuesta en texto
+    const responseText = await aiResponse.text();
+    console.log(`[${roomId}] Output of Sami: ${responseText}`);
+
+    // Intentar parsear la respuesta
+    const responseData = safeParseJSON(responseText);
+    if (!responseData) {
+      return console.error("[Backend] Invalid AI response.");
+    }
+    const agentMessage = responseData[0].text;
+    if (responseData.length > 0 && game.status === "active" && responseData[0].action !== "IGNORE") {
+      const endTime = Date.now();
+      const elapsedTimeSeconds = (endTime - startTime) / 1000;
+      console.log(`[${roomId}] Time taken for AI response: ${elapsedTimeSeconds} seconds.`);
+
+      gameServiceEmitter.emit("newMessage", {
+        roomId,
+        playerId: samiPlayer.id,
+        playerIndex: samiPlayer.index,
+        message: agentMessage
+      });
+
+      await supabase
+        .from("messages")
+        .insert([{ room_id: roomId, player_id: samiPlayer.id, is_player_ai: true, message: agentMessage }])
+        .then(({ error }) => { error && console.error("[Backend] Error al insertar en Supabase:", error)});
+    }
+   } catch (error) {
+     console.error("[Backend] AI Response Timeout or Error:", error);
+   }
+}
+
 const endConversationPhase = async (roomId: string) => {
-  const game = games[roomId];
+  const game = rooms[roomId];
 
   console.log(`[${roomId}] Ending conversation phase...`);
 
@@ -205,10 +274,10 @@ const endConversationPhase = async (roomId: string) => {
 }
 
 export const endVotingPhase = (roomId: string) => {
-  const game = games[roomId];
+  const game = rooms[roomId];
   if (!game || game.status !== "voting") return; // Ensure game is in the voting phase
   console.log(`[${roomId}] Ending voting phase...`);
-  const isBetGame = games[roomId].isBetGame;
+  const isBetGame = rooms[roomId].isBetGame;
 
   const results: { playerId: string; won: boolean }[] = [];
   const winners: string[] = []; // Guardamos las direcciones de los ganadores
@@ -256,7 +325,7 @@ export const endVotingPhase = (roomId: string) => {
 // AUXILIAR FUNCTIONS
 // Get a Match by his ID
 export const getGameById = (roomId: string) => {
-  return games[roomId] || null;
+  return rooms[roomId] || null;
 };
 
 export const calculateNumberOfPlayers = ({ roomId }: { roomId: string }) => {
@@ -273,3 +342,36 @@ export const getSamiPlayer = (game: Game) => {
   return _.find(game.players, { isAI: true });
 
 }
+
+const safeParseJSON = (text: string): any | null => {
+  try {
+    return JSON.parse(text);
+  } catch (error) {
+    console.error("[Backend] Error parsing JSON:", error);
+    return null;
+  }
+};
+
+
+const processRoomsMessages = async () => {
+  while (true) {
+    try {
+      // Obtener todos los roomIds que tienen mensajes guardados
+      const activeRoomIds = Object.keys(roomsCachedMessages).filter(
+        (roomId) => roomsCachedMessages[roomId].length > 0
+      );
+
+      // Ejecutar sendMessageToAI para cada roomId encontrado
+      await Promise.all(activeRoomIds.map((roomId) => sendMessageToAI(roomId)));
+      
+    } catch (error) {
+      console.error("[Backend] Error in processRoomsMessages:", error);
+    }
+
+    // Esperar entre 2 y 7 segundos de manera aleatoria antes de la siguiente ejecución
+    const delay = Math.floor(Math.random() * (5000 - 2000 + 1)) + 2000;
+    await new Promise((resolve) => setTimeout(resolve, delay));
+  }
+};
+
+processRoomsMessages();

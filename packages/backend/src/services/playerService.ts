@@ -1,4 +1,4 @@
-import { games } from "./gameService";
+import { rooms } from "./gameService";
 import { EventEmitter } from "events";
 
 
@@ -29,7 +29,7 @@ export const createPlayer = (playerId: string, isAI = false): Player => {
 // Increment the amount of chars while he is sendind messages
 // If he reach 20 it does not keep counting
 export const addCharsToPlayer = (roomId: string, playerId: string, charCount: number) => { 
-    const game = games[roomId];
+    const game = rooms[roomId];
     if (!game) return false;
     // find the player
     const player = game.players.find((p: Player) => p.id === playerId);
