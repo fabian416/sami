@@ -49,7 +49,6 @@ io.on('connection', (socket) => {
         console.log(` Players mapping now:`, players); // Log stored player data
     });
 
-    // Initialize
     socket.on("createOrJoinGame", (data) => {
         console.log(`createOrJoinGame: Received data:`, data);
     

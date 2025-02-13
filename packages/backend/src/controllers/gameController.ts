@@ -99,13 +99,13 @@ export const getNumberOfPlayers = (data: any, socket: Socket, io: Server) => {
 };
 
 // Create or join a new match
-export const createOrJoinGame = (data: any, socket: Socket, io: Server) => {
+export const createOrJoinGame = async (data: any, socket: Socket, io: Server) => {
   const { playerId, isBetGame } = data; // Extract `isBetGame`
 
   console.log(`Creating or joining game. Player: ${playerId}, isBetGame: ${isBetGame}`);
 
   // Delegate to the service, passing `socket`, `io`, and `isBetGame`
-  const { roomId, success } = createOrJoin(playerId, socket, io, isBetGame);
+  const { roomId, success } = await createOrJoin(playerId, isBetGame);
 
   if (!success) {
     console.error(` Error joining the player ${playerId} into the room ${roomId}`);

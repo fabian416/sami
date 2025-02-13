@@ -1,5 +1,6 @@
 import { rooms } from "./gameService";
 import { EventEmitter } from "events";
+import supabase from "@config/supabaseClient";
 
 
 class PlayerServiceEmitter extends EventEmitter {}
@@ -8,24 +9,62 @@ const playerServiceEmitter = new PlayerServiceEmitter();
 
 export default playerServiceEmitter;
 
-// Interface to describe a player
 export interface Player{
     id: string;
     index?: number;
-    totalChars: number;
-    isAI: boolean;
-    isEliminated: boolean; // Indicate if was eliminated because of votation of because it didn't fullfill the minimum 20 chars
+    is_ai: boolean;
+    is_eliminated: boolean;
 }
 
-// Create a new player
-export const createPlayer = (playerId: string, isAI = false): Player => { 
-    return  {
-        id: playerId,
-        totalChars: 0,
-        isAI,
-        isEliminated: false
-    };
+
+export const createPlayer = async (playerId: string, isAI = false) => {
+    const { data, error } = await supabase
+      .from("players")
+      .insert([{ id: playerId, is_ai: isAI, is_eliminated: false}])
+      .select()
+      .single();
+  
+    if (error) {
+      console.error("[Backend] Error al insertar en Supabase:", error);
+      return null;
+    }
+    return data;
 };
+
+
+export const findPlayerById = async (playerId: string) => {
+    const { data, error } = await supabase
+      .from("players")
+      .select()
+      .eq("id", playerId)
+      .limit(1)
+      .single();
+  
+    if (error) {
+      console.error("[Backend] Error finding player:", error);
+      return null;
+    }
+  
+    return data;
+};
+
+export const updatePlayerIndex = async (playerId: string, playerIndex: number): Promise<Player | null> => {
+    const { data, error } = await supabase
+      .from("players")
+      .update({ index: playerIndex })
+      .eq("id", playerId)
+      .limit(1)
+      .single();
+  
+    if (error) {
+      console.error("[Backend] Error updating player:", error);
+      return null;
+    }
+  
+    return data;
+};
+
+
 // Increment the amount of chars while he is sendind messages
 // If he reach 20 it does not keep counting
 export const addCharsToPlayer = (roomId: string, playerId: string, charCount: number) => { 

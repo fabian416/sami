@@ -2,6 +2,8 @@ import { Server, Socket } from "socket.io";
 import {
   Player,
   createPlayer,
+  findPlayerById,
+  updatePlayerIndex,
 } from "./playerService";
 import { EventEmitter } from "events";
 import { v4 as uuidv4 } from "uuid";
@@ -22,11 +24,10 @@ const CONVERTATION_PHASE_TIME = 2* 60 * 1000;
 const VOTING_PHASE_TIME = 30 * 1000;
 
 interface Game {
-  roomId: string;
-  players: Player[];
+  id: string;
+  players: string[];
   status: "waiting" | "active" | "voting" | "finished";
-  votes: { [playerId: string]: string }; // Mapping who vote who
-  isBetGame: boolean,
+  is_bet_game: boolean,
 }
 
 export const rooms: { [key: string]: Game } = {};
@@ -40,41 +41,88 @@ export interface Message {
 
 export const roomsCachedMessages: { [key: string]: Message[] } = {};
 
-// Encuentra una partida SOLO si es del mismo tipo (apuesta o gratuita)
-export const findBetGame = (): Game | null => {
-  return _.find(
-    _.reverse(Object.values(rooms)),
-    (game) => game.status === "waiting" && game.players.length < MIN_PLAYERS && game.isBetGame === true
-  ) || null;
+export const findRoomIfAvailable = async (isBetGame: boolean) => {
+  const { data, error } = await supabase
+    .from("rooms")
+    .select()
+    .eq("status", "waiting")
+    .eq("is_bet_game", isBetGame)
+    .lt("array_length(players, 1)", MIN_PLAYERS)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .single();
+
+  if (error) {
+    console.error("[Backend] Error finding game:", error);
+    return null;
+  }
+
+  return data;
 };
 
-export const findFreeGame = (): Game | null => {
-  return _.find(
-    _.reverse(Object.values(rooms)),
-    (game) => game.status === "waiting" && game.players.length < MIN_PLAYERS && game.isBetGame === false
-  ) || null;
+export const findRoomById = async (roomId: string) => {
+  const { data, error } = await supabase
+    .from("rooms")
+    .select()
+    .eq("room_id", roomId)
+    .single();
+
+  if (error) {
+    console.error("[Backend] Error finding room:", error);
+    return null;
+  }
+
+  return data;
 };
 
-// Main function to handle the creation or join to a new match
-export const createOrJoin = (
-  playerId: string,
-  socket: Socket,
-  io: Server,
-  isBetGame: boolean = false
-): { roomId: string; success: boolean } => {
-  let game = isBetGame ? findBetGame() : findFreeGame(); // find based on type bet or not
+export const addPlayerToRoom = async (roomId: string, playerId: string) => {
+  const room = await findRoomById(roomId);
+  if (!room) {
+    console.error(`[Backend] Room not found: ${roomId}`);
+    return null;
+  }
+
+  const currentPlayers = room.players || [];
+  if (currentPlayers.includes(playerId)) {
+    console.warn(`[Backend] Player ${playerId} is already in room ${roomId}`);
+    return room;
+  }
+
+  const updatedPlayers = [...currentPlayers, playerId];
+  const { data, error } = await supabase
+    .from("rooms")
+    .update({ players: updatedPlayers })
+    .eq("room_id", roomId)
+    .select()
+    .single();
+
+  if (error) {
+    console.error("[Backend] Error updating room players:", error);
+    return null;
+  }
+
+  return data;
+};
+
+
+
+export const createOrJoin = async (playerId: string, isBetGame: boolean = false)
+  : Promise<{ roomId: string; success: boolean }> => {
+  const game = await findRoomIfAvailable(isBetGame);
 
   if (!game) {
     const newRoomId = `room-${Object.keys(rooms).length + 1}`;
-    game = createNewGame(newRoomId, isBetGame);
+    const newGame = await createNewGame(newRoomId, playerId, isBetGame);
+    if (!newGame) {
+      console.error(`Error creating the match for ${playerId} (isBetGame: ${isBetGame})`);
+      return { roomId: "", success: false };
+    } else {
+      console.log(`Player ${playerId} joined the match ${newGame.id} (isBetGame: ${isBetGame})`);
+      return { roomId: newGame.id, success: true };
+    }
   }
-
-  if (!game) {
-    console.error(`Error creating the match for ${playerId} (isBetGame: ${isBetGame})`);
-    return { roomId: "", success: false };
-  }
-
-  const success = joinGame(game.roomId, playerId, isBetGame);
+  
+  const success = await joinGame(game, playerId, isBetGame);
 
   if (!success) {
     console.warn(`⚠️ The player ${playerId} could not join the game${game.roomId}`);
@@ -85,53 +133,42 @@ export const createOrJoin = (
   return { roomId: game.roomId, success: true };
 };
 
-// Create a new Match
-export const createNewGame = (roomId: string, isBetGame: boolean) => {
-  const newGame: Game = {
-    roomId,
-    players: [] as Player[],
-    status: "waiting",
-    votes: {},
-    isBetGame, 
-  };
 
-  rooms[roomId] = newGame; //  Se almacena en la memoria correctamente
-  console.log(`New match created ${roomId} | Bet: ${isBetGame}`);
+export const createNewGame = async (roomId: string, playerId: string, isBetGame: boolean) => {
+  const { data, error } = await supabase
+    .from("rooms")
+    .insert([{ room_id: roomId, status: "waiting", is_bet_game: isBetGame, player: [playerId] }])
+    .select()
+    .single();
 
-  return newGame;
+  if (error) {
+    console.error("[Backend] Error al insertar en Supabase:", error);
+    return null;
+  }
+  return data;
 };
 
-export const joinGame = (roomId: string, playerId: string, isBetGame: boolean): boolean => {
-  // Get instance of the created game
-  const game = rooms[roomId];
-  if (!game) return false;
-
+export const joinGame = async (game: Game, playerId: string, isBetGame: boolean): Promise<boolean> => {
   // Forbid joining if game is active or finished
   if (game.status !== "waiting") return false;
 
-  if (game.isBetGame !== isBetGame) {
-    console.warn(`Player ${playerId} tried to join a mismatched game type (expected: ${game.isBetGame}, received: ${isBetGame})`);
-    return false;
-  }
-
-  // Check if the player already exists
-  const existingPlayer = _.find(game.players, { id: playerId });
-  if (existingPlayer) {
+  if (game.is_bet_game !== isBetGame) {
+    console.warn(`Player ${playerId} tried to join a mismatched game type (expected: ${game.is_bet_game}, received: ${isBetGame})`);
     return false;
   }
 
   // Add the new player
-  const newPlayer = createPlayer(playerId, false);
-  game.players.push(newPlayer);
+  const newPlayer = await createPlayer(playerId, false);
+  addPlayerToRoom(game.id, newPlayer.id);
 
-  // If the game reaches 5 players, add SAMI and start the game
+  // If the game reaches min players, add SAMI and start the game
   if (game.players.length === MIN_PLAYERS) {
     const samiID = uuidv4();
-    const samiPlayer = createPlayer(samiID, true);
-    game.players.push(samiPlayer); // Add SAMI as the sixth player
+    const samiPlayer = await createPlayer(samiID, true);
+    addPlayerToRoom(game.id, samiPlayer.id); // Add SAMI as a player
 
     // Start the game
-    startGame(roomId);
+    startGame(game.id);
   }
 
   // If everything succeeds, return true
@@ -139,18 +176,28 @@ export const joinGame = (roomId: string, playerId: string, isBetGame: boolean): 
 };
 
 export const startGame = async (roomId: string) => {
-  const game = rooms[roomId];
-  if (!game) return null; 
+  const game = await findRoomById(roomId);
+  if (!game) return null;
 
-  game.players = _.shuffle(game.players);
-  game.status = "active";
+  const shuffledPlayers = _.shuffle(game.players);
+  const { data, error } = await supabase
+    .from("rooms")
+    .update({ players: shuffledPlayers, status: "active" })
+    .eq("room_id", roomId)
+    .select()
+    .single();
+
+  if (error) {
+    console.error("[Backend] Error updating room players:", error);
+    return null;
+  }
 
   console.log(`[${roomId}] Starting game...`);
   console.log(`[${roomId}] Players in the game:`);
-  game.players.forEach((player, index) => {
-    game.players[index].index = index;
-    console.log(`Index: ${index}, ID: ${player.id}, Role: ${player.isAI ? "AI" : "Human"}`);
-  });
+  for (const [index, playerId] of shuffledPlayers.entries()) {
+    const player: Player | null = await updatePlayerIndex(playerId, index);
+    player && console.log(`Index: ${index}, ID: ${player.id}, Role: ${player.is_ai ? "AI" : "Human"}`);
+  }
 
   // Emit event start of the game
   await new Promise((resolve) => setTimeout(resolve, 500));
@@ -206,16 +253,15 @@ export const sendMessageToAI = async (roomId: string) => {
   const cachedMessages = [...roomsCachedMessages[roomId]]; 
   roomsCachedMessages[roomId].length = 0;
 
-  //const body: {[key: string]: any} = {};
-  let body;
+  const messages: {[key: string]: any} = {};
   for (const index in cachedMessages) {
-    const {playerIndex, message} = cachedMessages[0];
-    body = {
+    const {playerIndex, message} = cachedMessages[index];
+    messages[index] = {
       instruction: `YOU ARE PLAYER ${samiPlayer.index + 1} AND PLAYER ${playerIndex + 1} SENT THIS MESSAGE TO THE GROUP CHAT`,
       message,
     };
   }
-  console.log(`[${roomId}] Input to Sami: ${JSON.stringify(body)}`);
+  console.log(`[${roomId}] Input to Sami: ${JSON.stringify(messages)}`);
  
   try {
     const startTime = Date.now();
@@ -223,7 +269,11 @@ export const sendMessageToAI = async (roomId: string) => {
     const aiResponse = await fetch(`${SAMI_URI}/SAMI-AGENT/message`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
+      body: JSON.stringify({
+        text: JSON.stringify(messages),
+        userId: samiPlayer.id,
+        userName: roomId,
+      }),
     });
 
     // Convertir la respuesta en texto
@@ -368,8 +418,8 @@ const processRoomsMessages = async () => {
       console.error("[Backend] Error in processRoomsMessages:", error);
     }
 
-    // Esperar entre 2 y 7 segundos de manera aleatoria antes de la siguiente ejecución
-    const delay = Math.floor(Math.random() * (5000 - 2000 + 1)) + 2000;
+    // Esperar entre 3 y 6 segundos de manera aleatoria antes de la siguiente ejecución
+    const delay = Math.floor(Math.random() * (6000 - 3000 + 1)) + 3000;
     await new Promise((resolve) => setTimeout(resolve, delay));
   }
 };
