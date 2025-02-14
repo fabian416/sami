@@ -30,7 +30,7 @@ services:
       - PORT=3001
 
   ai-agent:
-    build: ./packages/ai/sami
+    build: ./packages/eliza
     ports:
       - "3000:3000"
     restart: always

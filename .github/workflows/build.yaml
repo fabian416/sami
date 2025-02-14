@@ -98,8 +98,8 @@ jobs:
       - name: Build and Push AI Agent Image
         uses: docker/build-push-action@v5
         with:
-          context: ./packages/ai/sami
-          file: ./packages/ai/sami/Dockerfile
+          context: ./packages/eliza
+          file: ./packages/eliza/Dockerfile
           push: true
           tags: ${{env.IMAGE_TAG_AI_AGENT}}:${{env.IMAGE_VERSION}}
           cache-from: type=gha

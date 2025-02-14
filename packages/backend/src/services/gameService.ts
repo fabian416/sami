@@ -460,7 +460,7 @@ const processRoomsMessages = async () => {
       console.error("[Backend] Error in processRoomsMessages:", error);
     }
 
-    // Esperar entre 2 y 5 segundos de manera aleatoria antes de la siguiente ejecución
+    // Esperar entre 2 y 13 segundos de manera aleatoria antes de la siguiente ejecución
     const delay = Math.floor(Math.random() * (15000 - 2000 + 1)) + 2000;
     await new Promise((resolve) => setTimeout(resolve, delay));
   }
