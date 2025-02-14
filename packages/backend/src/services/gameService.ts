@@ -315,7 +315,7 @@ export const endVotingPhase = (roomId: string) => {
   });
 
   // Enviar premios a todos los ganadores en una sola transacción
-  if (winnerAddresses.length >= 0) {
+  if (winnerAddresses.length > 0) {
     sendPrizesToWinners(winnerAddresses);
   }
 
