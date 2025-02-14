@@ -67,6 +67,8 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
   const [isBetGame, setIsBetGame] = useState<boolean | null>(false);
   const [shuffledColors, setShuffledColors] = useState<string[]>([]);
   const [shuffledNames, setShuffledNames] = useState<string[]>([]);
+  const [chatDisabled, setChatDisabled] = useState<boolean>(false);
+  const [focusInput, setFocusInput] = useState<boolean>(true);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -75,6 +77,13 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
   const { resolvedTheme } = useTheme();
 
   const isDarkMode = resolvedTheme === "dark";
+
+  useEffect(() => {
+    if (focusInput) {
+      inputRef.current?.focus();
+      setFocusInput(false);
+    }
+  }, [focusInput]);
 
   useEffect(() => {
     setShuffledColors(COLORS);
@@ -152,7 +161,12 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
       return console.error("Missing socket, roomId, or playerId.");
     }
 
+    setChatDisabled(true);
     socket.emit("message", { roomId, playerId, playerIndex, message });
+    setTimeout(() => {
+      setChatDisabled(false);
+      setFocusInput(true);
+    }, 800);
   };
 
   return (
@@ -223,7 +237,7 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
             <input
               ref={inputRef}
               type="text"
-              disabled={currentPhase === "voting"}
+              disabled={currentPhase === "voting" || chatDisabled}
               className={`flex-1 p-2 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 border-gray-300`}
               placeholder="Type your message..."
               onKeyDown={e => {
@@ -234,7 +248,7 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
               }}
             />
             <button
-              disabled={currentPhase === "voting"}
+              disabled={currentPhase === "voting" || chatDisabled}
               className="ml-2 p-2 text-white glow-cyan focus:outline-none focus:ring-2 rounded-lg bg-[#1CA297] hover:bg-[#33B3A8] focus:ring-[#1CA297]"
               onClick={() => {
                 if (inputRef.current?.value.trim()) {
