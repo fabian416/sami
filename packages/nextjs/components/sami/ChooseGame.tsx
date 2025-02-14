@@ -182,7 +182,7 @@ export const ChooseGame = ({ showGame }: any) => {
           <div className="card bg-[#1CA297] opacity-80 text-white glow-cyan w-full md:w-96 shadow-xl mx-4">
             <div className="card-body text-center">
               <h2 className="text-3xl sami-title">Play for free</h2>
-              <p className="text-xl">Find SAMI among 3 anons</p>
+              <p className="text-xl">Find SAMI, the impostor AI, among 3 anons</p>
               <div className="card-actions justify-center">
                 <button
                   className="btn btn-primary rounded-lg text-2xl w-full bg-white text-[#1CA297] hover:text-[#1CA297] hover:bg-white border-0"
@@ -202,24 +202,26 @@ export const ChooseGame = ({ showGame }: any) => {
               </h2>
               <p className="text-xl flex flex-row justify-center items-center">
                 <></>
-                <span>Bet&nbsp;</span>
-                <span className="text-[#3DCCE1]">100&nbsp;</span>
-                <Image
-                  src="/mode.png"
-                  alt="MODE Network Logo"
-                  width="25"
-                  height="25"
-                  className="inline-block align-middle" // Add this to align the image with the text
-                />
-                <span>, win and earn </span>&nbsp;
-                <span className="text-[#3DCCE1]">300&nbsp;</span>
-                <Image
-                  src="/mode.png"
-                  alt="MODE Network Logo"
-                  width="25"
-                  height="25"
-                  className="inline-block align-middle" // Add this to align the image with the text
-                />
+                <span>
+                  Bet&nbsp;
+                  <span className="text-[#3DCCE1]">100&nbsp;</span>
+                  <Image
+                    src="/mode.png"
+                    alt="MODE Network Logo"
+                    width="25"
+                    height="25"
+                    className="inline-block align-middle" // Add this to align the image with the text
+                  />
+                  , win and earn &nbsp;
+                  <span className="text-[#3DCCE1]">300&nbsp;</span>
+                  <Image
+                    src="/mode.png"
+                    alt="MODE Network Logo"
+                    width="25"
+                    height="25"
+                    className="inline-block align-middle" // Add this to align the image with the text
+                  />
+                </span>
               </p>
               <div className="card-actions justify-center">
                 {connectedAddress ? (
