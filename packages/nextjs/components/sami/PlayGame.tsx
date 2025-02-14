@@ -166,7 +166,7 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
     setTimeout(() => {
       setChatDisabled(false);
       setFocusInput(true);
-    }, 800);
+    }, 600);
   };
 
   return (
