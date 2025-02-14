@@ -1,9 +1,6 @@
-import { Server, Socket } from "socket.io";
 import {
   Player,
   createPlayer,
-  findPlayerById,
-  updatePlayerIndex,
 } from "./playerService";
 import { EventEmitter } from "events";
 import { v4 as uuidv4 } from "uuid";
@@ -20,109 +17,62 @@ const AGENT_URL = process.env.AGENT_URL;
 export const SAMI_URI = AGENT_URL || "http://localhost:3000";
 
 const MIN_PLAYERS = 3;
-const CONVERTATION_PHASE_TIME = 2* 60 * 1000;
-const VOTING_PHASE_TIME = 30 * 1000;
-
-interface Game {
-  id: string;
-  players: string[];
-  status: "waiting" | "active" | "voting" | "finished";
-  is_bet_game: boolean,
-}
-
-export const rooms: { [key: string]: Game } = {};
+const CONVERTATION_PHASE_TIME = 2 * 15 * 1000;
+const VOTING_PHASE_TIME = 15 * 1000;
 
 export interface Message {
   roomId: string,
   playerId: string,
   playerIndex: number,
+  isPlayerAI: boolean,
   message: string
 }
 
-export const roomsCachedMessages: { [key: string]: Message[] } = {};
+interface Game {
+  roomId: string;
+  players: Player[];
+  status: "waiting" | "active" | "voting" | "finished";
+  votes: { [playerId: string]: string }; // Mapping who vote who
+  isBetGame: boolean,
+}
 
-export const findRoomIfAvailable = async (isBetGame: boolean) => {
-  const { data, error } = await supabase
-    .from("rooms")
-    .select()
-    .eq("status", "waiting")
-    .eq("is_bet_game", isBetGame)
-    .lt("array_length(players, 1)", MIN_PLAYERS)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .single();
+export const rooms: { [key: string]: Game } = {};
+export const roomsMessages: { [key: string]: Message[] } = {};
+export const cachedRoomsMessages: { [key: string]: Message[] } = {};
 
-  if (error) {
-    console.error("[Backend] Error finding game:", error);
-    return null;
-  }
-
-  return data;
+// Encuentra una partida SOLO si es del mismo tipo (apuesta o gratuita)
+export const findBetGame = (): Game | null => {
+  return _.find(
+    _.reverse(Object.values(rooms)),
+    (game) => game.status === "waiting" && game.players.length < MIN_PLAYERS && game.isBetGame === true
+  ) || null;
 };
 
-export const findRoomById = async (roomId: string) => {
-  const { data, error } = await supabase
-    .from("rooms")
-    .select()
-    .eq("room_id", roomId)
-    .single();
-
-  if (error) {
-    console.error("[Backend] Error finding room:", error);
-    return null;
-  }
-
-  return data;
+export const findFreeGame = (): Game | null => {
+  return _.find(
+    _.reverse(Object.values(rooms)),
+    (game) => game.status === "waiting" && game.players.length < MIN_PLAYERS && game.isBetGame === false
+  ) || null;
 };
 
-export const addPlayerToRoom = async (roomId: string, playerId: string) => {
-  const room = await findRoomById(roomId);
-  if (!room) {
-    console.error(`[Backend] Room not found: ${roomId}`);
-    return null;
-  }
-
-  const currentPlayers = room.players || [];
-  if (currentPlayers.includes(playerId)) {
-    console.warn(`[Backend] Player ${playerId} is already in room ${roomId}`);
-    return room;
-  }
-
-  const updatedPlayers = [...currentPlayers, playerId];
-  const { data, error } = await supabase
-    .from("rooms")
-    .update({ players: updatedPlayers })
-    .eq("room_id", roomId)
-    .select()
-    .single();
-
-  if (error) {
-    console.error("[Backend] Error updating room players:", error);
-    return null;
-  }
-
-  return data;
-};
-
-
-
-export const createOrJoin = async (playerId: string, isBetGame: boolean = false)
-  : Promise<{ roomId: string; success: boolean }> => {
-  const game = await findRoomIfAvailable(isBetGame);
+// Main function to handle the creation or join to a new match
+export const createOrJoin = (
+  playerId: string,
+  isBetGame: boolean = false
+): { roomId: string; success: boolean } => {
+  let game = isBetGame ? findBetGame() : findFreeGame(); // find based on type bet or not
 
   if (!game) {
     const newRoomId = `room-${Object.keys(rooms).length + 1}`;
-    const newGame = await createNewGame(newRoomId, playerId, isBetGame);
-    if (!newGame) {
-      console.error(`Error creating the match for ${playerId} (isBetGame: ${isBetGame})`);
-      return { roomId: "", success: false };
-    } else {
-      console.log(`Player ${playerId} joined the match ${newGame.id} (isBetGame: ${isBetGame})`);
-      return { roomId: newGame.id, success: true };
-    }
+    game = createNewGame(newRoomId, isBetGame);
   }
-  
-  const success = await joinGame(game, playerId, isBetGame);
+
+  if (!game) {
+    console.error(`Error creating the match for ${playerId} (isBetGame: ${isBetGame})`);
+    return { roomId: "", success: false };
+  }
+
+  const success = joinGame(game.roomId, playerId, isBetGame);
 
   if (!success) {
     console.warn(`⚠️ The player ${playerId} could not join the game${game.roomId}`);
@@ -133,42 +83,53 @@ export const createOrJoin = async (playerId: string, isBetGame: boolean = false)
   return { roomId: game.roomId, success: true };
 };
 
+// Create a new Match
+export const createNewGame = (roomId: string, isBetGame: boolean) => {
+  const newGame: Game = {
+    roomId,
+    players: [] as Player[],
+    status: "waiting",
+    votes: {},
+    isBetGame, 
+  };
 
-export const createNewGame = async (roomId: string, playerId: string, isBetGame: boolean) => {
-  const { data, error } = await supabase
-    .from("rooms")
-    .insert([{ room_id: roomId, status: "waiting", is_bet_game: isBetGame, player: [playerId] }])
-    .select()
-    .single();
+  rooms[roomId] = newGame; //  Se almacena en la memoria correctamente
+  console.log(`New match created ${roomId} | Bet: ${isBetGame}`);
 
-  if (error) {
-    console.error("[Backend] Error al insertar en Supabase:", error);
-    return null;
-  }
-  return data;
+  return newGame;
 };
 
-export const joinGame = async (game: Game, playerId: string, isBetGame: boolean): Promise<boolean> => {
+export const joinGame = (roomId: string, playerId: string, isBetGame: boolean): boolean => {
+  // Get instance of the created game
+  const game = rooms[roomId];
+  if (!game) return false;
+
   // Forbid joining if game is active or finished
   if (game.status !== "waiting") return false;
 
-  if (game.is_bet_game !== isBetGame) {
-    console.warn(`Player ${playerId} tried to join a mismatched game type (expected: ${game.is_bet_game}, received: ${isBetGame})`);
+  if (game.isBetGame !== isBetGame) {
+    console.warn(`Player ${playerId} tried to join a mismatched game type (expected: ${game.isBetGame}, received: ${isBetGame})`);
+    return false;
+  }
+
+  // Check if the player already exists
+  const existingPlayer = _.find(game.players, { id: playerId });
+  if (existingPlayer) {
     return false;
   }
 
   // Add the new player
-  const newPlayer = await createPlayer(playerId, false);
-  addPlayerToRoom(game.id, newPlayer.id);
+  const newPlayer = createPlayer(playerId, false);
+  game.players.push(newPlayer);
 
-  // If the game reaches min players, add SAMI and start the game
+  // If the game reaches 5 players, add SAMI and start the game
   if (game.players.length === MIN_PLAYERS) {
     const samiID = uuidv4();
-    const samiPlayer = await createPlayer(samiID, true);
-    addPlayerToRoom(game.id, samiPlayer.id); // Add SAMI as a player
+    const samiPlayer = createPlayer(samiID, true);
+    game.players.push(samiPlayer); // Add SAMI as the sixth player
 
     // Start the game
-    startGame(game.id);
+    startGame(roomId);
   }
 
   // If everything succeeds, return true
@@ -176,28 +137,18 @@ export const joinGame = async (game: Game, playerId: string, isBetGame: boolean)
 };
 
 export const startGame = async (roomId: string) => {
-  const game = await findRoomById(roomId);
-  if (!game) return null;
+  const game = rooms[roomId];
+  if (!game) return null; 
 
-  const shuffledPlayers = _.shuffle(game.players);
-  const { data, error } = await supabase
-    .from("rooms")
-    .update({ players: shuffledPlayers, status: "active" })
-    .eq("room_id", roomId)
-    .select()
-    .single();
-
-  if (error) {
-    console.error("[Backend] Error updating room players:", error);
-    return null;
-  }
+  game.players = _.shuffle(game.players);
+  game.status = "active";
 
   console.log(`[${roomId}] Starting game...`);
   console.log(`[${roomId}] Players in the game:`);
-  for (const [index, playerId] of shuffledPlayers.entries()) {
-    const player: Player | null = await updatePlayerIndex(playerId, index);
-    player && console.log(`Index: ${index}, ID: ${player.id}, Role: ${player.is_ai ? "AI" : "Human"}`);
-  }
+  game.players.forEach((player, index) => {
+    game.players[index].index = index;
+    console.log(`Index: ${index}, ID: ${player.id}, Role: ${player.isAI ? "AI" : "Human"}`);
+  });
 
   // Emit event start of the game
   await new Promise((resolve) => setTimeout(resolve, 500));
@@ -250,8 +201,8 @@ export const sendMessageToAI = async (roomId: string) => {
   const game = rooms[roomId];
   const samiPlayer: any = getSamiPlayer(game);
   // Copiar los mensajes actuales en una variable temporal
-  const cachedMessages = [...roomsCachedMessages[roomId]]; 
-  roomsCachedMessages[roomId].length = 0;
+  const cachedMessages = [...cachedRoomsMessages[roomId]]; 
+  cachedRoomsMessages[roomId].length = 0;
 
   const messages: {[key: string]: any} = {};
   for (const index in cachedMessages) {
@@ -297,11 +248,14 @@ export const sendMessageToAI = async (roomId: string) => {
         playerIndex: samiPlayer.index,
         message: agentMessage
       });
-
-      await supabase
-        .from("messages")
-        .insert([{ room_id: roomId, player_id: samiPlayer.id, is_player_ai: true, message: agentMessage }])
-        .then(({ error }) => { error && console.error("[Backend] Error al insertar en Supabase:", error)});
+      
+      roomsMessages[roomId].push({
+        roomId,
+        playerId: samiPlayer.id,
+        playerIndex: samiPlayer.index,
+        isPlayerAI: true,
+        message: agentMessage,
+      })
     }
    } catch (error) {
      console.error("[Backend] AI Response Timeout or Error:", error);
@@ -361,7 +315,8 @@ export const endVotingPhase = (roomId: string) => {
   });
 
   // Enviar premios a todos los ganadores en una sola transacción
-  if (winners.length > 0) {
+  const samiIsTheWinner = winners.length <= 0;
+  if (!samiIsTheWinner) {
     sendPrizesToWinners(winners);
   }
 
@@ -370,7 +325,94 @@ export const endVotingPhase = (roomId: string) => {
 
   // Mark game as finished
   game.status = "finished";
+  saveGameData(game, samiIsTheWinner);
 };
+
+const saveGameData = async (game: Game, samiIsTheWinner: boolean) => {
+  const room = await saveRoom(game, samiIsTheWinner);
+  if (!room) {
+    console.error("[Backend] Error saving room, aborting...");
+    return;
+  }
+
+  await savePlayers(game.players);
+  await saveVotes(room.id, game.votes);
+  await saveMessages(game.roomId, room.id);
+  console.log(`[${room.id}] Game data saved successfully.`);
+}
+
+const saveRoom = async (game: Game, samiIsTheWinner: boolean) => {
+  const { data, error } = await supabase
+    .from("rooms")
+    .insert([{
+        status: game.status,
+        is_bet_game: game.isBetGame,
+        players: game.players.map(p => p.id),
+        is_ai_winner: samiIsTheWinner,
+    }])
+    .select()
+    .single();
+  
+  if (error) {
+    console.error("[Backend] Error saving room:", error);
+    return null;
+  }
+
+  return data;
+};
+
+const savePlayers = async (players: Player[]) => {
+  const playerRecords = players.map(player => ({
+    id: player.id,
+    is_ai: player.isAI,
+    is_eliminated: player.isEliminated,
+    index: player.index,
+  }));
+
+  const { error } = await supabase.from("players").upsert(playerRecords);
+
+  if (error) {
+    console.error("[Backend] Error saving players:", error);
+  } else {
+    console.log("[Backend] Players saved successfully.");
+  }
+};
+
+const saveVotes = async (roomId: string, votes: { [playerId: string]: string }) => {
+  const voteRecords = Object.entries(votes).map(([voter, voted]) => ({
+    room_id: roomId,
+    from_player_id: voter,
+    to_player_id: voted,
+  }));
+
+  const { error } = await supabase
+    .from("votes")
+    .upsert(voteRecords);
+
+  if (error) {
+    console.error("[Backend] Error saving votes:", error);
+  }
+};
+
+const saveMessages = async (tempRoomId: string, roomId: string) => {
+  const messageRecords = roomsMessages[tempRoomId].map((message) => ({
+    room_id: roomId,
+    player_id: message.playerId,
+    message: message.message,
+    is_player_ai: message.isPlayerAI,
+  }));
+
+  const { error } = await supabase
+    .from("messages")
+    .upsert(messageRecords);
+
+  if (error) {
+    console.error("[Backend] Error saving messages:", error);
+  }
+};
+
+
+
 
 // AUXILIAR FUNCTIONS
 // Get a Match by his ID
@@ -407,8 +449,8 @@ const processRoomsMessages = async () => {
   while (true) {
     try {
       // Obtener todos los roomIds que tienen mensajes guardados
-      const activeRoomIds = Object.keys(roomsCachedMessages).filter(
-        (roomId) => roomsCachedMessages[roomId].length > 0
+      const activeRoomIds = Object.keys(cachedRoomsMessages).filter(
+        (roomId) => cachedRoomsMessages[roomId].length > 0
       );
 
       // Ejecutar sendMessageToAI para cada roomId encontrado
@@ -418,8 +460,8 @@ const processRoomsMessages = async () => {
       console.error("[Backend] Error in processRoomsMessages:", error);
     }
 
-    // Esperar entre 3 y 6 segundos de manera aleatoria antes de la siguiente ejecución
-    const delay = Math.floor(Math.random() * (6000 - 3000 + 1)) + 3000;
+    // Esperar entre 2 y 5 segundos de manera aleatoria antes de la siguiente ejecución
+    const delay = Math.floor(Math.random() * (4000 - 2000 + 1)) + 2000;
     await new Promise((resolve) => setTimeout(resolve, delay));
   }
 };

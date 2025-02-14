@@ -7,7 +7,8 @@ import {
   calculateNumberOfPlayers,
   getSamiPlayer,
   Message,
-  roomsCachedMessages,
+  cachedRoomsMessages,
+  roomsMessages,
 } from "../services/gameService";
 import { Server, Socket } from "socket.io";
 import { io, players } from "../server";
@@ -99,13 +100,12 @@ export const getNumberOfPlayers = (data: any, socket: Socket, io: Server) => {
 };
 
 // Create or join a new match
-export const createOrJoinGame = async (data: any, socket: Socket, io: Server) => {
+export const createOrJoinGame = (data: any, socket: Socket, io: Server) => {
   const { playerId, isBetGame } = data; // Extract `isBetGame`
 
   console.log(`Creating or joining game. Player: ${playerId}, isBetGame: ${isBetGame}`);
-
-  // Delegate to the service, passing `socket`, `io`, and `isBetGame`
-  const { roomId, success } = await createOrJoin(playerId, isBetGame);
+  // Delegate to the service, passing and `isBetGame`
+  const { roomId, success } = createOrJoin(playerId, isBetGame);
 
   if (!success) {
     console.error(` Error joining the player ${playerId} into the room ${roomId}`);
@@ -187,8 +187,9 @@ export const castVote = (data: any, socket: Socket, io: Server) => {
 
 
 export const handleMessage = async (data: Message, socket: Socket, io: Server) => {
-  const { roomId, message, playerId } = data;
-
+  const { roomId } = data;
+  data.isPlayerAI = false;
+  
   const game = rooms[roomId];
   if (!game) {
     return socket.emit("error", { message: "Room doesn't exist" });
@@ -198,17 +199,12 @@ export const handleMessage = async (data: Message, socket: Socket, io: Server) =
     return socket.emit("error", { message: "La partida no ha comenzado" });
   }
 
-  if (!roomsCachedMessages[roomId]) {
-    roomsCachedMessages[roomId] = [];
-  }
-  roomsCachedMessages[roomId].push(data);
+  if (!cachedRoomsMessages[roomId]) cachedRoomsMessages[roomId] = [];
+  if (!roomsMessages[roomId]) roomsMessages[roomId] = [];
+  cachedRoomsMessages[roomId].push(data);
+  roomsMessages[roomId].push(data);
 
   gameServiceEmitter.emit("newMessage", data);
-
-  await supabase
-    .from("messages")
-    .insert([{ room_id: roomId, player_id: playerId, is_player_ai: false, message: message }])
-    .then(({ error }) => { error && console.error("[Backend] Error al insertar en Supabase:", error)});
 };
 
 
