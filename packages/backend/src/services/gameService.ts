@@ -284,7 +284,7 @@ export const endVotingPhase = (roomId: string) => {
   const isBetGame = rooms[roomId].isBetGame;
 
   const results: { playerId: string; won: boolean }[] = [];
-  const winners: string[] = []; // Guardamos las direcciones de los ganadores
+  const winnerAddresses: string[] = []; // Guardamos las direcciones de los ganadores
 
   game.players.forEach((player) => {
     const votedPlayerId = game.votes[player.id];
@@ -303,7 +303,7 @@ export const endVotingPhase = (roomId: string) => {
       if (isBetGame) {
         const winnerAddress = players[player.id]?.walletAddress;
         if (winnerAddress) {
-          winners.push(winnerAddress); // Agregamos la dirección del ganador al array
+          winnerAddresses.push(winnerAddress); // Agregamos la dirección del ganador al array
         } else {
           console.error(`No wallet address found for player ID: ${player.id}`);
         }
@@ -315,9 +315,8 @@ export const endVotingPhase = (roomId: string) => {
   });
 
   // Enviar premios a todos los ganadores en una sola transacción
-  const samiIsTheWinner = winners.length <= 0;
-  if (!samiIsTheWinner) {
-    sendPrizesToWinners(winners);
+  if (winnerAddresses.length >= 0) {
+    sendPrizesToWinners(winnerAddresses);
   }
 
   // Emit game over event
@@ -325,6 +324,7 @@ export const endVotingPhase = (roomId: string) => {
 
   // Mark game as finished
   game.status = "finished";
+  const samiIsTheWinner = _.every(results, (r) => r.won === false);
   saveGameData(game, samiIsTheWinner);
 };
 
