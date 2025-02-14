@@ -461,7 +461,7 @@ const processRoomsMessages = async () => {
     }
 
     // Esperar entre 2 y 5 segundos de manera aleatoria antes de la siguiente ejecución
-    const delay = Math.floor(Math.random() * (4000 - 2000 + 1)) + 2000;
+    const delay = Math.floor(Math.random() * (10000 - 2000 + 1)) + 2000;
     await new Promise((resolve) => setTimeout(resolve, delay));
   }
 };
