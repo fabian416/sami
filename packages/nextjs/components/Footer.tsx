@@ -37,21 +37,6 @@ export const Footer = () => {
                     </div>
                   </Link>{" "}
                 </div>
-                <Link href="https://mode.network/" passHref target="_blank">
-                  <div className="p-2 bg-[#2c2171] glow-purple rounded-lg text-white">
-                    <h2 className="sami-title text-sm mt-8 text-center">
-                      Powered by{" "}
-                      <Image
-                        src="/mode.png"
-                        alt="MODE Network Logo"
-                        width="25"
-                        height="25"
-                        className="inline-block align-middle" // Add this to align the image with the text
-                      />{" "}
-                      <span className="underline underline-offset-8 text-[#DAFB08]">MODE Network</span>
-                    </h2>
-                  </div>
-                </Link>
               </div>
             </div>
           </div>
