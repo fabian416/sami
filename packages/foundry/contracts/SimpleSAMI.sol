@@ -14,7 +14,6 @@ contract SimpleSAMI is Ownable {
     IERC20 public immutable MODE_TOKEN;
 
     uint256 public betAmount;
-    uint256 public samiReserves;
     uint256 public ticketCounter;
 
     mapping(uint256 => address) public ticketToOwner;
