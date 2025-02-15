@@ -26,6 +26,8 @@ interface ITicketSystem {
     /// @param amount The amount of tokens that failed
     event ErrorSendingPrize(address indexed winner, uint256 amount);
 
+    event ThresholdChanged(uint256 newThreshold);
+
 
     function buyTicket() external;
 

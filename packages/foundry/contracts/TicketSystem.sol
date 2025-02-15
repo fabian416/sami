@@ -18,7 +18,7 @@ contract TicketSystem is Ownable, ITicketSystem {
     uint256 public betAmount;
     uint256 public samiReserves;
     uint256 public ticketCounter;
-    ///@notice To get coeficient od liquidity
+    ///@notice State variable, the backend can change it in order to balance the system
     uint256 public threshold;
     ///@notice samiWins and TotalRounds using in order to get win ratio coeficient
     uint256 public samiWins;
@@ -39,7 +39,6 @@ contract TicketSystem is Ownable, ITicketSystem {
     /// @param _modeTokenAddress The address of the MODE ERC20 token
     constructor(address _modeTokenAddress) Ownable(msg.sender) {
         USDC_TOKEN = IERC20(_modeTokenAddress);
-        winRatioCoefficient = 1e6;
         threshold = 2000 * 1e6;
     }
 
@@ -106,6 +105,11 @@ contract TicketSystem is Ownable, ITicketSystem {
             }
         }
     }
+    /// @notice Allows the owner to withdraw tokens from the contract
+    /// @param _amount The amount of tokens to withdraw
+    function withdraw(uint256 _amount) external onlyOwner {
+        USDC_TOKEN.transfer(owner(), _amount);
+    }
 
     /// @notice Allows the owner to set the bet amount required to buy a ticket
     /// @param _betAmount The new bet amount
@@ -113,10 +117,9 @@ contract TicketSystem is Ownable, ITicketSystem {
         betAmount = _betAmount;
     }
 
-    /// @notice Allows the owner to withdraw tokens from the contract
-    /// @param _amount The amount of tokens to withdraw
-    function withdraw(uint256 _amount) external onlyOwner {
-        USDC_TOKEN.transfer(owner(), _amount);
+    function setThreshold(uint256 _newThrewshold) external onlyOwner { 
+        threshold = _newThrewshold * 1e6;
+        emit ThresholdChanged(threshold);
     }
 
     function getLiquidityCoefficient() public view returns (uint256) {
@@ -128,7 +131,7 @@ contract TicketSystem is Ownable, ITicketSystem {
         if (totalRounds == 0) return 1e6; 
         return (samiWins * 1e6 ) / totalRounds;
     }
-    
+
     function getWinRatioCoefficient() public view returns(uint256) { 
         if (threshold == 0) return 1e6; // Avoid zero divisions
         return (liquidityPool * 1e6) / threshold;
