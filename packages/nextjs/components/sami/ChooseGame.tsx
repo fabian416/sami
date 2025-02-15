@@ -25,21 +25,21 @@ export const ChooseGame = ({ showGame }: any) => {
   const [loadingBet, setLoadingBet] = useState(false);
   const { socket, isConnected, playerId, setPlayerId, setPlayerIndex, setRoomId } = useSocket();
   const { address: connectedAddress } = useAccount();
-  const { writeContractAsync: MODEwriteContractAsync } = useScaffoldWriteContract("MockMANTLE");
-  const { writeContractAsync: simpleSamiwriteContractAsync } = useScaffoldWriteContract("TicketSystem");
-  const { data: simpleSamiContractData } = useDeployedContractInfo("TicketSystem");
+  const { writeContractAsync: MANTLEwriteContractAsync } = useScaffoldWriteContract("MockMANTLE");
+  const { writeContractAsync: ticketSystemwriteContractAsync } = useScaffoldWriteContract("TicketSystem");
+  const { data: ticketSystemContractData } = useDeployedContractInfo("TicketSystem");
 
   const { data: samiBalance } = useScaffoldReadContract({
     contractName: "MockMANTLE",
     functionName: "balanceOf",
-    args: [simpleSamiContractData?.address],
+    args: [ticketSystemContractData?.address],
     watch: true,
   });
 
   const { data: allowance } = useScaffoldReadContract({
     contractName: "MockMANTLE",
     functionName: "allowance",
-    args: [connectedAddress, simpleSamiContractData?.address],
+    args: [connectedAddress, ticketSystemContractData?.address],
     watch: true,
   });
   const [isBetGame, setIsBetGame] = useState<boolean>(false);
@@ -77,9 +77,9 @@ export const ChooseGame = ({ showGame }: any) => {
 
     setLoadingApprove(true);
     try {
-      const contractResponse = await MODEwriteContractAsync({
+      const contractResponse = await MANTLEwriteContractAsync({
         functionName: "approve",
-        args: [simpleSamiContractData?.address, BigInt(100 * DECIMALS)],
+        args: [ticketSystemContractData?.address, BigInt(100 * DECIMALS)],
       });
 
       if (contractResponse) {
@@ -100,7 +100,7 @@ export const ChooseGame = ({ showGame }: any) => {
 
     setLoadingBet(true);
     try {
-      const contractResponse = await simpleSamiwriteContractAsync({
+      const contractResponse = await ticketSystemwriteContractAsync({
         functionName: "buyTicket",
         args: undefined,
       });

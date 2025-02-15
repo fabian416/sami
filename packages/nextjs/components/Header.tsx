@@ -23,8 +23,12 @@ export const menuLinks: HeaderMenuLink[] = [
     href: "/",
   },
   {
-    label: "Whitepaper",
-    href: "/SAMIpaper.pdf",
+    label: "Leaderboard",
+    href: "/leaderboard",
+  },
+  {
+    label: "About",
+    href: "/about",
   },
 ];
 
