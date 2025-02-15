@@ -2,7 +2,7 @@
 pragma solidity ^0.8.19;
 
 import "./DeployHelpers.s.sol";
-import "../contracts/SimpleSAMI.sol";
+//import "../contracts/SimpleSAMI.sol";
 
 /**
  * @notice Deploy script for YourContract contract
@@ -25,6 +25,6 @@ contract DeployYourContract is ScaffoldETHDeploy {
      *      - Export contract addresses & ABIs to `nextjs` packages
      */
     function run() external ScaffoldEthDeployerRunner {
-        new SimpleSAMI(deployer);
+      //  new SimpleSAMI(deployer);
     }
 }
