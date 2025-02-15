@@ -6,8 +6,8 @@ import Link from "next/link";
 
 export const About = () => {
   return (
-    <div className="flex flex-col items-center justify-center">
-      <div className="hero  ">
+    <div className="flex flex-col items-center justify-center flex-grow">
+      <div className="hero">
         <div className="hero-content flex-col lg:flex-row-reverse lg:px-14 text-xl">
           <Image src="/logo.png" alt="SAMI logo" className="max-w-sm mx-3" width={300} height={300} />
           <div>

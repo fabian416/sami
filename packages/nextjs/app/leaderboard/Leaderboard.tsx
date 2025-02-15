@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import { TokenLogo } from "~~/components/Header";
+import { DECIMALS } from "~~/components/sami/ChooseGame";
 import { Address } from "~~/components/scaffold-eth";
 import { useScaffoldEventHistory } from "~~/hooks/scaffold-eth";
 
@@ -9,7 +9,7 @@ export const Leaderboard = () => {
   const { data: prizeSentEvents } = useScaffoldEventHistory({
     contractName: "TicketSystem",
     eventName: "PrizeSent",
-    fromBlock: 0n,
+    fromBlock: 19051140n,
     watch: true,
   });
 
@@ -17,7 +17,7 @@ export const Leaderboard = () => {
   const aggregatedWinners = prizeSentEvents?.reduce(
     (acc, event) => {
       const winnerAddress = event?.args?.winner;
-      const amount = event?.args?.amount ? Number(event.args.amount.toString()) / 1e18 : 0;
+      const amount = event?.args?.amount ? Number(event.args.amount.toString()) / DECIMALS : 0;
 
       if (winnerAddress) {
         if (!acc[winnerAddress]) {
@@ -42,7 +42,7 @@ export const Leaderboard = () => {
     : [];
 
   return (
-    <div className="flex flex-col items-center justify-center mt-4">
+    <div className="flex flex-col items-center justify-start flex-grow mt-4">
       <div className="flex flex-col items-center justify-center card bg-[#2c2171] opacity-80 p-4">
         <h1 className="sami-title text-4xl mb-4">Leaderboard</h1>
         <div className="flex flex-col gap-2 w-auto">
