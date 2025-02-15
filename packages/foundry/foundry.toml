@@ -29,6 +29,8 @@ pgn = "https://rpc.publicgoods.network"
 pgnTestnet = "https://sepolia.publicgoods.network"
 mode = ""
 modeTestnet = "https://sepolia.mode.network/"
+mantleMainnet = ""
+mantleTestnet = "https://rpc.sepolia.mantle.xyz"
 
 
 [etherscan]

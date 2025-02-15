@@ -2,7 +2,7 @@
 pragma solidity ^0.8.19;
 
 import "./DeployHelpers.s.sol";
-import { MockMODE } from "../contracts/MockMODE.sol";
+import { MockMANTLE } from "../contracts/MockMANTLE.sol";
 
 /**
  * @notice Deploy script for YourContract contract
@@ -14,7 +14,7 @@ import { MockMODE } from "../contracts/MockMODE.sol";
  * yarn deploy --file DeployYourContract.s.sol  # local anvil chain
  * yarn deploy --file DeployYourContract.s.sol --network optimism # live network (requires keystore)
  */
-contract DeployMockMODE is ScaffoldETHDeploy {
+contract DeployMockMANTLE is ScaffoldETHDeploy {
     /**
      * @dev Deployer setup based on `ETH_KEYSTORE_ACCOUNT` in `.env`:
      *      - "scaffold-eth-default": Uses Anvil's account #9 (0xa0Ee7A142d267C1f36714E4a8F75612F20a79720), no password prompt
@@ -25,8 +25,8 @@ contract DeployMockMODE is ScaffoldETHDeploy {
      *      - Export contract addresses & ABIs to `nextjs` packages
      */
     function run() external ScaffoldEthDeployerRunner returns (address) {
-        MockMODE mode = new MockMODE();
-        console.logString(string.concat("MockMODE deployed at: ", vm.toString(address(mode))));
-        return address(mode);
+        MockMANTLE mockUsdc = new MockMANTLE();
+        console.logString(string.concat("MockMANTLE deployed at: ", vm.toString(address(mockUsdc))));
+        return address(mockUsdc);
     }
 }
