@@ -165,25 +165,13 @@ export const Header = () => {
               className="btn btn-primary bg-[#B2CB00] hover:bg-[#A1CA00] glow-yellow mr-2 text-black border-0 shadow-[0_0_10px_#A1CA00] btn-sm text-xl"
               onClick={handleMint}
             >
-              <div className="text-sm">Get $MANTLE</div>
-              <Image
-                src="/mode.png"
-                alt="MODE Network Logo"
-                width="25"
-                height="25"
-                className="inline-block align-middle" // Add this to align the image with the text
-              />
+              <div className="text-sm">Get $USDC</div>
+              <TokenLogo />
             </button>
           ) : (
             <>
               <span className="bg-[#DAFB08] text-black glow-yellow px-2 py-1 rounded-lg items-center justify-center gap-1 ml-4 mr-2 text-lg font-bold">
-                <Image
-                  src="/mode.png"
-                  alt="MODE Network Logo"
-                  width="25"
-                  height="25"
-                  className="inline-block align-bottom" // Add this to align the image with the text
-                />
+                <TokenLogo />
                 <span className="ml-2">{(Number(balance) / DECIMALS).toFixed(0)}</span>
               </span>
             </>
@@ -200,5 +188,17 @@ export const Header = () => {
 
       {isModalOpen && <ModalInstructions closeModal={closeModal} />}
     </div>
+  );
+};
+
+export const TokenLogo = ({ width = 25, height = 25 }: { width?: number; height?: number }) => {
+  return (
+    <Image
+      src="/usdc-logo.png"
+      alt="USDC Logo"
+      width={width}
+      height={height}
+      className="inline-block align-bottom" // Add this to align the image with the text
+    />
   );
 };

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { TokenLogo } from "../Header";
 
 export const ModalFinished = ({ winner, isBetGame }: any) => {
   return (
@@ -13,13 +14,7 @@ export const ModalFinished = ({ winner, isBetGame }: any) => {
               {isBetGame && (
                 <div className="flex flex-row py-2">
                   <div>Your 500</div>&nbsp;
-                  <Image
-                    src="/mode.png"
-                    alt="MODE Network Logo"
-                    width="25"
-                    height="25"
-                    className="inline-block align-middle" // Add this to align the image with the text
-                  />
+                  <TokenLogo />
                   &nbsp;
                   <div>are on the way!</div>
                 </div>
@@ -33,13 +28,7 @@ export const ModalFinished = ({ winner, isBetGame }: any) => {
               {isBetGame && (
                 <div className="flex flex-row py-2">
                   <div>Sami just claimed your 100</div>&nbsp;
-                  <Image
-                    src="/mode.png"
-                    alt="MODE Network Logo"
-                    width="25"
-                    height="25"
-                    className="inline-block align-middle" // Add this to align the image with the text
-                  />
+                  <TokenLogo />
                   &nbsp;
                   <div>tokens.</div>
                 </div>

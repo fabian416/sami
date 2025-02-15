@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { TokenLogo } from "~~/components/Header";
 import { Address } from "~~/components/scaffold-eth";
 import { useScaffoldEventHistory } from "~~/hooks/scaffold-eth";
 
@@ -50,14 +51,8 @@ export const Leaderboard = () => {
             <div className="text-center">#</div>
             <div>Address/ENS</div>
             <div className="text-right">
-              <Image
-                src="/mode.png"
-                alt="MODE Network Logo"
-                width="20"
-                height="20"
-                className="inline-block align-middle" // Add this to align the image with the text
-              />{" "}
-              Earned
+              <TokenLogo />
+              &nbsp; Earned
             </div>
           </div>
 
