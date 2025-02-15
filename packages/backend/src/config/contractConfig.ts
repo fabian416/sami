@@ -12,7 +12,7 @@ const privateKey = process.env.PRIVATE_KEY || "Debes configurar una clave privad
 const signer = new ethers.Wallet(privateKey, provider);
 
 //  Instance of the contract in order to read and write
-const contract = new ethers.Contract("0x221630009DCE6B222747395cd1a039E177D3eBF4", TicketSystem.abi, signer);
+const contract = new ethers.Contract("0x8d06D63e2D74413b972dCd23F943b3E73028f96F", TicketSystem.abi, signer);
 
 export const sendPrizesToWinners = async (winners: string[]) => {
     try {

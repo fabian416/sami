@@ -17,7 +17,7 @@ contract MintTokens is Script {
         address recipient = vm.envAddress("RECIPIENT"); 
 
         // Cantidad a mintear (ejemplo: 1000 USDC con 6 decimales)
-        uint256 mintAmount = 1000 * 1e6;
+        uint256 mintAmount = 100000 * 1e6;
 
         // Iniciar la transmisión de la transacción con el deployer
         vm.startBroadcast();
