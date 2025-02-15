@@ -26,9 +26,6 @@ contract TicketSystem is Ownable, ITicketSystem {
     uint256 public houseFee;
     uint256 public collectedFees;
 
-    ///@dev To get coeficient 
-    uint256 public liquidityPool; 
-
     mapping(uint256 => address) public ticketToOwner;
     mapping(uint256 => bool) public ticketUsed;
 
@@ -52,16 +49,15 @@ contract TicketSystem is Ownable, ITicketSystem {
     /// @notice Allows a user to buy a ticket by transferring the bet amount
     /// @dev The user must approve the contract to spend the bet amount of MODE tokens
     function buyTicket() external override {
+        // Transferir el monto de la apuesta del usuario al contrato
         bool success = USDC_TOKEN.transferFrom(msg.sender, address(this), betAmount);
         require(success, "Transfer failed");
 
-        // Calculate and store fee
+        // Calcular y almacenar la comisión de la casa
         uint256 feeAmount = (betAmount * houseFee) / 1e6;
-        collectedFees += feeAmount; // Acumulate the fee
+        collectedFees += feeAmount; // Acumular los fees
 
-        uint256 netBet = betAmount - feeAmount;
-        liquidityPool += netBet;
-
+        // Registrar el ticket
         ticketCounter++;
         ticketToOwner[ticketCounter] = msg.sender;
 
@@ -109,13 +105,14 @@ contract TicketSystem is Ownable, ITicketSystem {
         uint256 minPayout = betAmount;
         uint256 finalPayout = calculatedPayout > minPayout ? calculatedPayout : minPayout;
 
-        require(liquidityPool >= finalPayout * numWinners, "Not enough reserves");
-
+        require(
+            USDC_TOKEN.balanceOf(address(this)) - collectedFees >= finalPayout * numWinners,
+            "Not enough reserves"
+        );
         // Distribute and update liquidity 
         for (uint i = 0; i < numWinners; i++) {
             bool success = USDC_TOKEN.transfer(_winners[i], finalPayout);
             if (success) {
-                liquidityPool -= finalPayout;
                 emit PrizeSent(_winners[i], finalPayout);
             } else {
                 emit ErrorSendingPrize(_winners[i], finalPayout);
@@ -162,8 +159,10 @@ contract TicketSystem is Ownable, ITicketSystem {
     ///@dev Returns 1e6 (1.0) if the threshold is zero to prevent division by zero.
     ///@return The liquidity coefficient with 6 decimal precision.
     function getLiquidityCoefficient() public view returns (uint256) {
-        if (threshold == 0) return 1e6; // Evita división por cero, devuelve 1.0 con 6 decimales
-        return (liquidityPool * 1e6) / threshold; // L / T con 6 decimales
+        uint256 contractBalance = USDC_TOKEN.balanceOf(address(this)); 
+        uint256 effectiveLiquidity = contractBalance - collectedFees; // Excluir fees acumulados
+        if (threshold == 0) return 1e6; // Evita división por cero
+        return (effectiveLiquidity * 1e6) / threshold; // L / T con 6 decimales
     }
     ///@notice Calculates the win ratio coefficient (S/P).
     ///@dev Returns 1e6 (1.0) if no rounds have been played to prevent division by zero.
