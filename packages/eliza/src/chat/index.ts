@@ -22,7 +22,7 @@ async function handleUserInput(input, agentId) {
 
   try {
     const response = await fetch(
-      `${AGENT_URL}/${agentId}/message`,
+      `${SAMI_HOST}/${agentId}/message`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
