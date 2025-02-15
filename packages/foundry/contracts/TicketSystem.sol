@@ -12,12 +12,20 @@ contract TicketSystem is Ownable, ITicketSystem {
     //////////////////////////////////////////
     // State Variables
     //////////////////////////////////////////
-    ///@notice MODE token has 18 decimals
-    IERC20 public immutable MANTLE_TOKEN;
+    ///@notice USDC Mantle for bets token has 18 decimals
+    IERC20 public immutable USDC_TOKEN;
 
     uint256 public betAmount;
     uint256 public samiReserves;
     uint256 public ticketCounter;
+    ///@notice To get coeficient od liquidity
+    uint256 public threshold;
+    ///@notice samiWins and TotalRounds using in order to get win ratio coeficient
+    uint256 public samiWins;
+    uint256 public totalRounds;
+
+    ///@dev To get coeficient 
+    uint256 public liquidityPool; 
 
     mapping(uint256 => address) public ticketToOwner;
     mapping(uint256 => bool) public ticketUsed;
@@ -26,10 +34,13 @@ contract TicketSystem is Ownable, ITicketSystem {
     // Constructor
     //////////////////////////////////////////
 
-    /// @notice Initializes the contract with the address of the MODE token
+    /// @notice Initializes the Token usdc address
+    ///@dev We set 2000 usd with 6 decimals as initial threshold, 
     /// @param _modeTokenAddress The address of the MODE ERC20 token
     constructor(address _modeTokenAddress) Ownable(msg.sender) {
-        MANTLE_TOKEN = IERC20(_modeTokenAddress);
+        USDC_TOKEN = IERC20(_modeTokenAddress);
+        winRatioCoefficient = 1e6;
+        threshold = 2000 * 1e6;
     }
 
     //////////////////////////////////////////
@@ -39,7 +50,7 @@ contract TicketSystem is Ownable, ITicketSystem {
     /// @notice Allows a user to buy a ticket by transferring the bet amount
     /// @dev The user must approve the contract to spend the bet amount of MODE tokens
     function buyTicket() external override {
-        bool success = MANTLE_TOKEN.transferFrom(msg.sender, address(this), betAmount);
+        bool success = USDC_TOKEN.transferFrom(msg.sender, address(this), betAmount);
         require(success, "Transfer failed");
 
         ticketCounter++;
@@ -63,21 +74,36 @@ contract TicketSystem is Ownable, ITicketSystem {
     /// @notice Allows the owner to send the prize to a winner
     /// @dev The contract must have sufficient reserves to send the prize
     /// @param _winners The address of the winner to receive the prize
-    function sendPrizes(address[] memory _winners) external onlyOwner {
-        uint256 prize = betAmount * 5;
-        uint256 totalPrize = prize * _winners.length;
-        uint256 contractBalance = MANTLE_TOKEN.balanceOf(address(this));
+    function sendPrizes(address[] memory _winners) external onlyOwner { 
 
-        require(contractBalance >= totalPrize, "Not enough reserves to send prizes");
+        uint256 numWinners = _winners.length;
 
-        for (uint i = 0; i < _winners.length; i++) {
-            bool success = MANTLE_TOKEN.transfer(_winners[i], prize);
-
-        if (success) {
-            emit PrizeSent(_winners[i], prize);
-        } else {
-            emit ErrorSendingPrize(_winners[i], prize);
+        if (numWinners == 0) {
+            liquidityPool += betAmount * 3; // Si nadie gana, las apuestas quedan en el pool
+            samiWins++; // Se cuenta como una victoria de SAMI
+            return;
         }
+        
+        uint256 liquidityCoeff = getLiquidityCoefficient();
+        uint256 winRatioCoeff = getWinRatioCoefficient();
+
+        uint256 totalPot = betAmount * numWinners;
+        uint256 basePayout = totalPot / numWinners;
+        uint256 calculatedPayout = (basePayout * liquidityCoeff * winRatioCoeff * (100 - house_fee)) / (1e6 * 1e6 * 100);
+
+        uint256 minPayout = 1e6;
+        uint256 finalPayout = calculatedPayout > minPayout ? calculatedPayout : minPayout;
+
+        require(liquidityPool >= finalPayout * numWinners, "Not enough reserves");
+        
+        for (uint i = 0; i < numWinners; i++) {
+            bool success = USDC_TOKEN.transfer(_winners[i], finalPayout);
+            if (success) {
+                liquidityPool -= finalPayout;
+                emit PrizeSent(_winners[i], finalPayout);
+            } else {
+                emit ErrorSendingPrize(_winners[i], finalPayout);
+            }
         }
     }
 
@@ -90,9 +116,23 @@ contract TicketSystem is Ownable, ITicketSystem {
     /// @notice Allows the owner to withdraw tokens from the contract
     /// @param _amount The amount of tokens to withdraw
     function withdraw(uint256 _amount) external onlyOwner {
-        MANTLE_TOKEN.transfer(owner(), _amount);
+        USDC_TOKEN.transfer(owner(), _amount);
     }
 
+    function getLiquidityCoefficient() public view returns (uint256) {
+        if (threshold == 0) return 1e6; // Evita división por cero, devuelve 1.0 con 6 decimales
+        return (liquidityPool * 1e6) / threshold; // L / T con 6 decimales
+    }
+    
+    function getWinRatio() public view returns(uint256) { 
+        if (totalRounds == 0) return 1e6; 
+        return (samiWins * 1e6 ) / totalRounds;
+    }
+    
+    function getWinRatioCoefficient() public view returns(uint256) { 
+        if (threshold == 0) return 1e6; // Avoid zero divisions
+        return (liquidityPool * 1e6) / threshold;
+    }
 }
 
 
