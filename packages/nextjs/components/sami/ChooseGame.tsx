@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { RainbowKitCustomConnectButton } from "../scaffold-eth";
+import { Balance, RainbowKitCustomConnectButton } from "../scaffold-eth";
 import { ModalWaitingForPlayers } from "./ModalWaitingForPlayers";
 import { ModalWaitingForTransaction } from "./ModalWaitingForTransaction";
 import { v4 as uuidv4 } from "uuid";
@@ -27,6 +27,13 @@ export const ChooseGame = ({ showGame }: any) => {
   const { writeContractAsync: MODEwriteContractAsync } = useScaffoldWriteContract("MockMODE");
   const { writeContractAsync: simpleSamiwriteContractAsync } = useScaffoldWriteContract("SimpleSAMI");
   const { data: simpleSamiContractData } = useDeployedContractInfo("SimpleSAMI");
+
+  const { data: samiBalance } = useScaffoldReadContract({
+    contractName: "MockMODE",
+    functionName: "balanceOf",
+    args: [simpleSamiContractData?.address],
+    watch: true,
+  });
 
   const { data: allowance } = useScaffoldReadContract({
     contractName: "MockMODE",
@@ -212,7 +219,7 @@ export const ChooseGame = ({ showGame }: any) => {
                     height="25"
                     className="inline-block align-middle" // Add this to align the image with the text
                   />
-                  , win and earn &nbsp;
+                  , guess correctly and earn&nbsp;
                   <span className="text-[#3DCCE1]">300&nbsp;</span>
                   <Image
                     src="/mode.png"
@@ -249,19 +256,9 @@ export const ChooseGame = ({ showGame }: any) => {
             </div>
           </div>
         </div>
-        <div className="mt-4 text-4xl">
-          <Link className="link" href="https://x.com/sami_ai_agent" target="_blank" passHref>
-            <div className=" p-2 rounded-lg  opacity-80">
-              <span className="sami-title text-xl text-black dark:text-white">Follow SAMI on X!</span>
-              {/* <Image
-                src={theme === "dark" ? "/x-white.png" : "/x.png"}
-                alt="X Logo"
-                width="40"
-                height="40"
-                className="dark:x-logo-dark inline-block align-top" // Add this to align the image with the text
-              />{" "} */}
-            </div>
-          </Link>
+        <div className="sami-title text-center mt-4 text-4xl bg-[#B2CB00] hover:bg-[#A1CA00] glow-yellow text-black p-2 rounded-lg">
+          SAMI Reserves: {samiBalance ? Number(samiBalance) / 1e18 : "0"}
+          {/* SAMI Reserves: {samiBalance ? (Number(samiBalance) / 1e18).toFixed(2) : "0.00"} */}
         </div>
       </div>
     </>
