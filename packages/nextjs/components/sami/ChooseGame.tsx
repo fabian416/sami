@@ -167,23 +167,22 @@ export const ChooseGame = ({ showGame }: any) => {
       {loading && <ModalWaitingForPlayers isBetGame={isBetGame} />}
       {!loading && (loadingApprove || loadingBet) && <ModalWaitingForTransaction />}
       <div className="flex flex-col items-center w-full">
-        <div className="mb-4">
-          <h1 className="sami-title text-2xl md:text-7xl text-center">
-            Who is&nbsp;
-            <span className="text-[#3DCCE1]">
-              SAMI&nbsp;
-              <Image
-                src="/logo.png"
-                alt="SAMI Logo"
-                width="90"
-                height="90"
-                className="inline-block align-middle" // Add this to align the image with the text
-              />
-              &nbsp;
-            </span>
-            ?!1
-          </h1>
-        </div>
+        <h1 className="sami-title text-2xl md:text-7xl text-center">
+          Who is&nbsp;
+          <span className="text-[#3DCCE1]">
+            SAMI&nbsp;
+            <Image
+              src="/logo.png"
+              alt="SAMI Logo"
+              width="90"
+              height="90"
+              className="inline-block align-middle" // Add this to align the image with the text
+            />
+            &nbsp;
+          </span>
+          ?!1
+        </h1>
+
         <div className="flex md:flex-row flex-col justify-center items-center w-full gap-10 md:gap-20">
           <div className="card bg-[#1CA297] opacity-80 text-white glow-cyan w-full md:w-96 shadow-xl mx-4">
             <div className="card-body text-center">
@@ -256,7 +255,14 @@ export const ChooseGame = ({ showGame }: any) => {
           </div>
         </div>
         <div className="sami-title text-center mt-4 text-4xl bg-[#B2CB00] hover:bg-[#A1CA00] glow-yellow text-black p-2 rounded-lg">
-          SAMI Reserves: {samiBalance ? Number(samiBalance) / 1e18 : "0"}
+          SAMI Reserves: {samiBalance ? Number(samiBalance) / 1e18 : "0"}&nbsp;
+          <Image
+            src="/mode.png"
+            alt="MODE Network Logo"
+            width="40"
+            height="40"
+            className="inline-block align-top" // Add this to align the image with the text
+          />
           {/* SAMI Reserves: {samiBalance ? (Number(samiBalance) / 1e18).toFixed(2) : "0.00"} */}
         </div>
       </div>
