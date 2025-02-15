@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { DECIMALS } from "./sami/ChooseGame";
 import { ModalInstructions } from "./sami/ModalInstructions";
 import { useAccount } from "wagmi";
 import { Bars3Icon } from "@heroicons/react/20/solid";
@@ -91,7 +92,7 @@ export const Header = () => {
     try {
       const contractResponse = await MODEwriteContractAsync({
         functionName: "mint",
-        args: [connectedAddress, BigInt(200 * 1e18)],
+        args: [connectedAddress, BigInt(3 * DECIMALS)],
       });
 
       if (contractResponse) {
@@ -159,7 +160,7 @@ export const Header = () => {
       <div className="navbar-end flex-grow mr-4">
         {isConnected &&
           typeof balance !== "undefined" &&
-          (balance < BigInt(100 * 1e18) ? (
+          (balance < BigInt(3 * DECIMALS) ? (
             <button
               className="btn btn-primary bg-[#B2CB00] hover:bg-[#A1CA00] glow-yellow mr-2 text-black border-0 shadow-[0_0_10px_#A1CA00] btn-sm text-xl"
               onClick={handleMint}
@@ -183,7 +184,7 @@ export const Header = () => {
                   height="25"
                   className="inline-block align-bottom" // Add this to align the image with the text
                 />
-                <span className="ml-2">{(Number(balance) / 10 ** 18).toFixed(0)}</span>
+                <span className="ml-2">{(Number(balance) / DECIMALS).toFixed(0)}</span>
               </span>
             </>
           ))}

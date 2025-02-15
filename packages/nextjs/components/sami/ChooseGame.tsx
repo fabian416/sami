@@ -17,7 +17,7 @@ interface Player {
   isEliminated: boolean;
 }
 
-const DECIMALS = 1e6;
+export const DECIMALS = 1e6;
 
 export const ChooseGame = ({ showGame }: any) => {
   const [loading, setLoading] = useState(false);
@@ -45,7 +45,7 @@ export const ChooseGame = ({ showGame }: any) => {
   const [isBetGame, setIsBetGame] = useState<boolean>(false);
 
   useEffect(() => {
-    allowance && allowance >= BigInt(90 * DECIMALS) && setLoadingApprove(false);
+    allowance && allowance >= BigInt(1 * DECIMALS) && setLoadingApprove(false);
   }, [allowance]);
 
   useEffect(() => {
@@ -79,7 +79,7 @@ export const ChooseGame = ({ showGame }: any) => {
     try {
       const contractResponse = await MANTLEwriteContractAsync({
         functionName: "approve",
-        args: [ticketSystemContractData?.address, BigInt(100 * DECIMALS)],
+        args: [ticketSystemContractData?.address, BigInt(1 * DECIMALS)],
       });
 
       if (contractResponse) {
@@ -211,7 +211,7 @@ export const ChooseGame = ({ showGame }: any) => {
                 <></>
                 <span>
                   Bet&nbsp;
-                  <span className="text-[#3DCCE1]">100&nbsp;</span>
+                  <span className="text-[#3DCCE1]">1&nbsp;</span>
                   <Image
                     src="/mode.png"
                     alt="MODE Network Logo"
@@ -220,7 +220,7 @@ export const ChooseGame = ({ showGame }: any) => {
                     className="inline-block align-middle" // Add this to align the image with the text
                   />
                   , guess correctly and earn&nbsp;
-                  <span className="text-[#3DCCE1]">300&nbsp;</span>
+                  <span className="text-[#3DCCE1]">3&nbsp;</span>
                   <Image
                     src="/mode.png"
                     alt="MODE Network Logo"
@@ -232,13 +232,13 @@ export const ChooseGame = ({ showGame }: any) => {
               </p>
               <div className="card-actions justify-center">
                 {connectedAddress ? (
-                  allowance && allowance >= BigInt(90 * DECIMALS) ? (
+                  allowance && allowance >= BigInt(1 * DECIMALS) ? (
                     <>
                       <button
                         onClick={handleBetAndPlay}
                         className="cool-button !flex !flex-row !justify-center !items-center"
                       >
-                        <div className="text-[#b3ca06]">Bet</div>&nbsp;<>100</>&nbsp;$MANTLE&nbsp;
+                        <div className="text-[#b3ca06]">Bet</div>&nbsp;<>1</>&nbsp;$MANTLE&nbsp;
                       </button>
                     </>
                   ) : (
@@ -246,7 +246,7 @@ export const ChooseGame = ({ showGame }: any) => {
                       onClick={handleApprove}
                       className="cool-button !flex !flex-row !justify-center !items-center"
                     >
-                      <div className="text-[#2c2171]">Approve</div>&nbsp;<>100</>&nbsp;$MANTLE&nbsp;
+                      <div className="text-[#2c2171]">Approve</div>&nbsp;<>1</>&nbsp;$MANTLE&nbsp;
                     </button>
                   )
                 ) : (
