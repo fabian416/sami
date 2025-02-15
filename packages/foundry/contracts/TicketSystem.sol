@@ -24,6 +24,7 @@ contract TicketSystem is Ownable, ITicketSystem {
     uint256 public samiWins;
     uint256 public totalRounds;
     uint256 public houseFee;
+    uint256 public collectedFees;
 
     ///@dev To get coeficient 
     uint256 public liquidityPool; 
@@ -76,27 +77,35 @@ contract TicketSystem is Ownable, ITicketSystem {
     /// @dev The contract must have sufficient reserves to send the prize
     /// @param _winners The address of the winner to receive the prize
     function sendPrizes(address[] memory _winners) external onlyOwner { 
-
         uint256 numWinners = _winners.length;
 
         if (numWinners == 0) {
-            liquidityPool += betAmount * 3; // Si nadie gana, las apuestas quedan en el pool
-            samiWins++; // Se cuenta como una victoria de SAMI
+            liquidityPool += (betAmount * 3 * (1e6 - houseFee)) / 1e6; // If nobody wins the bets amount stays in the pool
+            samiWins++; // Sami Wins update count
             return;
         }
-        
+
         uint256 liquidityCoeff = getLiquidityCoefficient();
         uint256 winRatioCoeff = getWinRatioCoefficient();
 
-        uint256 totalPot = betAmount * numWinners;
-        uint256 basePayout = totalPot / numWinners;
-        uint256 calculatedPayout = (basePayout * liquidityCoeff * winRatioCoeff * (1e6 - houseFee)) / (1e6 * 1e6);
+        // Calculate totalPot considering all the bets
+        uint256 totalPot = (betAmount * 3 * (1e6 - houseFee)) / 1e6; 
 
-        uint256 minPayout = 1e6;
+        // Based payment for every winner
+        uint256 basePayout = totalPot / numWinners;
+
+        // Adjust payment based on liquidty and win ratio coefficient
+        uint256 calculatedPayout = basePayout;
+        calculatedPayout = (calculatedPayout * liquidityCoeff) / 1e6;
+        calculatedPayout = (calculatedPayout * winRatioCoeff) / 1e6;
+
+        // We make sure a minPayout based on the bet
+        uint256 minPayout = betAmount;
         uint256 finalPayout = calculatedPayout > minPayout ? calculatedPayout : minPayout;
 
         require(liquidityPool >= finalPayout * numWinners, "Not enough reserves");
-        
+
+        // Distribute prizes and update liquidity
         for (uint i = 0; i < numWinners; i++) {
             bool success = USDC_TOKEN.transfer(_winners[i], finalPayout);
             if (success) {
@@ -111,6 +120,13 @@ contract TicketSystem is Ownable, ITicketSystem {
     /// @param _amount The amount of tokens to withdraw
     function withdraw(uint256 _amount) external onlyOwner {
         USDC_TOKEN.transfer(owner(), _amount);
+    }
+    /// @notice Allows the owner to withdraw the collected house fees.
+    /// @param _amount The amount of fees to withdraw.
+    function withdrawFees(uint256 _amount) external onlyOwner {
+        require(_amount <= collectedFees, "Not enough fees collected");
+        collectedFees -= _amount;
+        require(USDC_TOKEN.transfer(owner(), _amount), "Fee withdrawal failed");
     }
 
     /// @notice Allows the owner to set the bet amount required to buy a ticket
