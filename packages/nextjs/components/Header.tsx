@@ -162,7 +162,7 @@ export const Header = () => {
           typeof balance !== "undefined" &&
           (balance < BigInt(3 * DECIMALS) ? (
             <button
-              className="btn btn-primary bg-[#B2CB00] hover:bg-[#A1CA00] glow-yellow mr-2 text-black border-0 shadow-[0_0_10px_#A1CA00] btn-sm text-xl"
+              className="btn btn-primary bg-[#2672BE] glow-blue mr-2 text-black border-0 shadow-[0_0_10px_#A1CA00] btn-sm text-xl"
               onClick={handleMint}
             >
               <div className="text-sm">Get $USDC</div>

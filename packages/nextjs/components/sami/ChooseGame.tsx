@@ -206,7 +206,7 @@ export const ChooseGame = ({ showGame }: any) => {
             <div className="card-body text-center">
               <h2 className="text-3xl sami-title flex flex-row justify-center items-center">
                 <>Betting&nbsp;</>
-                <span className="text-[#DAFB08]">$USDC&nbsp;</span>
+                <span className="text-[#3DCCE1]">$USDC&nbsp;</span>
               </h2>
               <p className="text-xl flex flex-row justify-center items-center">
                 <></>
@@ -226,7 +226,7 @@ export const ChooseGame = ({ showGame }: any) => {
                         onClick={handleBetAndPlay}
                         className="cool-button !flex !flex-row !justify-center !items-center"
                       >
-                        <div className="text-[#b3ca06]">Bet</div>&nbsp;<>1</>&nbsp;$USDC&nbsp;
+                        <div className="text-[#2c2171]">Bet</div>&nbsp;<>1</>&nbsp;$USDC&nbsp;
                       </button>
                     </>
                   ) : (
@@ -234,7 +234,7 @@ export const ChooseGame = ({ showGame }: any) => {
                       onClick={handleApprove}
                       className="cool-button !flex !flex-row !justify-center !items-center"
                     >
-                      <div className="text-[#2c2171]">Approve</div>&nbsp;<>1</>&nbsp;$USDC&nbsp;
+                      <div className="">Approve</div>&nbsp;<>1</>&nbsp;$USDC&nbsp;
                     </button>
                   )
                 ) : (
@@ -244,7 +244,7 @@ export const ChooseGame = ({ showGame }: any) => {
             </div>
           </div>
         </div>
-        <div className="sami-title text-center mt-12 text-lg bg-[#B2CB00] glow-yellow text-black p-2 rounded-lg">
+        <div className="sami-title text-center mt-12 text-lg bg-[#2672BE] glow-blue text-black p-2 rounded-lg">
           SAMI Reserves: {samiBalance ? (Number(samiBalance) / DECIMALS).toFixed(0) : "0"}&nbsp;
           <TokenLogo />
           {/* SAMI Reserves: {samiBalance ? (Number(samiBalance) / DECIMALS).toFixed(2) : "0.00"} */}
