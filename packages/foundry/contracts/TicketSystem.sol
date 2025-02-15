@@ -38,9 +38,9 @@ contract TicketSystem is Ownable, ITicketSystem {
 
     /// @notice Initializes the Token usdc address
     ///@dev We set 2000 usd with 6 decimals as initial threshold, 
-    /// @param _modeTokenAddress The address of the MODE ERC20 token
-    constructor(address _modeTokenAddress) Ownable(msg.sender) {
-        USDC_TOKEN = IERC20(_modeTokenAddress);
+    /// @param _usdcTokenAddress The address of the MANTLE ERC20 token
+    constructor(address _usdcTokenAddress) Ownable(msg.sender) {
+        USDC_TOKEN = IERC20(_usdcTokenAddress);
         threshold = 2000 * 1e6;
         houseFee = 1e4; // 1% = 1 * 10^4 (To represent 0.01 with 6 decimals)
     }
