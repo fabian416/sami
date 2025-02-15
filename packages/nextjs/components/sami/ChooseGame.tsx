@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { RainbowKitCustomConnectButton } from "../scaffold-eth";
 import { ModalWaitingForPlayers } from "./ModalWaitingForPlayers";
 import { ModalWaitingForTransaction } from "./ModalWaitingForTransaction";
@@ -27,6 +26,13 @@ export const ChooseGame = ({ showGame }: any) => {
   const { writeContractAsync: MODEwriteContractAsync } = useScaffoldWriteContract("MockMODE");
   const { writeContractAsync: simpleSamiwriteContractAsync } = useScaffoldWriteContract("SimpleSAMI");
   const { data: simpleSamiContractData } = useDeployedContractInfo("SimpleSAMI");
+
+  const { data: samiBalance } = useScaffoldReadContract({
+    contractName: "MockMODE",
+    functionName: "balanceOf",
+    args: [simpleSamiContractData?.address],
+    watch: true,
+  });
 
   const { data: allowance } = useScaffoldReadContract({
     contractName: "MockMODE",
@@ -161,28 +167,27 @@ export const ChooseGame = ({ showGame }: any) => {
       {loading && <ModalWaitingForPlayers isBetGame={isBetGame} />}
       {!loading && (loadingApprove || loadingBet) && <ModalWaitingForTransaction />}
       <div className="flex flex-col items-center w-full">
-        <div className="mb-4">
-          <h1 className="sami-title text-2xl md:text-7xl text-center">
-            Who is&nbsp;
-            <span className="text-[#3DCCE1]">
-              SAMI&nbsp;
-              <Image
-                src="/logo.png"
-                alt="SAMI Logo"
-                width="90"
-                height="90"
-                className="inline-block align-middle" // Add this to align the image with the text
-              />
-              &nbsp;
-            </span>
-            ?!1
-          </h1>
-        </div>
+        <h1 className="sami-title text-2xl md:text-7xl text-center">
+          Who is&nbsp;
+          <span className="text-[#3DCCE1]">
+            SAMI&nbsp;
+            <Image
+              src="/logo.png"
+              alt="SAMI Logo"
+              width="90"
+              height="90"
+              className="inline-block align-middle" // Add this to align the image with the text
+            />
+            &nbsp;
+          </span>
+          ?!1
+        </h1>
+
         <div className="flex md:flex-row flex-col justify-center items-center w-full gap-10 md:gap-20">
           <div className="card bg-[#1CA297] opacity-80 text-white glow-cyan w-full md:w-96 shadow-xl mx-4">
             <div className="card-body text-center">
               <h2 className="text-3xl sami-title">Play for free</h2>
-              <p className="text-xl">Find SAMI among 3 anons</p>
+              <p className="text-xl">Find SAMI, the impostor AI, among 3 anons</p>
               <div className="card-actions justify-center">
                 <button
                   className="btn btn-primary rounded-lg text-2xl w-full bg-white text-[#1CA297] hover:text-[#1CA297] hover:bg-white border-0"
@@ -202,24 +207,26 @@ export const ChooseGame = ({ showGame }: any) => {
               </h2>
               <p className="text-xl flex flex-row justify-center items-center">
                 <></>
-                <span>Bet&nbsp;</span>
-                <span className="text-[#3DCCE1]">100&nbsp;</span>
-                <Image
-                  src="/mode.png"
-                  alt="MODE Network Logo"
-                  width="25"
-                  height="25"
-                  className="inline-block align-middle" // Add this to align the image with the text
-                />
-                <span>, win and earn </span>&nbsp;
-                <span className="text-[#3DCCE1]">300&nbsp;</span>
-                <Image
-                  src="/mode.png"
-                  alt="MODE Network Logo"
-                  width="25"
-                  height="25"
-                  className="inline-block align-middle" // Add this to align the image with the text
-                />
+                <span>
+                  Bet&nbsp;
+                  <span className="text-[#3DCCE1]">100&nbsp;</span>
+                  <Image
+                    src="/mode.png"
+                    alt="MODE Network Logo"
+                    width="25"
+                    height="25"
+                    className="inline-block align-middle" // Add this to align the image with the text
+                  />
+                  , guess correctly and earn&nbsp;
+                  <span className="text-[#3DCCE1]">300&nbsp;</span>
+                  <Image
+                    src="/mode.png"
+                    alt="MODE Network Logo"
+                    width="25"
+                    height="25"
+                    className="inline-block align-middle" // Add this to align the image with the text
+                  />
+                </span>
               </p>
               <div className="card-actions justify-center">
                 {connectedAddress ? (
@@ -247,19 +254,16 @@ export const ChooseGame = ({ showGame }: any) => {
             </div>
           </div>
         </div>
-        <div className="mt-4 text-4xl">
-          <Link className="link" href="https://x.com/sami_ai_agent" target="_blank" passHref>
-            <div className=" p-2 rounded-lg  opacity-80">
-              <span className="sami-title text-xl text-black dark:text-white">Follow SAMI on X!</span>
-              {/* <Image
-                src={theme === "dark" ? "/x-white.png" : "/x.png"}
-                alt="X Logo"
-                width="40"
-                height="40"
-                className="dark:x-logo-dark inline-block align-top" // Add this to align the image with the text
-              />{" "} */}
-            </div>
-          </Link>
+        <div className="sami-title text-center mt-4 text-lg bg-[#B2CB00] hover:bg-[#A1CA00] glow-yellow text-black p-2 rounded-lg">
+          SAMI Reserves: {samiBalance ? Number(samiBalance) / 1e18 : "0"}&nbsp;
+          <Image
+            src="/mode.png"
+            alt="MODE Network Logo"
+            width="25"
+            height="25"
+            className="inline-block align-top" // Add this to align the image with the text
+          />
+          {/* SAMI Reserves: {samiBalance ? (Number(samiBalance) / 1e18).toFixed(2) : "0.00"} */}
         </div>
       </div>
     </>
