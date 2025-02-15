@@ -170,7 +170,7 @@ export const ChooseGame = ({ showGame }: any) => {
       {loading && <ModalWaitingForPlayers isBetGame={isBetGame} />}
       {!loading && (loadingApprove || loadingBet) && <ModalWaitingForTransaction />}
       <div className="flex flex-col items-center w-full">
-        <h1 className="sami-title text-2xl md:text-7xl text-center">
+        <h1 className="sami-title text-2xl md:text-7xl text-center mb-12">
           Who is&nbsp;
           <span className="text-[#3DCCE1]">
             SAMI&nbsp;
