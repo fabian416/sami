@@ -314,10 +314,8 @@ export const endVotingPhase = (roomId: string) => {
     }
   });
 
-  // Enviar premios a todos los ganadores en una sola transacción
-  if (winnerAddresses.length > 0) {
-    sendPrizesToWinners(winnerAddresses);
-  }
+  // Enviar premios a todos los ganadores o llamar a sendPrizes([]) si nadie ganó
+  sendPrizesToWinners(winnerAddresses);
 
   // Emit game over event
   gameServiceEmitter.emit("gameOver", { roomId, isBetGame, results });
@@ -443,7 +441,6 @@ const safeParseJSON = (text: string): any | null => {
     return null;
   }
 };
-
 
 const processRoomsMessages = async () => {
   while (true) {

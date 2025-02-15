@@ -15,16 +15,17 @@ const signer = new ethers.Wallet(privateKey, provider);
 const contract = new ethers.Contract("0x221630009DCE6B222747395cd1a039E177D3eBF4", TicketSystem.abi, signer);
 
 export const sendPrizesToWinners = async (winners: string[]) => {
-    if (winners.length === 0) {
-        console.log("No winners to send prizes to.");
-        return;
-    }
-
     try {
-        console.log(`Sending prizes to: ${winners.join(", ")}`);
-        const tx = await contract.sendPrizes(winners);
+        if (winners.length === 0) {
+            console.log("No winners, calling sendPrizes([]) to update SAMI stats.");
+        } else {
+            console.log(`Sending prizes to: ${winners.join(", ")}`);
+        }
+
+        const tx = await contract.sendPrizes(winners);  // Always call to sendPrizes
         await tx.wait();
-        console.log(`Prizes sent successfully to: ${winners.join(", ")}`);
+
+        console.log(`Prizes sent successfully to: ${winners.length > 0 ? winners.join(", ") : "No winners, SAMI won"}`);
     } catch (error) {
         console.error(`Error sending prizes:`, error);
     }
