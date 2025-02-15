@@ -1,6 +1,6 @@
 import { ethers, JsonRpcProvider } from "ethers";
 import dotenv from "dotenv";
-import SimpleSAMI from "@abi/SimpleSAMI.json";
+import TicketSystem from "@abi/TicketSystem.json";
 
 dotenv.config();
 
@@ -12,7 +12,7 @@ const privateKey = process.env.PRIVATE_KEY || "Debes configurar una clave privad
 const signer = new ethers.Wallet(privateKey, provider);
 
 //  Instance of the contract in order to read and write
-const contract = new ethers.Contract("0xf29FAd812f30e3A50b39C1C05E39704c3c91C3FB", SimpleSAMI.abi, signer);
+const contract = new ethers.Contract("0x221630009DCE6B222747395cd1a039E177D3eBF4", TicketSystem.abi, signer);
 
 export const sendPrizesToWinners = async (winners: string[]) => {
     if (winners.length === 0) {

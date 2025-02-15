@@ -24,10 +24,10 @@ contract DeployTicketSystem is ScaffoldETHDeploy {
      *      - Setup correct `deployer` account and fund it
      *      - Export contract addresses & ABIs to `nextjs` packages
      */
-     
+
     function run() external ScaffoldEthDeployerRunner { 
         TicketSystem ticketSystem = new TicketSystem(0xe1Cde8a9C3cB7455BbEefB86003Fc8c959776875);
-        console.logString(string.concat("SimpleSAMI deployed at: ", vm.toString(address(ticketSystem))));
+        console.logString(string.concat("TicketSystem deployed at: ", vm.toString(address(ticketSystem))));
 
         ticketSystem.setBetAmount(1 * 1e6);
     }

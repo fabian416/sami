@@ -3,7 +3,7 @@ pragma solidity ^0.8.19;
 
 import "./DeployHelpers.s.sol";
 // import { DeployYourContract } from "./DeployYourContract.s.sol";
-import { DeploySimpleSAMI } from "./DeploySimpleSAMI.s.sol";
+//import { DeploySimpleSAMI } from "./DeploySimpleSAMI.s.sol";
 //import { DeployMockMODE } from "./DeployMockMODE.s.sol";
 
 /**
