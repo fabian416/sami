@@ -41,6 +41,7 @@ contract TicketSystem is Ownable, ITicketSystem {
     constructor(address _modeTokenAddress) Ownable(msg.sender) {
         USDC_TOKEN = IERC20(_modeTokenAddress);
         threshold = 2000 * 1e6;
+        houseFee = 1e4; // 1% = 1 * 10^4 (To represent 0.01 with 6 decimals)
     }
 
     //////////////////////////////////////////
@@ -89,7 +90,7 @@ contract TicketSystem is Ownable, ITicketSystem {
 
         uint256 totalPot = betAmount * numWinners;
         uint256 basePayout = totalPot / numWinners;
-        uint256 calculatedPayout = (basePayout * liquidityCoeff * winRatioCoeff * (100 - house_fee)) / (1e6 * 1e6 * 100);
+        uint256 calculatedPayout = (basePayout * liquidityCoeff * winRatioCoeff * (1e6 - houseFee)) / (1e6 * 1e6);
 
         uint256 minPayout = 1e6;
         uint256 finalPayout = calculatedPayout > minPayout ? calculatedPayout : minPayout;

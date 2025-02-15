@@ -30,7 +30,6 @@ interface ITicketSystem {
 
     event HouseFeeChanged(uint256 newHouseFee);
 
-
     function buyTicket() external;
 
 
