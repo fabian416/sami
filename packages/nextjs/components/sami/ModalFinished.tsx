@@ -13,7 +13,7 @@ export const ModalFinished = ({ winner, isBetGame }: any) => {
             <div className="flex justify-center items-center flex-col py-2">
               {isBetGame && (
                 <div className="flex flex-row py-2">
-                  <div>Your 500</div>&nbsp;
+                  <div>Your 3</div>&nbsp;
                   <TokenLogo />
                   &nbsp;
                   <div>are on the way!</div>
@@ -27,10 +27,10 @@ export const ModalFinished = ({ winner, isBetGame }: any) => {
             <div className="flex justify-center items-center flex-col py-2">
               {isBetGame && (
                 <div className="flex flex-row py-2">
-                  <div>Sami just claimed your 100</div>&nbsp;
+                  <div>Sami just claimed your 1 </div>&nbsp;
                   <TokenLogo />
                   &nbsp;
-                  <div>tokens.</div>
+                  <div></div>
                 </div>
               )}
               <div className="flex relative w-48 h-48">
