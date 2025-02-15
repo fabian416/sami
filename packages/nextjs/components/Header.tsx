@@ -162,7 +162,7 @@ export const Header = () => {
           typeof balance !== "undefined" &&
           (balance < BigInt(3 * DECIMALS) ? (
             <button
-              className="btn btn-primary bg-[#2672BE] glow-blue mr-2 text-black border-0 shadow-[0_0_10px_#A1CA00] btn-sm text-xl"
+              className="btn btn-primary bg-[#2672BE] glow-blue mr-2 text-white border-0 shadow-[0_0_10px_#A1CA00] btn-sm text-xl"
               onClick={handleMint}
             >
               <div className="text-sm">Get $USDC</div>
@@ -170,7 +170,7 @@ export const Header = () => {
             </button>
           ) : (
             <>
-              <span className="bg-[#DAFB08] text-black glow-yellow px-2 py-1 rounded-lg items-center justify-center gap-1 ml-4 mr-2 text-lg font-bold">
+              <span className="bg-[#2672BE] text-white glow-blue px-2 py-1 rounded-lg items-center justify-center gap-1 ml-4 mr-2 text-lg font-bold">
                 <TokenLogo />
                 <span className="ml-2">{(Number(balance) / DECIMALS).toFixed(0)}</span>
               </span>

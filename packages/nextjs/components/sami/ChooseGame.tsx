@@ -244,7 +244,7 @@ export const ChooseGame = ({ showGame }: any) => {
             </div>
           </div>
         </div>
-        <div className="sami-title text-center mt-12 text-lg bg-[#2672BE] glow-blue text-black p-2 rounded-lg">
+        <div className="sami-title text-center mt-12 text-lg bg-[#2672BE] glow-blue text-white p-2 rounded-lg">
           SAMI Reserves: {samiBalance ? (Number(samiBalance) / DECIMALS).toFixed(0) : "0"}&nbsp;
           <TokenLogo />
           {/* SAMI Reserves: {samiBalance ? (Number(samiBalance) / DECIMALS).toFixed(2) : "0.00"} */}
