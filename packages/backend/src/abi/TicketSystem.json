@@ -4,7 +4,7 @@
       "type": "constructor",
       "inputs": [
         {
-          "name": "_modeTokenAddress",
+          "name": "_usdcTokenAddress",
           "type": "address",
           "internalType": "address"
         }
@@ -13,7 +13,7 @@
     },
     {
       "type": "function",
-      "name": "MODE_TOKEN",
+      "name": "USDC_TOKEN",
       "inputs": [],
       "outputs": [
         { "name": "", "type": "address", "internalType": "contract IERC20" }
@@ -33,6 +33,41 @@
       "inputs": [],
       "outputs": [],
       "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "collectedFees",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "getLiquidityCoefficient",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "getWinRatioCoefficient",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "houseFee",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "liquidityPool",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+      "stateMutability": "view"
     },
     {
       "type": "function",
@@ -57,6 +92,13 @@
     },
     {
       "type": "function",
+      "name": "samiWins",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
       "name": "sendPrizes",
       "inputs": [
         { "name": "_winners", "type": "address[]", "internalType": "address[]" }
@@ -72,6 +114,35 @@
       ],
       "outputs": [],
       "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "setHouseFee",
+      "inputs": [
+        { "name": "_newHouseFee", "type": "uint256", "internalType": "uint256" }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "setThreshold",
+      "inputs": [
+        {
+          "name": "_newThrewshold",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "threshold",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+      "stateMutability": "view"
     },
     {
       "type": "function",
@@ -92,6 +163,13 @@
       "name": "ticketUsed",
       "inputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
       "outputs": [{ "name": "", "type": "bool", "internalType": "bool" }],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "totalRounds",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
       "stateMutability": "view"
     },
     {
@@ -122,6 +200,15 @@
       "stateMutability": "nonpayable"
     },
     {
+      "type": "function",
+      "name": "withdrawFees",
+      "inputs": [
+        { "name": "_amount", "type": "uint256", "internalType": "uint256" }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
       "type": "event",
       "name": "ErrorSendingPrize",
       "inputs": [
@@ -133,6 +220,19 @@
         },
         {
           "name": "amount",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "HouseFeeChanged",
+      "inputs": [
+        {
+          "name": "newHouseFee",
           "type": "uint256",
           "indexed": false,
           "internalType": "uint256"
@@ -171,6 +271,19 @@
         },
         {
           "name": "amount",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "ThresholdChanged",
+      "inputs": [
+        {
+          "name": "newThreshold",
           "type": "uint256",
           "indexed": false,
           "internalType": "uint256"
