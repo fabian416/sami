@@ -14,7 +14,7 @@ export const ModalFinished = ({ winner, isBetGame }: any) => {
                 <div className="flex flex-row py-2">
                   <div>Your 500</div>&nbsp;
                   <Image
-                    src="/mode.png"
+                    src="/usdc-logo.png"
                     alt="MODE Network Logo"
                     width="25"
                     height="25"
@@ -34,7 +34,7 @@ export const ModalFinished = ({ winner, isBetGame }: any) => {
                 <div className="flex flex-row py-2">
                   <div>Sami just claimed your 100</div>&nbsp;
                   <Image
-                    src="/mode.png"
+                    src="/usdc-logo.png"
                     alt="MODE Network Logo"
                     width="25"
                     height="25"

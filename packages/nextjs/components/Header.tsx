@@ -164,9 +164,9 @@ export const Header = () => {
               className="btn btn-primary bg-[#B2CB00] hover:bg-[#A1CA00] glow-yellow mr-2 text-black border-0 shadow-[0_0_10px_#A1CA00] btn-sm text-xl"
               onClick={handleMint}
             >
-              <div className="text-sm">Get $MANTLE</div>
+              <div className="text-sm">Get $USDC</div>
               <Image
-                src="/mode.png"
+                src="/usdc-logo.png"
                 alt="MODE Network Logo"
                 width="25"
                 height="25"
@@ -177,7 +177,7 @@ export const Header = () => {
             <>
               <span className="bg-[#DAFB08] text-black glow-yellow px-2 py-1 rounded-lg items-center justify-center gap-1 ml-4 mr-2 text-lg font-bold">
                 <Image
-                  src="/mode.png"
+                  src="/usdc-logo.png"
                   alt="MODE Network Logo"
                   width="25"
                   height="25"

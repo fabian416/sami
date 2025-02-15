@@ -51,7 +51,7 @@ export const Leaderboard = () => {
             <div>Address/ENS</div>
             <div className="text-right">
               <Image
-                src="/mode.png"
+                src="/usdc-logo.png"
                 alt="MODE Network Logo"
                 width="20"
                 height="20"

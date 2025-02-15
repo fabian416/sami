@@ -205,7 +205,7 @@ export const ChooseGame = ({ showGame }: any) => {
             <div className="card-body text-center">
               <h2 className="text-3xl sami-title flex flex-row justify-center items-center">
                 <>Betting&nbsp;</>
-                <span className="text-[#DAFB08]">$MANTLE&nbsp;</span>
+                <span className="text-[#DAFB08]">$USDC&nbsp;</span>
               </h2>
               <p className="text-xl flex flex-row justify-center items-center">
                 <></>
@@ -213,7 +213,7 @@ export const ChooseGame = ({ showGame }: any) => {
                   Bet&nbsp;
                   <span className="text-[#3DCCE1]">100&nbsp;</span>
                   <Image
-                    src="/mode.png"
+                    src="/usdc-logo.png"
                     alt="MODE Network Logo"
                     width="25"
                     height="25"
@@ -222,7 +222,7 @@ export const ChooseGame = ({ showGame }: any) => {
                   , guess correctly and earn&nbsp;
                   <span className="text-[#3DCCE1]">300&nbsp;</span>
                   <Image
-                    src="/mode.png"
+                    src="/usdc-logo.png"
                     alt="MODE Network Logo"
                     width="25"
                     height="25"
@@ -238,7 +238,7 @@ export const ChooseGame = ({ showGame }: any) => {
                         onClick={handleBetAndPlay}
                         className="cool-button !flex !flex-row !justify-center !items-center"
                       >
-                        <div className="text-[#b3ca06]">Bet</div>&nbsp;<>100</>&nbsp;$MANTLE&nbsp;
+                        <div className="text-[#b3ca06]">Bet</div>&nbsp;<>100</>&nbsp;$USDC&nbsp;
                       </button>
                     </>
                   ) : (
@@ -246,7 +246,7 @@ export const ChooseGame = ({ showGame }: any) => {
                       onClick={handleApprove}
                       className="cool-button !flex !flex-row !justify-center !items-center"
                     >
-                      <div className="text-[#2c2171]">Approve</div>&nbsp;<>100</>&nbsp;$MANTLE&nbsp;
+                      <div className="text-[#2c2171]">Approve</div>&nbsp;<>100</>&nbsp;$USDC&nbsp;
                     </button>
                   )
                 ) : (
@@ -259,7 +259,7 @@ export const ChooseGame = ({ showGame }: any) => {
         <div className="sami-title text-center mt-12 text-lg bg-[#B2CB00] glow-yellow text-black p-2 rounded-lg">
           SAMI Reserves: {samiBalance ? (Number(samiBalance) / DECIMALS).toFixed(0) : "0"}&nbsp;
           <Image
-            src="/mode.png"
+            src="/usdc-logo.png"
             alt="MODE Network Logo"
             width="25"
             height="25"
