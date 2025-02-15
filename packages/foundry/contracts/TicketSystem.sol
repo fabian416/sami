@@ -57,7 +57,7 @@ contract TicketSystem is Ownable, ITicketSystem {
 
         // Calculate and store fee
         uint256 feeAmount = (betAmount * houseFee) / 1e6;
-        collectedFees += feeAmount; // Acumula el fee
+        collectedFees += feeAmount; // Acumulate the fee
 
         uint256 netBet = betAmount - feeAmount;
         liquidityPool += netBet;
@@ -82,10 +82,10 @@ contract TicketSystem is Ownable, ITicketSystem {
 
     /// @notice Allows the owner to send the prize or not 3 players.
     /// @dev The contract must have sufficient reserves to send the prize.
-    /// @param _winners The addresses of the winners who will receive the prize.
+    /// @param _winners The addresses of the winners who might receive the prize. If they don't win we update liquidity.
     function sendPrizes(address[] memory _winners) external onlyOwner { 
         uint256 numWinners = _winners.length;
-
+        totalRounds++;
         if (numWinners == 0) {
             samiWins++; // If nobody wins, we update sami wins
             return;
@@ -122,7 +122,7 @@ contract TicketSystem is Ownable, ITicketSystem {
             }
         }
     }
-    
+
     /// @notice Allows the owner to withdraw tokens from the contract
     /// @param _amount The amount of tokens to withdraw
     function withdraw(uint256 _amount) external onlyOwner {
@@ -155,6 +155,7 @@ contract TicketSystem is Ownable, ITicketSystem {
     ///@param _newHouseFee The new house fee percentage in 6 decimal precision.
     function setHouseFee(uint256 _newHouseFee) external onlyOwner { 
         require (_newHouseFee > 0, "Invalid Amount");
+        houseFee = _newHouseFee * 1e4;
         emit HouseFeeChanged(_newHouseFee);
     }
     ///@notice Calculates the liquidity coefficient (L/T).
