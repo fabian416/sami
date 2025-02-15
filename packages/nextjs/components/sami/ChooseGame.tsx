@@ -254,8 +254,8 @@ export const ChooseGame = ({ showGame }: any) => {
             </div>
           </div>
         </div>
-        <div className="sami-title text-center mt-16 text-lg bg-[#B2CB00] hover:bg-[#A1CA00] glow-yellow text-black p-2 rounded-lg">
-          SAMI Reserves: {samiBalance ? Number(samiBalance) / 1e18 : "0"}&nbsp;
+        <div className="sami-title text-center mt-4 text-lg bg-[#B2CB00] glow-yellow text-black p-2 rounded-lg">
+          SAMI Reserves: {samiBalance ? (Number(samiBalance) / 1e18).toFixed(0) : "0"}&nbsp;
           <Image
             src="/mode.png"
             alt="MODE Network Logo"
