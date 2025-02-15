@@ -119,29 +119,33 @@ contract TicketSystem is Ownable, ITicketSystem {
         betAmount = _betAmount;
     }
 
+    ///@notice Sets the threshold value used for liquidity calculations.
+    ///@dev The new threshold must be greater than zero. It is multiplied by 1e6 to match 6 decimal precision.
+    ///@param _newThrewshold The new threshold value to set.
     function setThreshold(uint256 _newThrewshold) external onlyOwner { 
+        require (_newThrewshold > 0, "Invalid Amount");
         threshold = _newThrewshold * 1e6;
         emit ThresholdChanged(threshold);
     }
-
+    ///@notice Updates the house fee applied to bets.
+    ///@dev The house fee should be expressed with 6 decimals (e.g., 1% = 1e4).
+    ///@param _newHouseFee The new house fee percentage in 6 decimal precision.
     function setHouseFee(uint256 _newHouseFee) external onlyOwner { 
         require (_newHouseFee > 0, "Invalid Amount");
-
         emit HouseFeeChanged(_newHouseFee);
     }
-
+    ///@notice Calculates the liquidity coefficient (L/T).
+    ///@dev Returns 1e6 (1.0) if the threshold is zero to prevent division by zero.
+    ///@return The liquidity coefficient with 6 decimal precision.
     function getLiquidityCoefficient() public view returns (uint256) {
         if (threshold == 0) return 1e6; // Evita división por cero, devuelve 1.0 con 6 decimales
         return (liquidityPool * 1e6) / threshold; // L / T con 6 decimales
     }
-    
-    function getWinRatio() public view returns(uint256) { 
+    ///@notice Calculates the win ratio coefficient (S/P).
+    ///@dev Returns 1e6 (1.0) if no rounds have been played to prevent division by zero.
+    ///@return The win ratio coefficient with 6 decimal precision.
+    function getWinRatioCoefficient() public view returns(uint256) { 
         if (totalRounds == 0) return 1e6; 
         return (samiWins * 1e6 ) / totalRounds;
-    }
-
-    function getWinRatioCoefficient() public view returns(uint256) { 
-        if (threshold == 0) return 1e6; // Avoid zero divisions
-        return (liquidityPool * 1e6) / threshold;
     }
 }
