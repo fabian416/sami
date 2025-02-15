@@ -1,5 +1,4 @@
 import React from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { hardhat } from "viem/chains";
 import { SwitchTheme } from "~~/components/SwitchTheme";

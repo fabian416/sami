@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
-import { Balance, RainbowKitCustomConnectButton } from "../scaffold-eth";
+import { RainbowKitCustomConnectButton } from "../scaffold-eth";
 import { ModalWaitingForPlayers } from "./ModalWaitingForPlayers";
 import { ModalWaitingForTransaction } from "./ModalWaitingForTransaction";
 import { v4 as uuidv4 } from "uuid";
