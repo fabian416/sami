@@ -28,6 +28,8 @@ interface ITicketSystem {
 
     event ThresholdChanged(uint256 newThreshold);
 
+    event HouseFeeChanged(uint256 newHouseFee);
+
 
     function buyTicket() external;
 
