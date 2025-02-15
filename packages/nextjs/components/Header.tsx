@@ -27,8 +27,8 @@ export const menuLinks: HeaderMenuLink[] = [
     href: "/leaderboard",
   },
   {
-    label: "Whitepaper",
-    href: "/SAMIpaper.pdf",
+    label: "About",
+    href: "/about",
   },
 ];
 
@@ -73,10 +73,10 @@ export const Header = () => {
 
   const { address: connectedAddress, isConnected } = useAccount();
 
-  const { writeContractAsync: MODEwriteContractAsync } = useScaffoldWriteContract("MockMODE");
+  const { writeContractAsync: MODEwriteContractAsync } = useScaffoldWriteContract("MockMANTLE");
 
   const { data: balance } = useScaffoldReadContract({
-    contractName: "MockMODE",
+    contractName: "MockMANTLE",
     functionName: "balanceOf",
     args: [connectedAddress],
     watch: true,
