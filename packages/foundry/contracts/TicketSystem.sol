@@ -23,6 +23,7 @@ contract TicketSystem is Ownable, ITicketSystem {
     ///@notice samiWins and TotalRounds using in order to get win ratio coeficient
     uint256 public samiWins;
     uint256 public totalRounds;
+    uint256 public houseFee;
 
     ///@dev To get coeficient 
     uint256 public liquidityPool; 
@@ -122,6 +123,12 @@ contract TicketSystem is Ownable, ITicketSystem {
         emit ThresholdChanged(threshold);
     }
 
+    function setHouseFee(uint256 _newHouseFee) external onlyOwner { 
+        require (_newHouseFee > 0, "Invalid Amount");
+
+        emit HouseFeeChanged(_newHouseFee);
+    }
+
     function getLiquidityCoefficient() public view returns (uint256) {
         if (threshold == 0) return 1e6; // Evita división por cero, devuelve 1.0 con 6 decimales
         return (liquidityPool * 1e6) / threshold; // L / T con 6 decimales
@@ -137,6 +144,3 @@ contract TicketSystem is Ownable, ITicketSystem {
         return (liquidityPool * 1e6) / threshold;
     }
 }
-
-
-
