@@ -1,13 +1,14 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ModalInstructions } from "./sami/ModalInstructions";
 import { useAccount } from "wagmi";
+import { Bars3Icon } from "@heroicons/react/20/solid";
 import { FaucetButton, RainbowKitCustomConnectButtonOpaque } from "~~/components/scaffold-eth";
-import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { useOutsideClick, useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { notification } from "~~/utils/scaffold-eth";
 
 type HeaderMenuLink = {
@@ -17,10 +18,18 @@ type HeaderMenuLink = {
 };
 
 export const menuLinks: HeaderMenuLink[] = [
-  // {
-  //   label: "Home",
-  //   href: "/",
-  // }
+  {
+    label: "Home",
+    href: "/",
+  },
+  {
+    label: "Leaderboard",
+    href: "/leaderboard",
+  },
+  {
+    label: "Whitepaper",
+    href: "/SAMIpaper.pdf",
+  },
 ];
 
 export const HeaderMenuLinks = () => {
@@ -54,6 +63,13 @@ export const HeaderMenuLinks = () => {
  */
 export const Header = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  const burgerMenuRef = useRef<HTMLDivElement>(null);
+  useOutsideClick(
+    burgerMenuRef,
+    useCallback(() => setIsDrawerOpen(false), []),
+  );
 
   const { address: connectedAddress, isConnected } = useAccount();
 
@@ -106,6 +122,28 @@ export const Header = () => {
   return (
     <div className="sticky lg:static top-0 navbar bg-base-100 min-h-0 flex-shrink-0 justify-between z-20 shadow-md shadow-secondary px-0 sm:px-2">
       <div className="navbar-start w-auto lg:w-1/2">
+        <div className="lg:hidden dropdown" ref={burgerMenuRef}>
+          <label
+            tabIndex={0}
+            className={`ml-1 btn btn-ghost ${isDrawerOpen ? "hover:bg-secondary" : "hover:bg-transparent"}`}
+            onClick={() => {
+              setIsDrawerOpen(prevIsOpenState => !prevIsOpenState);
+            }}
+          >
+            <Bars3Icon className="h-1/2" />
+          </label>
+          {isDrawerOpen && (
+            <ul
+              tabIndex={0}
+              className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52"
+              onClick={() => {
+                setIsDrawerOpen(false);
+              }}
+            >
+              <HeaderMenuLinks />
+            </ul>
+          )}
+        </div>
         <Link href="/" passHref className="hidden lg:flex items-center gap-2 ml-2 mr-6 shrink-0">
           <div className="flex relative w-8 h-8">
             <Image alt="SE2 logo" className="w-auto h-auto cursor-pointer" fill src="/logo.png" />

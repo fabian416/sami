@@ -1,28 +1,29 @@
 {
-  "name": "@ai16z/agent",
-  "version": "0.1.1",
+  "name": "@elizaos/eliza-starter",
+  "version": "0.1.9",
   "main": "src/index.ts",
   "type": "module",
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts",
     "start": "tsc && node --loader ts-node/esm src/index.ts",
+    "clean": "./scripts/clean.sh",
     "start:service:all": "pm2 start pnpm --name=\"all\" --restart-delay=3000 --max-restarts=10 -- run start:all",
     "stop:service:all": "pm2 stop all"
   },
   "dependencies": {
-    "@elizaos/adapter-postgres": "0.1.7",
-    "@elizaos/adapter-sqlite": "0.1.7",
-    "@elizaos/client-auto": "0.1.7",
-    "@elizaos/client-direct": "0.1.7",
-    "@elizaos/client-discord": "0.1.7",
-    "@elizaos/client-telegram": "0.1.7",
-    "@elizaos/client-twitter": "0.1.7",
-    "@elizaos/core": "0.1.7",
-    "@elizaos/plugin-bootstrap": "0.1.7",
-    "@elizaos/plugin-image-generation": "0.1.7",
-    "@elizaos/plugin-node": "0.1.7",
-    "@elizaos/plugin-solana": "0.1.7",
-    "@elizaos/plugin-starknet": "0.1.7",
+    "@elizaos/adapter-postgres": "0.1.9",
+    "@elizaos/adapter-sqlite": "0.1.9",
+    "@elizaos/client-auto": "0.1.9",
+    "@elizaos/client-direct": "0.1.9",
+    "@elizaos/client-discord": "0.1.9",
+    "@elizaos/client-telegram": "0.1.9",
+    "@elizaos/client-twitter": "0.1.9",
+    "@elizaos/core": "0.1.9",
+    "@elizaos/plugin-bootstrap": "0.1.9",
+    "@elizaos/plugin-image-generation": "0.1.9",
+    "@elizaos/plugin-node": "0.1.9",
+    "@elizaos/plugin-solana": "0.1.9",
+    "@elizaos/plugin-starknet": "0.1.9",
     "@tavily/core": "0.0.2",
     "amqplib": "0.10.5",
     "better-sqlite3": "11.5.0",
@@ -45,6 +46,8 @@
   "devDependencies": {
     "ts-node": "10.9.2",
     "tsup": "8.3.5",
-    "typescript": "5.6.3"
-  }
+    "typescript": "5.6.3",
+    "pm2": "5.4.3"
+  },
+  "packageManager": "pnpm@9.15.4+sha512.b2dc20e2fc72b3e18848459b37359a32064663e5627a51e4c74b2c29dd8e8e0491483c3abb40789cfd578bf362fb6ba8261b05f0387d76792ed6e23ea3b1b6a0"
 }

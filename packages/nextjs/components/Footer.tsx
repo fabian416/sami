@@ -1,5 +1,4 @@
 import React from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { hardhat } from "viem/chains";
 import { SwitchTheme } from "~~/components/SwitchTheme";
@@ -24,19 +23,18 @@ export const Footer = () => {
         <ul className="menu menu-horizontal w-full">
           <div className="flex justify-center items-center gap-2 text-sm w-full">
             <div className="flex justify-center items-center gap-1">
-              {/* <p className="m-0 text-center">
-                Built with <HeartIcon className="inline-block h-4 w-4" /> by
-              </p>
-              <span>Los pibes</span>
-              <span>·</span> */}
               <div className="flex flex-row gap-3 text-center">
-                <div className="text-center">
-                  <Link href="/SAMIpaper.pdf" className="text-white" passHref target="_blank">
-                    <div className="p-2 bg-[#DAFB08] glow-yellow rounded-lg text-black">
-                      <h2 className="sami-title text-sm mt-8 text-center">Whitepaper</h2>
-                    </div>
-                  </Link>{" "}
-                </div>
+                {/* • */}
+                <Link className="link" href="https://x.com/sami_ai_agent" target="_blank" passHref>
+                  <span className="sami-title text-xl text-black dark:text-white">Follow SAMI on X!</span>
+                  {/* <Image
+                src={theme === "dark" ? "/x-white.png" : "/x.png"}
+                alt="X Logo"
+                width="40"
+                height="40"
+                className="dark:x-logo-dark inline-block align-top" // Add this to align the image with the text
+              />{" "} */}
+                </Link>
               </div>
             </div>
           </div>

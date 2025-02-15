@@ -2,8 +2,8 @@
 FROM node:23.3.0-slim AS builder
 
 # Install pnpm globally and install necessary build tools
-RUN npm install -g pnpm@9.15.1 
-RUN apt-get update && \
+RUN npm install -g pnpm@9.15.1 && \
+    apt-get update && \
     apt-get install -y git python3 make g++ && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
@@ -24,8 +24,17 @@ COPY ./src ./src
 COPY ./characters ./characters
 
 # Install dependencies and build the project
-RUN pnpm i
+RUN pnpm install 
 RUN pnpm build 
+
+# Create dist directory and set permissions
+RUN mkdir -p /app/dist && \
+    chown -R node:node /app && \
+    chmod -R 755 /app
+
+# Switch to node user
+USER node
+
 # Create a new stage for the final image
 FROM node:23.3.0-slim
 
@@ -49,5 +58,5 @@ COPY --from=builder /app/pnpm-lock.yaml /app/
 
 EXPOSE 3000
 # Set the command to run the application
-# CMD ["pnpm", "start", "--non-interactive"]
+#CMD ["pnpm", "start", "--non-interactive"]
 CMD ["node", "dist/index.js"]
