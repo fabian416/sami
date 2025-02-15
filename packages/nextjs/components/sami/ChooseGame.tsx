@@ -17,25 +17,27 @@ interface Player {
   isEliminated: boolean;
 }
 
+const DECIMALS = 1e6;
+
 export const ChooseGame = ({ showGame }: any) => {
   const [loading, setLoading] = useState(false);
   const [loadingApprove, setLoadingApprove] = useState(false);
   const [loadingBet, setLoadingBet] = useState(false);
   const { socket, isConnected, playerId, setPlayerId, setPlayerIndex, setRoomId } = useSocket();
   const { address: connectedAddress } = useAccount();
-  const { writeContractAsync: MODEwriteContractAsync } = useScaffoldWriteContract("MockMODE");
-  const { writeContractAsync: simpleSamiwriteContractAsync } = useScaffoldWriteContract("SimpleSAMI");
-  const { data: simpleSamiContractData } = useDeployedContractInfo("SimpleSAMI");
+  const { writeContractAsync: MODEwriteContractAsync } = useScaffoldWriteContract("MockMANTLE");
+  const { writeContractAsync: simpleSamiwriteContractAsync } = useScaffoldWriteContract("TicketSystem");
+  const { data: simpleSamiContractData } = useDeployedContractInfo("TicketSystem");
 
   const { data: samiBalance } = useScaffoldReadContract({
-    contractName: "MockMODE",
+    contractName: "MockMANTLE",
     functionName: "balanceOf",
     args: [simpleSamiContractData?.address],
     watch: true,
   });
 
   const { data: allowance } = useScaffoldReadContract({
-    contractName: "MockMODE",
+    contractName: "MockMANTLE",
     functionName: "allowance",
     args: [connectedAddress, simpleSamiContractData?.address],
     watch: true,
@@ -43,7 +45,7 @@ export const ChooseGame = ({ showGame }: any) => {
   const [isBetGame, setIsBetGame] = useState<boolean>(false);
 
   useEffect(() => {
-    allowance && allowance >= BigInt(90 * 1e18) && setLoadingApprove(false);
+    allowance && allowance >= BigInt(90 * DECIMALS) && setLoadingApprove(false);
   }, [allowance]);
 
   useEffect(() => {
@@ -77,7 +79,7 @@ export const ChooseGame = ({ showGame }: any) => {
     try {
       const contractResponse = await MODEwriteContractAsync({
         functionName: "approve",
-        args: [simpleSamiContractData?.address, BigInt(100 * 1e18)],
+        args: [simpleSamiContractData?.address, BigInt(100 * DECIMALS)],
       });
 
       if (contractResponse) {
@@ -203,7 +205,7 @@ export const ChooseGame = ({ showGame }: any) => {
             <div className="card-body text-center">
               <h2 className="text-3xl sami-title flex flex-row justify-center items-center">
                 <>Betting&nbsp;</>
-                <span className="text-[#DAFB08]">$MODE&nbsp;</span>
+                <span className="text-[#DAFB08]">$MANTLE&nbsp;</span>
               </h2>
               <p className="text-xl flex flex-row justify-center items-center">
                 <></>
@@ -230,13 +232,13 @@ export const ChooseGame = ({ showGame }: any) => {
               </p>
               <div className="card-actions justify-center">
                 {connectedAddress ? (
-                  allowance && allowance >= BigInt(90 * 1e18) ? (
+                  allowance && allowance >= BigInt(90 * DECIMALS) ? (
                     <>
                       <button
                         onClick={handleBetAndPlay}
                         className="cool-button !flex !flex-row !justify-center !items-center"
                       >
-                        <div className="text-[#b3ca06]">Bet</div>&nbsp;<>100</>&nbsp;$MODE&nbsp;
+                        <div className="text-[#b3ca06]">Bet</div>&nbsp;<>100</>&nbsp;$MANTLE&nbsp;
                       </button>
                     </>
                   ) : (
@@ -244,7 +246,7 @@ export const ChooseGame = ({ showGame }: any) => {
                       onClick={handleApprove}
                       className="cool-button !flex !flex-row !justify-center !items-center"
                     >
-                      <div className="text-[#2c2171]">Approve</div>&nbsp;<>100</>&nbsp;$MODE&nbsp;
+                      <div className="text-[#2c2171]">Approve</div>&nbsp;<>100</>&nbsp;$MANTLE&nbsp;
                     </button>
                   )
                 ) : (
@@ -254,8 +256,8 @@ export const ChooseGame = ({ showGame }: any) => {
             </div>
           </div>
         </div>
-        <div className="sami-title text-center mt-4 text-lg bg-[#B2CB00] glow-yellow text-black p-2 rounded-lg">
-          SAMI Reserves: {samiBalance ? (Number(samiBalance) / 1e18).toFixed(0) : "0"}&nbsp;
+        <div className="sami-title text-center mt-12 text-lg bg-[#B2CB00] glow-yellow text-black p-2 rounded-lg">
+          SAMI Reserves: {samiBalance ? (Number(samiBalance) / DECIMALS).toFixed(0) : "0"}&nbsp;
           <Image
             src="/mode.png"
             alt="MODE Network Logo"
@@ -263,7 +265,7 @@ export const ChooseGame = ({ showGame }: any) => {
             height="25"
             className="inline-block align-top" // Add this to align the image with the text
           />
-          {/* SAMI Reserves: {samiBalance ? (Number(samiBalance) / 1e18).toFixed(2) : "0.00"} */}
+          {/* SAMI Reserves: {samiBalance ? (Number(samiBalance) / DECIMALS).toFixed(2) : "0.00"} */}
         </div>
       </div>
     </>

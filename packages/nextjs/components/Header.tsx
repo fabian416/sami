@@ -23,10 +23,6 @@ export const menuLinks: HeaderMenuLink[] = [
     href: "/",
   },
   {
-    label: "Leaderboard",
-    href: "/leaderboard",
-  },
-  {
     label: "Whitepaper",
     href: "/SAMIpaper.pdf",
   },
@@ -73,10 +69,10 @@ export const Header = () => {
 
   const { address: connectedAddress, isConnected } = useAccount();
 
-  const { writeContractAsync: MODEwriteContractAsync } = useScaffoldWriteContract("MockMODE");
+  const { writeContractAsync: MODEwriteContractAsync } = useScaffoldWriteContract("MockMANTLE");
 
   const { data: balance } = useScaffoldReadContract({
-    contractName: "MockMODE",
+    contractName: "MockMANTLE",
     functionName: "balanceOf",
     args: [connectedAddress],
     watch: true,
@@ -164,7 +160,7 @@ export const Header = () => {
               className="btn btn-primary bg-[#B2CB00] hover:bg-[#A1CA00] glow-yellow mr-2 text-black border-0 shadow-[0_0_10px_#A1CA00] btn-sm text-xl"
               onClick={handleMint}
             >
-              <div className="text-sm">Get $MODE</div>
+              <div className="text-sm">Get $MANTLE</div>
               <Image
                 src="/mode.png"
                 alt="MODE Network Logo"
