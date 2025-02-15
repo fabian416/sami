@@ -162,17 +162,17 @@ export const Header = () => {
           typeof balance !== "undefined" &&
           (balance < BigInt(3 * DECIMALS) ? (
             <button
-              className="btn btn-primary bg-[#2672BE] glow-blue mr-2 text-white border-0 shadow-[0_0_10px_#A1CA00] btn-sm text-xl"
+              className="flex flex-row btn btn-primary bg-[#2672BE] glow-blue mr-2 text-white border-0 shadow-[0_0_10px_#A1CA00] btn-sm text-xl"
               onClick={handleMint}
             >
               <div className="text-sm">Get $USDC</div>
-              <TokenLogo />
+              <TokenLogo className="" />
             </button>
           ) : (
             <>
-              <span className="bg-[#2672BE] text-white glow-blue px-2 py-1 rounded-lg items-center justify-center gap-1 ml-4 mr-2 text-lg font-bold">
-                <TokenLogo />
-                <span className="ml-2">{(Number(balance) / DECIMALS).toFixed(0)}</span>
+              <span className="flex flex-row bg-[#2672BE] text-white glow-blue px-2 py-1 rounded-lg items-center justify-center gap-1 ml-4 mr-2 text-lg font-bold">
+                <TokenLogo className="" />
+                <span className="ml-1">{(Number(balance) / DECIMALS).toFixed(0)}</span>
               </span>
             </>
           ))}
@@ -191,14 +191,15 @@ export const Header = () => {
   );
 };
 
-export const TokenLogo = ({ width = 25, height = 25 }: { width?: number; height?: number }) => {
-  return (
-    <Image
-      src="/usdc-logo.png"
-      alt="USDC Logo"
-      width={width}
-      height={height}
-      className="inline-block align-bottom" // Add this to align the image with the text
-    />
-  );
+export const TokenLogo = ({
+  width = 25,
+  height = 25,
+  className = "inline-block align-bottom",
+}: // Add this to align the image with the text
+{
+  width?: number;
+  height?: number;
+  className?: string;
+}) => {
+  return <Image src="/usdc-logo.png" alt="USDC Logo" width={width} height={height} className={className} />;
 };
