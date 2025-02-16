@@ -165,9 +165,8 @@ contract TicketSystem is Ownable, ITicketSystem {
     ///@notice Calculates the win ratio coefficient (S/P).
     ///@dev Returns 1e6 (1.0) if no rounds have been played to prevent division by zero.
     ///@return The win ratio coefficient with 6 decimal precision.
-
     function getWinRatioCoefficient() public view returns (uint256) {
-        if (totalRounds == 0) return DECIMALS;
+        if (totalRounds == 0 || samiWins == 0) return DECIMALS; 
         return (samiWins * DECIMALS) / totalRounds;
     }
 }
