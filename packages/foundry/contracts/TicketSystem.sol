@@ -67,7 +67,6 @@ contract TicketSystem is Ownable, ITicketSystem {
     /// @dev The ticket must not have been used before
     /// @param _ticketId The ID of the ticket to be used
     function useTicket(uint256 _ticketId) external onlyOwner {
-        require(ticketToOwner[_ticketId] == msg.sender, "Not your ticket");
         require(!ticketUsed[_ticketId], "Ticket already used");
 
         ticketUsed[_ticketId] = true;

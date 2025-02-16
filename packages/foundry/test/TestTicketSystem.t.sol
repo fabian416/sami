@@ -82,6 +82,7 @@ contract TestTicketSystem is Test {
         assertEq(ticketSystemBalanceBefore + TICKET_PRICE, ticketSystemBalanceAfter);
         assertEq(ticketCounterBefore + 1, ticketCounterAfter);
         assertEq(collectedFeesBefore + (TICKET_PRICE * HOUSE_FEE) / DECIMALS, collectedFeesAfter);
+        assertEq(ticketSystem.ticketToOwner(ticketCounterAfter), player1);
     }
 
     function testBuyTicketFailsIfNotEnoughAllowance() public {
@@ -106,10 +107,47 @@ contract TestTicketSystem is Test {
         USDC_TOKEN.approve(address(ticketSystem), TICKET_PRICE);
 
         // Expect to emit TicketBought event by the buyTicket function
-        vm.expectEmit(true, false, false, false, address(ticketSystem));
+        vm.expectEmit(true, false, false, true, address(ticketSystem));
         emit TicketBought(player1, ticketSystem.ticketCounter() + 1);
         ticketSystem.buyTicket();
 
+        vm.stopPrank();
+    }
+
+    function testUseTicket() public {
+        testBuyTicket();
+
+        assertEq(ticketSystem.ticketUsed(ticketSystem.ticketCounter()), false);
+
+        vm.startPrank(owner);
+        ticketSystem.useTicket(ticketSystem.ticketCounter());
+        vm.stopPrank();
+
+        assertEq(ticketSystem.ticketUsed(ticketSystem.ticketCounter()), true);
+    }
+
+    // function testUseTicketCannotBeUsedTwice() public {
+    //     testBuyTicket();
+
+    //     assertEq(ticketSystem.ticketUsed(ticketSystem.ticketCounter()), false);
+
+    //     vm.startPrank(owner);
+    //     ticketSystem.useTicket(ticketSystem.ticketCounter());
+    //     // vm.expectRevert("Ticket already used");
+    //     ticketSystem.useTicket(ticketSystem.ticketCounter());
+    //     vm.stopPrank();
+
+    //     assertEq(ticketSystem.ticketUsed(ticketSystem.ticketCounter()), true);
+    // }
+
+    function testUseTicketEmitsEvent() public {
+        testBuyTicket();
+
+        // Expect to emit TicketUsed event by the useTicket function
+        vm.expectEmit(true, false, false, true, address(ticketSystem));
+        emit TicketUsed(owner, ticketSystem.ticketCounter());
+        vm.startPrank(owner);
+        ticketSystem.useTicket(ticketSystem.ticketCounter());
         vm.stopPrank();
     }
 }
