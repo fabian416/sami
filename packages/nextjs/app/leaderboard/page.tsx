@@ -4,7 +4,7 @@ import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
 
 export const metadata = getMetadata({
   title: "Leaderboard",
-  description: "Built with 🏗 Scaffold-ETH 2",
+  description: "Check the top SAMI players and their earnings.",
 });
 
 const AboutPage: NextPage = () => {
