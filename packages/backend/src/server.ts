@@ -31,6 +31,8 @@ export const players: {
 // Manage WebSocket event
 io.on('connection', (socket) => {
     console.log("Player connected :)", socket.id);
+    players[socket.id] = { socketId: socket.id };
+    io.emit("connectedPlayers", { amount: Object.keys(players).length });
 
     socket.on("registerWallet", (data) => {
         const { walletAddress } = data;
@@ -138,7 +140,8 @@ io.on('connection', (socket) => {
             }
     
             // Eliminar al jugador del mapa de players
-            delete players[socket.id];
+            delete players[socket.id]; 
+            io.emit("connectedPlayers", { amount: Object.keys(players).length });
         } else {
             console.log(` No tracked player found for socket ${socket.id}, ignoring.`);
         }

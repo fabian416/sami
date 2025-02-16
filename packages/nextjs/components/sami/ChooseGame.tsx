@@ -170,7 +170,7 @@ export const ChooseGame = ({ showGame }: any) => {
       {loading && <ModalWaitingForPlayers isBetGame={isBetGame} />}
       {!loading && (loadingApprove || loadingBet) && <ModalWaitingForTransaction />}
       <div className="flex flex-col items-center w-full">
-        <h1 className="sami-title text-2xl md:text-7xl text-center mb-12">
+        <h1 className="sami-title text-2xl md:text-7xl text-center mb-4 md:mb-12">
           Who is&nbsp;
           <span className="text-[#3DCCE1]">
             SAMI&nbsp;
@@ -245,7 +245,7 @@ export const ChooseGame = ({ showGame }: any) => {
           </div>
         </div>
         <div className="flex flex-row sami-title text-center mt-12 text-lg bg-[#2672BE] glow-blue text-white p-2 rounded-lg">
-          SAMI Reserves:{" "}
+          SAMI Reserves:&nbsp;
           {samiBalance ? (
             <>
               <>{(Number(samiBalance) / DECIMALS).toFixed(0)}</>&nbsp;
