@@ -48,7 +48,7 @@ export const ModalInstructions = ({ closeModal }: any) => {
             <p className="text-md md:text-xl">
               <span className="text-white">
                 {" "}
-                Bet 100 $USDC, and if you guess, you get 300. <br />
+                Bet 1 $USDC, and if you guess, you get 3. <br />
               </span>
               <span className="text-[#3DCCE1]">Free version available.</span>
             </p>
