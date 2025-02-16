@@ -17,7 +17,7 @@ const AGENT_URL = process.env.AGENT_URL;
 export const SAMI_URI = AGENT_URL || "http://localhost:3000";
 
 const MIN_PLAYERS = 3;
-const CONVERTATION_PHASE_TIME = 2 * 60 * 1000;
+const CONVERTATION_PHASE_TIME = 2 * 10 * 1000;
 const VOTING_PHASE_TIME = 30 * 1000;
 
 export interface Message {
@@ -190,7 +190,10 @@ export const recordVote = (
   gameServiceEmitter.emit("voteSubmitted", { roomId, voterId, votedId: votedPlayerId });
 
   //  Verify that all the players have voted
-  if (Object.keys(game.votes).length === game.players.length - 1) {
+  const voterPlayerIds = Object.keys(game.votes);
+  const amountOfPlayersWhoLeft = _.filter(game.players, (player) => player.left && !voterPlayerIds.includes(player.id)).length;
+  const totalAmount = voterPlayerIds.length + amountOfPlayersWhoLeft;
+  if (totalAmount === game.players.length - 1) {
     endVotingPhase(roomId);
   }
 
@@ -315,7 +318,9 @@ export const endVotingPhase = (roomId: string) => {
   });
 
   // Enviar premios a todos los ganadores o llamar a sendPrizes([]) si nadie ganó
-  sendPrizesToWinners(winnerAddresses);
+  if (winnerAddresses.length > 0) {
+    sendPrizesToWinners(winnerAddresses);
+  }
 
   // Emit game over event
   gameServiceEmitter.emit("gameOver", { roomId, isBetGame, results });
@@ -364,6 +369,7 @@ const savePlayers = async (players: Player[]) => {
     id: player.id,
     is_ai: player.isAI,
     is_eliminated: player.isEliminated,
+    left: player.left,
     index: player.index,
   }));
 
@@ -383,16 +389,16 @@ const saveVotes = async (roomId: string, votes: { [playerId: string]: string }) 
     to_player_id: voted,
   }));
 
-  const { error } = await supabase
-    .from("votes")
-    .upsert(voteRecords);
-
+  const { error } = await supabase.from("votes").upsert(voteRecords);
   if (error) {
     console.error("[Backend] Error saving votes:", error);
   }
 };
 
 const saveMessages = async (tempRoomId: string, roomId: string) => {
+  const messages = roomsMessages[tempRoomId];
+  if (!messages) return;
+
   const messageRecords = roomsMessages[tempRoomId].map((message) => ({
     room_id: roomId,
     player_id: message.playerId,
@@ -400,10 +406,7 @@ const saveMessages = async (tempRoomId: string, roomId: string) => {
     is_player_ai: message.isPlayerAI,
   }));
 
-  const { error } = await supabase
-    .from("messages")
-    .upsert(messageRecords);
-
+  const { error } = await supabase.from("messages").upsert(messageRecords);
   if (error) {
     console.error("[Backend] Error saving messages:", error);
   }

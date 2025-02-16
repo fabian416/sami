@@ -24,8 +24,13 @@ PlayerServiceEmitter.on("playerRoomId", (data: { roomId: string, playerId: strin
 export const disconnectPlayer = (data: {roomId: string, playerId: string}) => {
   const { roomId, playerId } = data;
   const game = rooms[roomId];
-  if (game) {
+  if (game && game.status === "waiting") {
     _.remove(game.players, (player: Player) => player.id === playerId);
+  } else {
+    const player = game.players.find((p: Player) => p.id === playerId);
+    if (player) {
+      player.left = true;
+    }
   }
 }
 

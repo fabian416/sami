@@ -13,6 +13,7 @@ export interface Player{
     id: string;
     index?: number;
     isAI: boolean;
+    left: boolean;
     isEliminated: boolean; // Indicate if was eliminated because of votation of because it didn't fullfill the minimum 20 chars
 }
 
@@ -21,7 +22,8 @@ export const createPlayer = (playerId: string, isAI = false): Player => {
     return  {
         id: playerId,
         isAI,
-        isEliminated: false
+        isEliminated: false,
+        left: false,
     };
 };
 
