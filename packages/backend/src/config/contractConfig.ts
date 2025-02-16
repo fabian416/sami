@@ -16,15 +16,18 @@ const contract = new ethers.Contract("0x8d06D63e2D74413b972dCd23F943b3E73028f96F
 
 export const sendPrizesToWinners = async (winners: string[]) => {
     try {
+        console.log(`sendPrizesToWinners called with winners: ${JSON.stringify(winners)}`);
+
         if (winners.length === 0) {
             console.log("No winners, calling sendPrizes([]) to update SAMI stats.");
         } else {
             console.log(`Sending prizes to: ${winners.join(", ")}`);
         }
 
-        const tx = await contract.sendPrizes(winners);  // Always call to sendPrizes
-        await tx.wait();
+        const tx = await contract.sendPrizes(winners);
+        console.log("sendPrizes transaction sent:", tx.hash);
 
+        await tx.wait();
         console.log(`Prizes sent successfully to: ${winners.length > 0 ? winners.join(", ") : "No winners, SAMI won"}`);
     } catch (error) {
         console.error(`Error sending prizes:`, error);
