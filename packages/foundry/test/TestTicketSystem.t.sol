@@ -133,7 +133,7 @@ contract TestTicketSystem is Test {
 
     //     vm.startPrank(owner);
     //     ticketSystem.useTicket(ticketSystem.ticketCounter());
-    //     // vm.expectRevert("Ticket already used");
+    //     // vm.expectRevert();
     //     ticketSystem.useTicket(ticketSystem.ticketCounter());
     //     vm.stopPrank();
 

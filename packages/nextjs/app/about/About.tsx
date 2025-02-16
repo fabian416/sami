@@ -46,8 +46,8 @@ export const About = () => {
           <div className="flex flex-col items-center justify-center">
             <div className="hero-content flex-col lg:flex-row-reverse ">
               <Image
-                src="/avatar/2.png"
-                alt="A dollar bill traveling from one phone to another"
+                src="/avatar/2.jpg"
+                alt="Avatar of a SAMI impostor"
                 className="max-w-sm rounded-lg shadow-2xl mx-3"
                 width={300}
                 height={300}
