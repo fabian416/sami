@@ -77,11 +77,11 @@ export const About = () => {
         </div>
       </div>
 
-      <div className="w-full pt-6 bg-base-100">
+      <div className="w-full pt-6 ">
         <h1 className="text-4xl font-mono text-center">Meet the team! 🤖</h1>
       </div>
-      <div className="hero bg-base-100 ">
-        <div className="hero-content flex-col md:flex-row">
+      <div className="hero">
+        <div className="hero-content flex-col md:flex-row gap-9">
           <div className="flex flex-col  items-center gap-3 bg-base-100 rounded-lg border-2">
             <figure className="px-10 pt-5 flex-shrink-0">
               <Image src="/lulox.jpg" alt="Lulox" className="rounded-xl" width={200} height={200} />
