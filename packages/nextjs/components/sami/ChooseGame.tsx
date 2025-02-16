@@ -214,7 +214,7 @@ export const ChooseGame = ({ showGame }: any) => {
                   Bet&nbsp;
                   <span className="text-[#3DCCE1]">1&nbsp;</span>
                   <TokenLogo />, guess correctly and earn&nbsp;
-                  <span className="text-[#3DCCE1]">3&nbsp;</span>
+                  <span className="text-[#3DCCE1]">2&nbsp;</span>
                   <TokenLogo />
                 </span>
               </p>
