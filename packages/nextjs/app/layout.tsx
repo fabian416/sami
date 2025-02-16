@@ -5,13 +5,16 @@ import { ThemeProvider } from "~~/components/ThemeProvider";
 import "~~/styles/globals.css";
 import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
 
-export const metadata = getMetadata({ title: "SAMI", description: "Discover the AI and earn, or get rekt" });
+export const metadata = getMetadata({
+  title: "SAMI - Play against AI",
+  description: "Bet on who do you think is the AI and earn a profit.",
+  imageRelativePath: "/thumbnail.jpg",
+});
 
 const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
   return (
     <html suppressHydrationWarning>
       <head>
-        {" "}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
