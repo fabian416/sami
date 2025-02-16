@@ -65,7 +65,7 @@ export const About = () => {
                   This website is a game where you can optionally bet on who&apos;s the AI on a chat room.
                 </p>
                 <div className="flex justify-center">
-                  <Link href="/game" className="">
+                  <Link href="/" className="">
                     <button className="cool-button">Play now!</button>
                   </Link>
                 </div>
