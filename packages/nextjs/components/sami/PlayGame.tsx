@@ -154,7 +154,7 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
       socket.off("startVotePhase");
       socket.off("gameOver");
     };
-  }, [socket]);
+  }, [socket, playerId]);
 
   const sendMessage = (message: string) => {
     if (!socket || !roomId || !playerId) {
@@ -208,7 +208,7 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
                       <div className={`chat ${playerIndex === Number(msg.playerIndex) ? "chat-end" : "chat-start"}`}>
                         <div className="chat-image avatar">
                           <div className="w-10 rounded-full">
-                            <img alt="Tailwind CSS chat bubble component" src={AVATARS[Number(msg.playerIndex)]} />
+                            <Image alt="Player avatar" src={AVATARS[Number(msg.playerIndex)]} />
                           </div>
                         </div>
                         <div className="chat-header">
