@@ -17,7 +17,7 @@ const AGENT_URL = process.env.AGENT_URL;
 export const SAMI_URI = AGENT_URL || "http://localhost:3000";
 
 const MIN_PLAYERS = 3;
-const CONVERTATION_PHASE_TIME = 2 * 10 * 1000;
+const CONVERTATION_PHASE_TIME = 2 * 60 * 1000;
 const VOTING_PHASE_TIME = 30 * 1000;
 
 export interface Message {
