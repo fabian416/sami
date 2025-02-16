@@ -35,12 +35,12 @@ export const COLORS = [
 ];
 
 export const AVATARS = [
-  "/avatar/1.png",
-  "/avatar/2.png",
-  "/avatar/3.png",
-  "/avatar/4.png",
-  "/avatar/5.png",
-  "/avatar/6.png",
+  "/avatar/1.jpg",
+  "/avatar/2.jpg",
+  "/avatar/3.jpg",
+  "/avatar/4.jpg",
+  "/avatar/5.jpg",
+  "/avatar/6.jpg",
 ];
 
 const getPermutations = (str: string) => {
@@ -193,8 +193,9 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
           className={`col-span-2 md:col-span-1 flex flex-col items-center justify-between p-4 rounded-2xl shadow-lg overflow-y-scroll max-w-screen-sm
           ${isDarkMode ? "bg-[#2c2171] opacity-80 glow-purple" : "bg-white glow-purple"}`}
         >
+          <span className="w-full text-center">Chat and find out who is SAMI, the impostor AI</span>
           {/* Chat messages */}
-          <div className="flex-1 w-full p-2 overflow-y-scroll">
+          <div className="flex-1 w-full overflow-y-scroll">
             <div className={`mt-4 ${isDarkMode ? "text-white" : "text-black"}`}>
               {messages.map((msg, index) => {
                 const color = shuffledColors[Number(msg.playerIndex)];
