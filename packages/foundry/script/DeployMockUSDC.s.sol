@@ -2,7 +2,7 @@
 pragma solidity ^0.8.19;
 
 import "./DeployHelpers.s.sol";
-//import "../contracts/SimpleSAMI.sol";
+import { MockUSDC } from "../contracts/MockUSDC.sol";
 
 /**
  * @notice Deploy script for YourContract contract
@@ -14,7 +14,7 @@ import "./DeployHelpers.s.sol";
  * yarn deploy --file DeployYourContract.s.sol  # local anvil chain
  * yarn deploy --file DeployYourContract.s.sol --network optimism # live network (requires keystore)
  */
-contract DeployYourContract is ScaffoldETHDeploy {
+contract DeployMockUSDC is ScaffoldETHDeploy {
     /**
      * @dev Deployer setup based on `ETH_KEYSTORE_ACCOUNT` in `.env`:
      *      - "scaffold-eth-default": Uses Anvil's account #9 (0xa0Ee7A142d267C1f36714E4a8F75612F20a79720), no password prompt
@@ -24,7 +24,9 @@ contract DeployYourContract is ScaffoldETHDeploy {
      *      - Setup correct `deployer` account and fund it
      *      - Export contract addresses & ABIs to `nextjs` packages
      */
-    function run() external ScaffoldEthDeployerRunner {
-        // new SimpleSAMI(deployer);
+    function run() external ScaffoldEthDeployerRunner returns (address) {
+        MockUSDC mockUsdc = new MockUSDC();
+        console.logString(string.concat("MockUSDC deployed at: ", vm.toString(address(mockUsdc))));
+        return address(mockUsdc);
     }
 }

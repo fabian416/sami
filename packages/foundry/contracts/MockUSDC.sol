@@ -6,15 +6,16 @@ pragma solidity 0.8.20;
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { ERC20Permit } from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 
-contract MockMANTLE is ERC20, ERC20Permit {
-    constructor() ERC20("Usdc", "USDC") ERC20Permit("USDC") {
+contract MockUSDC is ERC20, ERC20Permit {
+    constructor() ERC20("USDC", "USDC") ERC20Permit("USDC") {
         _mint(msg.sender, 1000 * 10 ** 6);
     }
 
     function mint(address to, uint256 amount) external {
         _mint(to, amount);
     }
-    function decimals() public pure override returns(uint8) {
+
+    function decimals() public pure override returns (uint8) {
         return 6;
     }
 }
