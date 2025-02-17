@@ -16,7 +16,9 @@ export const io = new Server(server, {
         methods: ['GET', 'POST', 'OPTIONS'],
     },
     transports: ["websocket", "polling"],
-    allowEIO3: true
+    allowEIO3: true,
+    pingInterval: 30000,
+    pingTimeout: 5000,
 });
 
 export const players: { 
