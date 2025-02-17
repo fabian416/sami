@@ -170,22 +170,6 @@ export const ChooseGame = ({ showGame }: any) => {
       {loading && <ModalWaitingForPlayers isBetGame={isBetGame} />}
       {!loading && (loadingApprove || loadingBet) && <ModalWaitingForTransaction />}
       <div className="flex flex-col items-center w-full">
-        <h1 className="sami-title text-2xl md:text-7xl text-center mb-4 md:mb-12">
-          Who is&nbsp;
-          <span className="text-[#3DCCE1]">
-            SAMI&nbsp;
-            <Image
-              src="/logo.png"
-              alt="SAMI Logo"
-              width="90"
-              height="90"
-              className="inline-block align-middle" // Add this to align the image with the text
-            />
-            &nbsp;
-          </span>
-          ?!1
-        </h1>
-
         <div className="flex md:flex-row flex-col justify-center items-center w-full gap-10 md:gap-20">
           <div className="card bg-[#1CA297] opacity-80 text-white glow-cyan w-full md:w-96 shadow-xl mx-4">
             <div className="card-body text-center">
