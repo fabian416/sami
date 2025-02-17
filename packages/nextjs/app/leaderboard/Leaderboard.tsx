@@ -9,7 +9,7 @@ export const Leaderboard = () => {
   const { data: prizeSentEvents } = useScaffoldEventHistory({
     contractName: "TicketSystem",
     eventName: "PrizeSent",
-    fromBlock: 19051140n,
+    fromBlock: 0n,
     watch: true,
   });
 

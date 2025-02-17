@@ -48,7 +48,7 @@ contract TestTicketSystem is Test, ITicketSystem {
     }
 
     // Required override for using the interface
-    function buyTicket() external override { }
+    function buyTicket() external override returns (uint256) { }
 
     function testInitialParameters() public view {
         assertEq(address(USDC_TOKEN), address(ticketSystem.USDC_TOKEN()));

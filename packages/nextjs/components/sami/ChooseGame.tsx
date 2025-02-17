@@ -6,7 +6,12 @@ import { ModalWaitingForTransaction } from "./ModalWaitingForTransaction";
 import { v4 as uuidv4 } from "uuid";
 import { useAccount } from "wagmi";
 import { useSocket } from "~~/app/socketContext";
-import { useDeployedContractInfo, useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import {
+  useDeployedContractInfo,
+  useScaffoldEventHistory,
+  useScaffoldReadContract,
+  useScaffoldWriteContract,
+} from "~~/hooks/scaffold-eth";
 import { notification } from "~~/utils/scaffold-eth";
 
 interface Player {
@@ -43,6 +48,24 @@ export const ChooseGame = ({ showGame }: any) => {
     watch: true,
   });
   const [isBetGame, setIsBetGame] = useState<boolean>(false);
+
+  const { data: ticketBoughtEvents } = useScaffoldEventHistory({
+    contractName: "TicketSystem",
+    eventName: "TicketBought",
+    fromBlock: 0n,
+    watch: true,
+  });
+
+  useEffect(() => {
+    if (!ticketBoughtEvents || !connectedAddress) return;
+
+    ticketBoughtEvents.forEach(event => {
+      const { owner, ticketId } = event.args;
+      if (owner && owner.toLowerCase() === connectedAddress.toLowerCase()) {
+        console.log(`Ticket ID: ${ticketId}`);
+      }
+    });
+  }, [ticketBoughtEvents, connectedAddress]);
 
   useEffect(() => {
     allowance && allowance >= BigInt(1 * DECIMALS) && setLoadingApprove(false);
@@ -104,6 +127,8 @@ export const ChooseGame = ({ showGame }: any) => {
         functionName: "buyTicket",
         args: undefined,
       });
+
+      console.log("contractResponse", contractResponse);
 
       if (contractResponse) {
         notification.success("Ticket for a game bought successfully!");

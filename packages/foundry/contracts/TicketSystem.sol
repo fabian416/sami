@@ -28,7 +28,6 @@ contract TicketSystem is Ownable, ITicketSystem {
 
     mapping(uint256 => address) public ticketToOwner;
     mapping(uint256 => bool) public ticketUsed;
-    mapping(address => uint256[]) public ownerTickets;
 
     /*//////////////////////////////////////////////////////////////
                               CONSTRUCTOR
@@ -48,7 +47,7 @@ contract TicketSystem is Ownable, ITicketSystem {
     //////////////////////////////////////////////////////////////*/
 
     /// @notice Allows a user to buy a ticket by transferring the bet amount
-    /// @dev The user must approve the contract to spend the bet amount of MODE tokens
+    /// @dev The user must approve the contract to spend the bet amount of tokens
     function buyTicket() external override returns (uint256) {
         // Transferir el monto de la apuesta del usuario al contrato
         bool success = USDC_TOKEN.transferFrom(msg.sender, address(this), betAmount);
@@ -61,7 +60,6 @@ contract TicketSystem is Ownable, ITicketSystem {
         // Registrar el ticket
         uint256 _ticketId = ticketCounter++;
         ticketToOwner[_ticketId] = msg.sender;
-        ownerTickets[msg.sender].push(_ticketId);
 
         emit TicketBought(msg.sender, _ticketId);
 
@@ -79,24 +77,15 @@ contract TicketSystem is Ownable, ITicketSystem {
         if (ticketUsed[_ticketId]) revert TicketSystem__TicketAlreadyUsed();
 
         ticketUsed[_ticketId] = true;
-        // Remove the ticket from the owner's list
-        uint256[] storage tickets = ownerTickets[ticketToOwner[_ticketId]];
-        for (uint256 i = 0; i < tickets.length; i++) {
-            if (tickets[i] == _ticketId) {
-                tickets[i] = tickets[tickets.length - 1];
-                tickets.pop();
-                break;
-            }
-        }
 
         emit TicketUsed(msg.sender, _ticketId);
     }
 
     /// @notice Allows the owner to send the prize or not 3 players.
     /// @dev The contract must have sufficient reserves to send the prize.
-    /// @param _ticketIds The ticket ids of the winners who will receive the prize.
-    function sendPrizes(uint256[] memory _ticketIds) external onlyOwner {
-        uint256 numWinners = _ticketIds.length;
+    /// @param _winners The addresses of the winners who will receive the prize.
+    function sendPrizes(address[] memory _winners) external onlyOwner {
+        uint256 numWinners = _winners.length;
 
         totalRounds++;
         if (numWinners == 0) {
@@ -128,11 +117,11 @@ contract TicketSystem is Ownable, ITicketSystem {
 
         // Distribute and update liquidity
         for (uint256 i = 0; i < numWinners; i++) {
-            bool success = USDC_TOKEN.transfer(ticketToOwner[i], finalPayout);
+            bool success = USDC_TOKEN.transfer(_winners[i], finalPayout);
             if (success) {
-                emit PrizeSent(ticketToOwner[i], finalPayout);
+                emit PrizeSent(_winners[i], finalPayout);
             } else {
-                emit ErrorSendingPrize(ticketToOwner[i], finalPayout);
+                emit ErrorSendingPrize(_winners[i], finalPayout);
             }
         }
     }
@@ -199,5 +188,32 @@ contract TicketSystem is Ownable, ITicketSystem {
     function getWinRatioCoefficient() public view returns (uint256) {
         if (totalRounds == 0 || samiWins == 0) return DECIMALS;
         return (samiWins * DECIMALS) / totalRounds;
+    }
+
+    /// @notice Estimates the payout for each winner based on the current state of the contract
+    /// @param numWinners The number of winners
+    /// @return The estimated payout for each winner
+    function estimatePayout(uint256 numWinners) public view returns (uint256) {
+        if (numWinners == 0) return 0;
+
+        uint256 liquidityCoeff = getLiquidityCoefficient();
+        uint256 winRatioCoeff = getWinRatioCoefficient();
+
+        // Total pot already adjusted with the fee
+        uint256 totalPot = betAmount * 3;
+
+        // Base payment
+        uint256 basePayout = totalPot / numWinners;
+
+        // Adjust payments based on coefficients
+        uint256 calculatedPayout = basePayout;
+        calculatedPayout = (calculatedPayout * liquidityCoeff) / DECIMALS;
+        calculatedPayout = (calculatedPayout * winRatioCoeff) / DECIMALS;
+
+        // Guarante a minimum payout
+        uint256 minPayout = betAmount;
+        uint256 finalPayout = calculatedPayout > minPayout ? calculatedPayout : minPayout;
+
+        return finalPayout;
     }
 }

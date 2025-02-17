@@ -49,7 +49,7 @@ export const About = () => {
       </div>
 
       {/* Section 3: Who is SAMI? */}
-      <div className="hero bg-base-200">
+      <div className="hero bg-base-200 opacity-80">
         <div className="hero-content flex-col lg:flex-row-reverse lg:px-14">
           <div className="flex flex-col items-center justify-center">
             <div className="hero-content flex-col lg:flex-row-reverse">
@@ -83,7 +83,7 @@ export const About = () => {
       </div>
 
       {/* Section 4: RLHF and Turing Test */}
-      <div className="hero bg-base-300">
+      <div className="hero bg-base-300 opacity-80">
         <div className="hero-content flex-col lg:flex-row-reverse lg:px-14">
           <div className="flex flex-col items-center justify-center">
             <div className="hero-content flex-col lg:flex-row-reverse">

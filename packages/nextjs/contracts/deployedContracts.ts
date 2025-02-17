@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   31337: {
     MockUSDC: {
-      address: "0x700b6a60ce7eaaea56f065753d8dcb9653dbad35",
+      address: "0x8ce361602b935680e8dec218b820ff5056beb7af",
       abi: [
         {
           type: "constructor",
@@ -552,11 +552,11 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deploymentFile: "run-1739823411.json",
+      deploymentFile: "run-1739832907.json",
       deploymentScript: "Deploy.s.sol",
     },
     TicketSystem: {
-      address: "0xa15bb66138824a1c7167f5e85b957d04dd34e468",
+      address: "0xe1aa25618fa0c7a1cfdab5d6b456af611873b629",
       abi: [
         {
           type: "constructor",
@@ -735,9 +735,9 @@ const deployedContracts = {
           name: "sendPrizes",
           inputs: [
             {
-              name: "_ticketIds",
-              type: "uint256[]",
-              internalType: "uint256[]",
+              name: "_winners",
+              type: "address[]",
+              internalType: "address[]",
             },
           ],
           outputs: [],
@@ -867,19 +867,6 @@ const deployedContracts = {
               name: "newOwner",
               type: "address",
               internalType: "address",
-            },
-          ],
-          outputs: [],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "function",
-          name: "useTicket",
-          inputs: [
-            {
-              name: "_ticketId",
-              type: "uint256",
-              internalType: "uint256",
             },
           ],
           outputs: [],
@@ -1112,7 +1099,7 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deploymentFile: "run-1739823411.json",
+      deploymentFile: "run-1739832907.json",
       deploymentScript: "Deploy.s.sol",
     },
   },
