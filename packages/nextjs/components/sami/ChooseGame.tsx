@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import { TokenLogo } from "../Header";
 import { RainbowKitCustomConnectButton } from "../scaffold-eth";
 import { ModalWaitingForPlayers } from "./ModalWaitingForPlayers";
