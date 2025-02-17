@@ -8,9 +8,10 @@ import { ITicketSystem } from "./ITicketSystem.sol";
 /// @title SimpleSAMI - A simple contract for managing tickets and prizes
 /// @notice This contract allows users to buy tickets to play SAMI, , use them, and allows the owner to send prizes.
 contract TicketSystem is Ownable, ITicketSystem {
-    //////////////////////////////////////////
-    // State Variables
-    //////////////////////////////////////////
+    /*//////////////////////////////////////////////////////////////
+                            STATE VARIABLES
+    //////////////////////////////////////////////////////////////*/
+
     ///@notice USDC Mantle for bets token has 18 decimals
     IERC20 public immutable USDC_TOKEN;
     uint256 public constant DECIMALS = 1e6;
@@ -28,9 +29,9 @@ contract TicketSystem is Ownable, ITicketSystem {
     mapping(uint256 => address) public ticketToOwner;
     mapping(uint256 => bool) public ticketUsed;
 
-    //////////////////////////////////////////
-    // Constructor
-    //////////////////////////////////////////
+    /*//////////////////////////////////////////////////////////////
+                              CONSTRUCTOR
+    //////////////////////////////////////////////////////////////*/
 
     /// @notice Initializes the Token usdc address
     /// @dev We set 2000 usd with 6 decimals as initial threshold,
@@ -41,16 +42,16 @@ contract TicketSystem is Ownable, ITicketSystem {
         houseFee = 1e4; // 1% = 1 * 10^4 (To represent 0.01 with 6 decimals)
     }
 
-    //////////////////////////////////////////
-    // Functions
-    //////////////////////////////////////////
+    /*//////////////////////////////////////////////////////////////
+                               FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @notice Allows a user to buy a ticket by transferring the bet amount
     /// @dev The user must approve the contract to spend the bet amount of MODE tokens
     function buyTicket() external override {
         // Transferir el monto de la apuesta del usuario al contrato
         bool success = USDC_TOKEN.transferFrom(msg.sender, address(this), betAmount);
-        require(success, "Transfer failed");
+        if (!success) revert TicketSystem__TransferFailed();
 
         // Calcular y almacenar la comisión de la casa
         uint256 feeAmount = (betAmount * houseFee) / DECIMALS;
@@ -63,11 +64,15 @@ contract TicketSystem is Ownable, ITicketSystem {
         emit TicketBought(msg.sender, ticketCounter);
     }
 
+    /*//////////////////////////////////////////////////////////////
+                            OWNER FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
+
     /// @notice Allows a user to use a ticket they own
     /// @dev The ticket must not have been used before
     /// @param _ticketId The ID of the ticket to be used
     function useTicket(uint256 _ticketId) external onlyOwner {
-        require(!ticketUsed[_ticketId], "Ticket already used");
+        if (ticketUsed[_ticketId]) revert TicketSystem__TicketAlreadyUsed();
 
         ticketUsed[_ticketId] = true;
 
@@ -103,7 +108,10 @@ contract TicketSystem is Ownable, ITicketSystem {
         uint256 minPayout = betAmount;
         uint256 finalPayout = calculatedPayout > minPayout ? calculatedPayout : minPayout;
 
-        require(USDC_TOKEN.balanceOf(address(this)) - collectedFees >= finalPayout * numWinners, "Not enough reserves");
+        if (finalPayout * numWinners > USDC_TOKEN.balanceOf(address(this)) - collectedFees) {
+            revert TicketSystem__NotEnoughReserves();
+        }
+
         // Distribute and update liquidity
         for (uint256 i = 0; i < numWinners; i++) {
             bool success = USDC_TOKEN.transfer(_winners[i], finalPayout);
@@ -124,9 +132,10 @@ contract TicketSystem is Ownable, ITicketSystem {
     /// @param _amount The amount of fees to withdraw.
 
     function withdrawFees(uint256 _amount) external onlyOwner {
-        require(_amount <= collectedFees, "Not enough fees collected");
+        if (_amount > collectedFees) revert TicketSystem__NotEnoughFeesCollected();
         collectedFees -= _amount;
-        require(USDC_TOKEN.transfer(owner(), _amount), "Fee withdrawal failed");
+        bool success = USDC_TOKEN.transfer(owner(), _amount);
+        if (!success) revert TicketSystem__FeeWithdrawalFailed();
     }
 
     /// @notice Allows the owner to set the bet amount required to buy a ticket
@@ -137,31 +146,36 @@ contract TicketSystem is Ownable, ITicketSystem {
 
     ///@notice Sets the threshold value used for liquidity calculations.
     ///@dev The new threshold must be greater than zero. It is multiplied by 1e6 to match 6 decimal precision.
-    ///@param _newThrewshold The new threshold value to set.
-    function setThreshold(uint256 _newThrewshold) external onlyOwner {
-        require(_newThrewshold > 0, "Invalid Amount");
-        threshold = _newThrewshold * DECIMALS;
+    ///@param _newThreshold The new threshold value to set.
+    function setThreshold(uint256 _newThreshold) external onlyOwner {
+        if (_newThreshold == 0) revert TicketSystem__InvalidAmount();
+        threshold = _newThreshold * DECIMALS;
         emit ThresholdChanged(threshold);
     }
+
     ///@notice Updates the house fee applied to bets.
     ///@dev The house fee should be expressed with 6 decimals (e.g., 1% = 1e4).
     ///@param _newHouseFee The new house fee percentage in 6 decimal precision.
-
     function setHouseFee(uint256 _newHouseFee) external onlyOwner {
-        require(_newHouseFee > 0, "Invalid Amount");
+        if (_newHouseFee == 0) revert TicketSystem__InvalidAmount();
         houseFee = _newHouseFee * 1e4;
         emit HouseFeeChanged(_newHouseFee);
     }
+
+    /*//////////////////////////////////////////////////////////////
+                             VIEW FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
+
     ///@notice Calculates the liquidity coefficient (L/T).
     ///@dev Returns 1e6 (1.0) if the threshold is zero to prevent division by zero.
     ///@return The liquidity coefficient with 6 decimal precision.
-
     function getLiquidityCoefficient() public view returns (uint256) {
         uint256 contractBalance = USDC_TOKEN.balanceOf(address(this));
         uint256 effectiveLiquidity = contractBalance - collectedFees; // Excluir fees acumulados
         if (threshold == 0) return DECIMALS; // Evita división por cero
         return (effectiveLiquidity * DECIMALS) / threshold; // L / T con 6 decimales
     }
+
     ///@notice Calculates the win ratio coefficient (S/P).
     ///@dev Returns 1e6 (1.0) if no rounds have been played to prevent division by zero.
     ///@return The win ratio coefficient with 6 decimal precision.

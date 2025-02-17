@@ -4,19 +4,10 @@ pragma solidity ^0.8.0;
 import { Test } from "forge-std/Test.sol";
 import { console } from "forge-std/console.sol";
 import { TicketSystem } from "contracts/TicketSystem.sol";
+import { ITicketSystem } from "contracts/ITicketSystem.sol";
 import { MockUSDC } from "contracts/MockUSDC.sol";
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { DeployScript } from "script/Deploy.s.sol";
 
-contract TestTicketSystem is Test {
-    // Events
-    event TicketBought(address indexed owner, uint256 ticketId);
-    event TicketUsed(address indexed owner, uint256 ticketId);
-    event PrizeSent(address indexed winner, uint256 amount);
-    event ErrorSendingPrize(address indexed winner, uint256 amount);
-    event ThresholdChanged(uint256 newThreshold);
-    event HouseFeeChanged(uint256 newHouseFee);
-
+contract TestTicketSystem is Test, ITicketSystem {
     // Constants
     uint256 internal constant DECIMALS = 1e6;
     uint256 internal constant STARTING_GAS_BALANCE = 10 ether;
@@ -55,6 +46,9 @@ contract TestTicketSystem is Test {
         USDC_TOKEN.mint(address(player3), 10 * DECIMALS);
         vm.stopPrank();
     }
+
+    // Required override for using the interface
+    function buyTicket() external override { }
 
     function testInitialParameters() public view {
         assertEq(address(USDC_TOKEN), address(ticketSystem.USDC_TOKEN()));
@@ -133,7 +127,7 @@ contract TestTicketSystem is Test {
 
     //     vm.startPrank(owner);
     //     ticketSystem.useTicket(ticketSystem.ticketCounter());
-    //     // vm.expectRevert();
+    //     vm.expectRevert(ITicketSystem.TicketSystem__TicketAlreadyUsed.selector);
     //     ticketSystem.useTicket(ticketSystem.ticketCounter());
     //     vm.stopPrank();
 
