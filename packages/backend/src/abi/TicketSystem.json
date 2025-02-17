@@ -13,6 +13,13 @@
     },
     {
       "type": "function",
+      "name": "DECIMALS",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
       "name": "USDC_TOKEN",
       "inputs": [],
       "outputs": [
@@ -71,17 +78,20 @@
     },
     {
       "type": "function",
+      "name": "ownerTickets",
+      "inputs": [
+        { "name": "", "type": "address", "internalType": "address" },
+        { "name": "", "type": "uint256", "internalType": "uint256" }
+      ],
+      "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
       "name": "renounceOwnership",
       "inputs": [],
       "outputs": [],
       "stateMutability": "nonpayable"
-    },
-    {
-      "type": "function",
-      "name": "samiReserves",
-      "inputs": [],
-      "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
-      "stateMutability": "view"
     },
     {
       "type": "function",
@@ -94,7 +104,11 @@
       "type": "function",
       "name": "sendPrizes",
       "inputs": [
-        { "name": "_winners", "type": "address[]", "internalType": "address[]" }
+        {
+          "name": "_ticketIds",
+          "type": "uint256[]",
+          "internalType": "uint256[]"
+        }
       ],
       "outputs": [],
       "stateMutability": "nonpayable"
@@ -122,7 +136,7 @@
       "name": "setThreshold",
       "inputs": [
         {
-          "name": "_newThrewshold",
+          "name": "_newThreshold",
           "type": "uint256",
           "internalType": "uint256"
         }
@@ -200,6 +214,19 @@
       ],
       "outputs": [],
       "stateMutability": "nonpayable"
+    },
+    {
+      "type": "event",
+      "name": "BetAmountChanged",
+      "inputs": [
+        {
+          "name": "newBetAmount",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        }
+      ],
+      "anonymous": false
     },
     {
       "type": "event",
@@ -323,6 +350,19 @@
       "anonymous": false
     },
     {
+      "type": "event",
+      "name": "WithdrawFromReserves",
+      "inputs": [
+        {
+          "name": "amount",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        }
+      ],
+      "anonymous": false
+    },
+    {
       "type": "error",
       "name": "OwnableInvalidOwner",
       "inputs": [
@@ -335,6 +375,28 @@
       "inputs": [
         { "name": "account", "type": "address", "internalType": "address" }
       ]
-    }
+    },
+    {
+      "type": "error",
+      "name": "TicketSystem__FeeWithdrawalFailed",
+      "inputs": []
+    },
+    { "type": "error", "name": "TicketSystem__InvalidAmount", "inputs": [] },
+    {
+      "type": "error",
+      "name": "TicketSystem__NotEnoughFeesCollected",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "TicketSystem__NotEnoughReserves",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "TicketSystem__TicketAlreadyUsed",
+      "inputs": []
+    },
+    { "type": "error", "name": "TicketSystem__TransferFailed", "inputs": [] }
   ]
 }

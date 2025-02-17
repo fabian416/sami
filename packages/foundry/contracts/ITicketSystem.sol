@@ -49,5 +49,5 @@ interface ITicketSystem {
                                FUNCTIONS
     //////////////////////////////////////////////////////////////*/
 
-    function buyTicket() external;
+    function buyTicket() external returns (uint256);
 }

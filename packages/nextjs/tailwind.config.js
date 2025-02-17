@@ -44,7 +44,6 @@ module.exports = {
           "base-200": "#1E293B", // Layered depth
           "base-300": "#2D3748", // Metallic accent layer
           "base-content": "#E2E8F0", // Bright futuristic text
-
           info: "#5B7DB1", // Matching accent color
           success: "#34EEB6", // Glowing green (keep existing)
           warning: "#FFE08A", // Brighter amber

@@ -49,7 +49,7 @@ contract TicketSystem is Ownable, ITicketSystem {
 
     /// @notice Allows a user to buy a ticket by transferring the bet amount
     /// @dev The user must approve the contract to spend the bet amount of MODE tokens
-    function buyTicket() external override {
+    function buyTicket() external override returns (uint256) {
         // Transferir el monto de la apuesta del usuario al contrato
         bool success = USDC_TOKEN.transferFrom(msg.sender, address(this), betAmount);
         if (!success) revert TicketSystem__TransferFailed();
@@ -64,6 +64,8 @@ contract TicketSystem is Ownable, ITicketSystem {
         ownerTickets[msg.sender].push(_ticketId);
 
         emit TicketBought(msg.sender, _ticketId);
+
+        return _ticketId;
     }
 
     /*//////////////////////////////////////////////////////////////

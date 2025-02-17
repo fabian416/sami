@@ -552,7 +552,7 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deploymentFile: "run-1739806821.json",
+      deploymentFile: "run-1739823411.json",
       deploymentScript: "Deploy.s.sol",
     },
     TicketSystem: {
@@ -612,7 +612,13 @@ const deployedContracts = {
           type: "function",
           name: "buyTicket",
           inputs: [],
-          outputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
           stateMutability: "nonpayable",
         },
         {
@@ -1106,7 +1112,7 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deploymentFile: "run-1739806821.json",
+      deploymentFile: "run-1739823411.json",
       deploymentScript: "Deploy.s.sol",
     },
   },
