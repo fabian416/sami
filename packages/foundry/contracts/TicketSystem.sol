@@ -81,9 +81,10 @@ contract TicketSystem is Ownable, ITicketSystem {
 
     /// @notice Allows the owner to send the prize or not 3 players.
     /// @dev The contract must have sufficient reserves to send the prize.
-    /// @param _winners The addresses of the winners who might receive the prize. If they don't win we update liquidity.
-    function sendPrizes(address[] memory _winners) external onlyOwner {
-        uint256 numWinners = _winners.length;
+    /// @param _ticketIds The ticket ids of the winners who will receive the prize.
+    function sendPrizes(uint256[] memory _ticketIds) external onlyOwner {
+        uint256 numWinners = _ticketIds.length;
+
         totalRounds++;
         if (numWinners == 0) {
             samiWins++; // If nobody wins, we update sami wins
@@ -114,11 +115,11 @@ contract TicketSystem is Ownable, ITicketSystem {
 
         // Distribute and update liquidity
         for (uint256 i = 0; i < numWinners; i++) {
-            bool success = USDC_TOKEN.transfer(_winners[i], finalPayout);
+            bool success = USDC_TOKEN.transfer(ticketToOwner[i], finalPayout);
             if (success) {
-                emit PrizeSent(_winners[i], finalPayout);
+                emit PrizeSent(ticketToOwner[i], finalPayout);
             } else {
-                emit ErrorSendingPrize(_winners[i], finalPayout);
+                emit ErrorSendingPrize(ticketToOwner[i], finalPayout);
             }
         }
     }
@@ -180,7 +181,7 @@ contract TicketSystem is Ownable, ITicketSystem {
     ///@dev Returns 1e6 (1.0) if no rounds have been played to prevent division by zero.
     ///@return The win ratio coefficient with 6 decimal precision.
     function getWinRatioCoefficient() public view returns (uint256) {
-        if (totalRounds == 0 || samiWins == 0) return DECIMALS; 
+        if (totalRounds == 0 || samiWins == 0) return DECIMALS;
         return (samiWins * DECIMALS) / totalRounds;
     }
 }
