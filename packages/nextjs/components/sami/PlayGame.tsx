@@ -208,7 +208,7 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
                       <div className={`chat ${playerIndex === Number(msg.playerIndex) ? "chat-end" : "chat-start"}`}>
                         <div className="chat-image avatar">
                           <div className="w-10 rounded-full">
-                            <Image alt="Player avatar" src={AVATARS[Number(msg.playerIndex)]} />
+                            <Image alt="Player avatar" src={AVATARS[Number(msg.playerIndex)]} width={50} height={50} />
                           </div>
                         </div>
                         <div className="chat-header">

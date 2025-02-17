@@ -74,10 +74,10 @@ export const Header = () => {
 
   const { address: connectedAddress, isConnected } = useAccount();
 
-  const { writeContractAsync: MODEwriteContractAsync } = useScaffoldWriteContract("MockMANTLE");
+  const { writeContractAsync: MODEwriteContractAsync } = useScaffoldWriteContract("MockUSDC");
 
   const { data: balance } = useScaffoldReadContract({
-    contractName: "MockMANTLE",
+    contractName: "MockUSDC",
     functionName: "balanceOf",
     args: [connectedAddress],
     watch: true,
@@ -162,7 +162,7 @@ export const Header = () => {
           typeof balance !== "undefined" &&
           (balance < BigInt(3 * DECIMALS) ? (
             <button
-              className="flex flex-row btn btn-primary bg-[#2672BE] glow-blue mr-2 text-white border-0 shadow-[0_0_10px_#A1CA00] btn-sm text-xl"
+              className="flex flex-row btn btn-primary bg-[#2672BE] hover:bg-[#2672BE] glow-blue mr-2 text-white border-0 shadow-[0_0_10px_#A1CA00] btn-sm text-xl"
               onClick={handleMint}
             >
               <div className="text-sm">Get $USDC</div>

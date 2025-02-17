@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   31337: {
     MockUSDC: {
-      address: "0x9f3f7b9be04712a8588f1b36db49dd349496ca35",
+      address: "0x700b6a60ce7eaaea56f065753d8dcb9653dbad35",
       abi: [
         {
           type: "constructor",
@@ -552,11 +552,11 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deploymentFile: "run-1739753147.json",
+      deploymentFile: "run-1739806821.json",
       deploymentScript: "Deploy.s.sol",
     },
     TicketSystem: {
-      address: "0xe60d0fe2a9bdb8fd24294ac5308b2378c60278d5",
+      address: "0xa15bb66138824a1c7167f5e85b957d04dd34e468",
       abi: [
         {
           type: "constructor",
@@ -676,6 +676,30 @@ const deployedContracts = {
               name: "",
               type: "address",
               internalType: "address",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "ownerTickets",
+          inputs: [
+            {
+              name: "",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
             },
           ],
           stateMutability: "view",
@@ -883,6 +907,19 @@ const deployedContracts = {
         },
         {
           type: "event",
+          name: "BetAmountChanged",
+          inputs: [
+            {
+              name: "newBetAmount",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "event",
           name: "ErrorSendingPrize",
           inputs: [
             {
@@ -1003,6 +1040,19 @@ const deployedContracts = {
           anonymous: false,
         },
         {
+          type: "event",
+          name: "WithdrawFromReserves",
+          inputs: [
+            {
+              name: "amount",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+          ],
+          anonymous: false,
+        },
+        {
           type: "error",
           name: "OwnableInvalidOwner",
           inputs: [
@@ -1056,7 +1106,7 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deploymentFile: "run-1739753147.json",
+      deploymentFile: "run-1739806821.json",
       deploymentScript: "Deploy.s.sol",
     },
   },

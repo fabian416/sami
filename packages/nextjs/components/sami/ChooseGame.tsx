@@ -25,19 +25,19 @@ export const ChooseGame = ({ showGame }: any) => {
   const [loadingBet, setLoadingBet] = useState(false);
   const { socket, isConnected, playerId, setPlayerId, setPlayerIndex, setRoomId } = useSocket();
   const { address: connectedAddress } = useAccount();
-  const { writeContractAsync: MANTLEwriteContractAsync } = useScaffoldWriteContract("MockMANTLE");
+  const { writeContractAsync: USDCwriteContractAsync } = useScaffoldWriteContract("MockUSDC");
   const { writeContractAsync: ticketSystemwriteContractAsync } = useScaffoldWriteContract("TicketSystem");
   const { data: ticketSystemContractData } = useDeployedContractInfo("TicketSystem");
 
   const { data: samiBalance } = useScaffoldReadContract({
-    contractName: "MockMANTLE",
+    contractName: "MockUSDC",
     functionName: "balanceOf",
     args: [ticketSystemContractData?.address],
     watch: true,
   });
 
   const { data: allowance } = useScaffoldReadContract({
-    contractName: "MockMANTLE",
+    contractName: "MockUSDC",
     functionName: "allowance",
     args: [connectedAddress, ticketSystemContractData?.address],
     watch: true,
@@ -77,7 +77,7 @@ export const ChooseGame = ({ showGame }: any) => {
 
     setLoadingApprove(true);
     try {
-      const contractResponse = await MANTLEwriteContractAsync({
+      const contractResponse = await USDCwriteContractAsync({
         functionName: "approve",
         args: [ticketSystemContractData?.address, BigInt(1 * DECIMALS)],
       });

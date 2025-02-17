@@ -1,9 +1,10 @@
 import { useRef, useState } from "react";
 import { NetworkOptions } from "./NetworkOptions";
+import { PunkBalance } from "./PunkBalance";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { getAddress } from "viem";
 import { Address } from "viem";
-import { useDisconnect } from "wagmi";
+import { useAccount, useDisconnect } from "wagmi";
 import {
   ArrowLeftOnRectangleIcon,
   ArrowTopRightOnSquareIcon,
@@ -38,6 +39,9 @@ export const AddressInfoDropdown = ({
   const [addressCopied, setAddressCopied] = useState(false);
 
   const [selectingNetwork, setSelectingNetwork] = useState(false);
+
+  const { address: connectedAddress } = useAccount();
+
   const dropdownRef = useRef<HTMLDetailsElement>(null);
   const closeDropdown = () => {
     setSelectingNetwork(false);
@@ -59,6 +63,9 @@ export const AddressInfoDropdown = ({
           tabIndex={0}
           className="dropdown-content menu z-[2] p-2 mt-2 shadow-center shadow-accent bg-base-200 rounded-box gap-1"
         >
+          <div className="flex lg:hidden justify-center">
+            <PunkBalance address={connectedAddress} />
+          </div>
           <NetworkOptions hidden={!selectingNetwork} />
           <li className={selectingNetwork ? "hidden" : ""}>
             {addressCopied ? (
