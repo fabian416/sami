@@ -36,7 +36,7 @@ export const Leaderboard = () => {
     ? Object.entries(aggregatedWinners)
         .map(([winner, totalAmount]) => ({
           winner,
-          totalAmount,
+          totalAmount: totalAmount as number,
         }))
         .sort((a, b) => b.totalAmount - a.totalAmount) // Sort by totalAmount in descending order
     : [];

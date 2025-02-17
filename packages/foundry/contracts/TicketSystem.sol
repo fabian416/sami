@@ -28,6 +28,7 @@ contract TicketSystem is Ownable, ITicketSystem {
 
     mapping(uint256 => address) public ticketToOwner;
     mapping(uint256 => bool) public ticketUsed;
+    mapping(address => uint256[]) public ownerTickets;
 
     /*//////////////////////////////////////////////////////////////
                               CONSTRUCTOR
@@ -58,10 +59,11 @@ contract TicketSystem is Ownable, ITicketSystem {
         collectedFees += feeAmount; // Acumular los fees
 
         // Registrar el ticket
-        ticketCounter++;
-        ticketToOwner[ticketCounter] = msg.sender;
+        uint256 _ticketId = ticketCounter++;
+        ticketToOwner[_ticketId] = msg.sender;
+        ownerTickets[msg.sender].push(_ticketId);
 
-        emit TicketBought(msg.sender, ticketCounter);
+        emit TicketBought(msg.sender, _ticketId);
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -75,6 +77,15 @@ contract TicketSystem is Ownable, ITicketSystem {
         if (ticketUsed[_ticketId]) revert TicketSystem__TicketAlreadyUsed();
 
         ticketUsed[_ticketId] = true;
+        // Remove the ticket from the owner's list
+        uint256[] storage tickets = ownerTickets[ticketToOwner[_ticketId]];
+        for (uint256 i = 0; i < tickets.length; i++) {
+            if (tickets[i] == _ticketId) {
+                tickets[i] = tickets[tickets.length - 1];
+                tickets.pop();
+                break;
+            }
+        }
 
         emit TicketUsed(msg.sender, _ticketId);
     }
@@ -128,6 +139,7 @@ contract TicketSystem is Ownable, ITicketSystem {
     /// @param _amount The amount of tokens to withdraw
     function withdraw(uint256 _amount) external onlyOwner {
         USDC_TOKEN.transfer(owner(), _amount);
+        emit WithdrawFromReserves(_amount);
     }
     /// @notice Allows the owner to withdraw the collected house fees.
     /// @param _amount The amount of fees to withdraw.
@@ -137,12 +149,14 @@ contract TicketSystem is Ownable, ITicketSystem {
         collectedFees -= _amount;
         bool success = USDC_TOKEN.transfer(owner(), _amount);
         if (!success) revert TicketSystem__FeeWithdrawalFailed();
+        emit WithdrawFromReserves(_amount);
     }
 
     /// @notice Allows the owner to set the bet amount required to buy a ticket
     /// @param _betAmount The new bet amount
     function setBetAmount(uint256 _betAmount) external onlyOwner {
         betAmount = _betAmount;
+        emit BetAmountChanged(_betAmount);
     }
 
     ///@notice Sets the threshold value used for liquidity calculations.

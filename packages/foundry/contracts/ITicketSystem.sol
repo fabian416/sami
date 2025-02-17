@@ -37,6 +37,10 @@ interface ITicketSystem {
     /// @param amount The amount of tokens that failed
     event ErrorSendingPrize(address indexed winner, uint256 amount);
 
+    event WithdrawFromReserves(uint256 amount);
+
+    event BetAmountChanged(uint256 newBetAmount);
+
     event ThresholdChanged(uint256 newThreshold);
 
     event HouseFeeChanged(uint256 newHouseFee);
