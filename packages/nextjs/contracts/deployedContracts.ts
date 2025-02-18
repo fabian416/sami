@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   84532: {
     MockUSDC: {
-      address: "0x7de40d71ca3b5dbfe1b43d669098b75a297be464",
+      address: "0x7f5e7ae03ea180fd02307ea8ae03f2dcdafd5f01",
       abi: [
         {
           type: "constructor",
@@ -552,11 +552,11 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deploymentFile: "run-1739841909.json",
+      deploymentFile: "run-1739843322.json",
       deploymentScript: "Deploy.s.sol",
     },
     SimpleSAMI: {
-      address: "0x50d7b9b557f5e77dc2d782096acca9d15cd8cb67",
+      address: "0x16e6f5c9bf9b2f0760f6f2d84bd4a31a6a3342cb",
       abi: [
         {
           type: "constructor",
@@ -818,7 +818,7 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deploymentFile: "run-1739841909.json",
+      deploymentFile: "run-1739843322.json",
       deploymentScript: "Deploy.s.sol",
     },
   },
