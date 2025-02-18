@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import CountdownClock from "./CountdownClock";
+import CountdownClock, { startCountdown } from "./CountdownClock";
 import { ModalFinished } from "./ModalFinished";
 import { ModalForVoting } from "./ModalForVoting";
 import { useTheme } from "next-themes";
@@ -64,10 +64,11 @@ export const PlayGame = () => {
   const [currentPhase, setCurrentPhase] = useState<"conversation" | "voting" | "finished">("conversation");
   const [winner, setWinner] = useState<string | null>(null);
   const [isBetGame, setIsBetGame] = useState<boolean | null>(false);
-  const [shuffledColors, setShuffledColors] = useState<string[]>([]);
-  const [shuffledNames, setShuffledNames] = useState<string[]>([]);
   const [chatDisabled, setChatDisabled] = useState<boolean>(false);
   const [focusInput, setFocusInput] = useState<boolean>(true);
+  const [timeLeft, setTimeLeft] = useState<number>(0);
+  const [maxTime, setMaxTime] = useState<number>(0);
+  const [endTime, setEndTime] = useState<number>(0);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -78,16 +79,26 @@ export const PlayGame = () => {
   const isDarkMode = resolvedTheme === "dark";
 
   useEffect(() => {
+    if (!socket) return;
+
+    const handleStartCountdown = (data: { timeBeforeEnds: number; serverTime: number }) => {
+      startCountdown({ data, setMaxTime, setTimeLeft, setEndTime });
+    };
+    socket.on("startConversationPhase", handleStartCountdown);
+    socket.on("startVotePhase", handleStartCountdown);
+
+    return () => {
+      socket.off("startConversationPhase", handleStartCountdown);
+      socket.off("startVotePhase", handleStartCountdown);
+    };
+  }, [socket]);
+
+  useEffect(() => {
     if (focusInput) {
       inputRef.current?.focus();
       setFocusInput(false);
     }
   }, [focusInput]);
-
-  useEffect(() => {
-    setShuffledColors(COLORS);
-    setShuffledNames(NAMES);
-  }, []);
 
   useEffect(() => {
     if (!socket) return;
@@ -166,17 +177,17 @@ export const PlayGame = () => {
       {currentPhase === "voting" && (
         <ModalForVoting
           players={players}
-          shuffledColors={shuffledColors}
-          shuffledNames={shuffledNames}
-          avatars={AVATARS}
           setMessages={undefined}
+          timeLeft={timeLeft}
+          maxTime={maxTime}
+          endTime={endTime}
         />
       )}
 
       {/* Modal Finished  */}
       {currentPhase === "finished" && <ModalFinished winner={winner} isBetGame={isBetGame} />}
 
-      <div className="flex-grow grid grid-cols-2 gap-9 rounded-2xl backdrop-brightness-95 flex-col h-[calc(100vh-12rem)] md:h-[calc(100vh-9rem)]">
+      <div className="flex-grow grid grid-cols-2 gap-9 m-4 rounded-2xl backdrop-brightness-95 flex-col h-[calc(100vh-12rem)] md:h-[calc(100vh-9rem)]">
         <div
           className={`col-span-2 md:col-span-1 flex flex-col items-center justify-between p-4 rounded-2xl shadow-lg overflow-y-scroll max-w-screen-sm
           ${isDarkMode ? "bg-[#2c2171] opacity-80 glow-purple" : "bg-white glow-purple"}`}
@@ -184,29 +195,26 @@ export const PlayGame = () => {
           <span className="w-full text-center">Chat and find out who is SAMI, the impostor AI</span>
           {/* Chat messages */}
           <div className="flex-1 w-full overflow-y-scroll">
-            <div className={`mt-4 ${isDarkMode ? "text-white" : "text-black"}`}>
+            <div className={`mt-2 ${isDarkMode ? "text-white" : "text-black"}`}>
               {messages.map((msg, index) => {
-                const color = shuffledColors[Number(msg.playerIndex)];
-                const name = shuffledNames[Number(msg.playerIndex)];
+                const color = COLORS[Number(msg.playerIndex)];
+                const name = NAMES[Number(msg.playerIndex)];
                 return (
-                  <div key={index} className={`text-left mb-1 ${color}`}>
+                  <div key={index} className={`text-left ${color}`}>
                     <div
                       className={`flex flex-row items-end ${playerIndex === Number(msg.playerIndex) ? "justify-end" : "justify-start"}`}
                     >
                       <div className={`chat ${playerIndex === Number(msg.playerIndex) ? "chat-end" : "chat-start"}`}>
-                        <div className="chat-image avatar">
-                          <div className="w-10 rounded-full">
+                        <div className="chat-image avatar flex flex-col">
+                          <strong className={`text-xs ${color}`}>{name}</strong>{" "}
+                          <div className="w-8 rounded-full">
                             <Image alt="Player avatar" src={AVATARS[Number(msg.playerIndex)]} width={50} height={50} />
                           </div>
-                        </div>
-                        <div className="chat-header">
-                          <strong className={`${color}`}>{name}</strong>{" "}
                         </div>
                         <div className="chat-bubble max-w-fit w-auto bg-gray-700 dark:bg-gray-200 border-0">
                           {msg.playerId ? (
                             <>
-                              {/* <strong className={`${color}`}>{name}:</strong>{" "} */}
-                              <span className={`${color} pr-3`}>{msg.message}</span>
+                              <span className={`${color} px-1`}>{msg.message}</span>
                             </>
                           ) : (
                             <strong>{msg.message}</strong>
@@ -251,7 +259,7 @@ export const PlayGame = () => {
           </div>
 
           {/* Clock */}
-          <CountdownClock />
+          {currentPhase === "conversation" && <CountdownClock />}
         </div>
 
         {!isMobile && (

@@ -191,8 +191,9 @@ export const ChooseGame = ({ showGame }: any) => {
           <div className="card bg-[#2c2171] opacity-80 text-white glow-purple w-full md:w-96 shadow-xl mx-4">
             <div className="card-body text-center">
               <h2 className="text-3xl sami-title flex flex-row justify-center items-center">
-                <>Betting&nbsp;</>
+                <>Bet&nbsp;</>
                 <span className="text-[#3DCCE1]">1 $USDC&nbsp;</span>
+                <TokenLogo width={40} height={40} />
               </h2>
               <p className="text-xl flex flex-col justify-center items-center">
                 <span>Win and split the pot!</span>
@@ -237,11 +238,6 @@ export const ChooseGame = ({ showGame }: any) => {
             <>&nbsp;...&nbsp;&nbsp;</>
           )}
           &nbsp;so far!
-        </div>
-        <div className="flex flex-row sami-title text-center mt-12 text-lg opacity-80 bg-[#2672BE] glow-blue text-white p-2 rounded-lg">
-          <Link className="link" href="https://x.com/sami_ai_agent" target="_blank" passHref>
-            <span className="sami-title text-xl text-black dark:text-white">Follow SAMI on X!</span>
-          </Link>
         </div>
       </div>
     </>

@@ -1,34 +1,59 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useSocket } from "~~/app/socketContext";
 
-const CountdownClock = () => {
-  const [timeLeft, setTimeLeft] = useState(0);
-  const [maxTime, setMaxTime] = useState(0);
+export const startCountdown = ({
+  data,
+  setMaxTime,
+  setTimeLeft,
+  setEndTime,
+}: {
+  data: { timeBeforeEnds: number; serverTime: number };
+  setMaxTime: any;
+  setTimeLeft: any;
+  setEndTime: any;
+}) => {
+  const { timeBeforeEnds, serverTime } = data;
+
+  const clientTime = Date.now();
+  const timeOffset = serverTime - clientTime;
+  const endTime = clientTime + timeOffset + timeBeforeEnds;
+  setEndTime(endTime);
+  setMaxTime(Math.floor(timeBeforeEnds / 1000));
+  setTimeLeft(Math.max(0, Math.floor((endTime - clientTime) / 1000)));
+};
+
+const CountdownClock = ({
+  maybeTimeLeft,
+  maybeMaxTime,
+  maybeEndTime,
+}: {
+  maybeMaxTime?: number;
+  maybeTimeLeft?: number;
+  maybeEndTime?: number;
+}) => {
+  const [timeLeft, setTimeLeft] = useState<number>(maybeTimeLeft || 0);
+  const [maxTime, setMaxTime] = useState<number>(maybeMaxTime || 0);
+  const [endTime, setEndTime] = useState<number>(maybeEndTime || 0);
 
   const endTimeRef = useRef<number | null>(null);
   const { socket } = useSocket();
 
   useEffect(() => {
+    if (endTime) endTimeRef.current = endTime;
+  }, [endTimeRef, endTime]);
+
+  useEffect(() => {
     if (!socket) return;
 
-    const startCountdown = (data: { timeBeforeEnds: number; serverTime: number }) => {
-      const { timeBeforeEnds, serverTime } = data;
-
-      const clientTime = Date.now();
-      const timeOffset = serverTime - clientTime;
-      const endTime = clientTime + timeOffset + timeBeforeEnds;
-      endTimeRef.current = endTime;
-
-      setMaxTime(Math.floor(timeBeforeEnds / 1000));
-      setTimeLeft(Math.max(0, Math.floor((endTime - clientTime) / 1000)));
+    const handleStartCountdown = (data: { timeBeforeEnds: number; serverTime: number }) => {
+      startCountdown({ data, setMaxTime, setTimeLeft, setEndTime });
     };
-
-    socket.on("startConversationPhase", startCountdown);
-    socket.on("startVotePhase", startCountdown);
+    socket.on("startConversationPhase", handleStartCountdown);
+    socket.on("startVotePhase", handleStartCountdown);
 
     return () => {
-      socket.off("startConversationPhase", startCountdown);
-      socket.off("startVotePhase", startCountdown);
+      socket.off("startConversationPhase", handleStartCountdown);
+      socket.off("startVotePhase", handleStartCountdown);
     };
   }, [socket]);
 
@@ -54,8 +79,6 @@ const CountdownClock = () => {
     return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
   };
 
-  if (timeLeft === 0) return null;
-
   // Determine the progress bar color based on the percentage left
   const progressPercentage = maxTime > 0 ? (timeLeft / maxTime) * 100 : 100;
   let progressClass = "progress-success";
@@ -66,7 +89,7 @@ const CountdownClock = () => {
   if (progressPercentage < 33) textColor = "text-error";
 
   return (
-    <div className="flex flex-row items-center justify-center gap-2">
+    <div className="flex flex-row items-center justify-center gap-2 mt-2">
       <span className={`text-lg font-mono ${textColor}`}>{formatTime(timeLeft)}</span>
       <progress className={`progress ${progressClass} w-56`} value={timeLeft} max={maxTime}></progress>
     </div>

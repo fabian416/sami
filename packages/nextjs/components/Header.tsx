@@ -59,7 +59,7 @@ export const HeaderMenuLinks = () => {
         <Link
           href="https://docs.google.com/forms/d/e/1FAIpQLSf1mWUBPNvDFOpUZj3tweC_3hNZr9ju0-yA3x6lw0VIeXZdAA/viewform"
           passHref
-          className="bg-success hover:bg-success text-black focus:bg-success active:text-neutral py-1.5 px-3 text-sm rounded-full gap-2 grid grid-flow-col"
+          className="bg-success hover:bg-success !text-black focus:bg-success py-1.5 px-3 text-sm rounded-full gap-2 grid grid-flow-col"
           target="_blank"
         >
           <span>Share your feedback!</span>

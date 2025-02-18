@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { TokenLogo } from "../Header";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import { ClockIcon } from "@heroicons/react/24/outline";
 
