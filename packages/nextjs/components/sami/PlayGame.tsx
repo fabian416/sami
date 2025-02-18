@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import CountdownClock from "../CountdownClock";
+import CountdownClock from "./CountdownClock";
 import { ModalFinished } from "./ModalFinished";
 import { ModalForVoting } from "./ModalForVoting";
 import { useTheme } from "next-themes";

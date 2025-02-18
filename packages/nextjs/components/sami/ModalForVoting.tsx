@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Image from "next/image";
-// import CountdownClock from "../CountdownClock";
+import CountdownClock from "./CountdownClock";
 import { Player } from "./PlayGame";
 import { useSocket } from "~~/app/socketContext";
 
@@ -80,6 +80,7 @@ const VoteModal = ({
         <div className="flex justify-between items-center my-8">
           <div className="flex-grow text-center">
             <span className="block text-4xl font-bold">Who is SAMI?</span>
+            <CountdownClock />
           </div>
         </div>
         <div className="flex justify-center items-center gap-12 flex-col sm:flex-row pb-16">
@@ -100,7 +101,6 @@ const VoteModal = ({
             </div>
           ))}
         </div>
-        {/* <CountdownClock /> */}
       </div>
     </div>
   );

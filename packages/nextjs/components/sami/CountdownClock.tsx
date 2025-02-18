@@ -63,15 +63,13 @@ const CountdownClock = () => {
   let progressClass = "progress-success";
   if (progressPercentage < 66) progressClass = "progress-warning";
   if (progressPercentage < 33) progressClass = "progress-error";
+  let textColor = "text-success";
+  if (progressPercentage < 66) textColor = "text-warning";
+  if (progressPercentage < 33) textColor = "text-error";
 
   return (
     <div className="flex flex-row items-center justify-center gap-2">
-      <span
-        className={`text-lg font-mono ${isDarkMode ? "text-green-500" : "text-green-700"}`}
-        style={{ textShadow: "0 0 5px #00FF00" }}
-      >
-        {formatTime(timeLeft)}
-      </span>
+      <span className={`text-lg font-mono ${textColor}`}>{formatTime(timeLeft)}</span>
       <progress className={`progress ${progressClass} w-56`} value={timeLeft} max={maxTime}></progress>
     </div>
   );
