@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { TokenLogo } from "../Header";
 import { RainbowKitCustomConnectButton } from "../scaffold-eth";
 import { ModalWaitingForPlayers } from "./ModalWaitingForPlayers";
@@ -223,8 +224,8 @@ export const ChooseGame = ({ showGame }: any) => {
             </div>
           </div>
         </div>
-        <div className="flex flex-row sami-title text-center mt-12 text-lg bg-[#2672BE] glow-blue text-white p-2 rounded-lg">
-          SAMI Reserves:&nbsp;
+        <div className="flex flex-row sami-title text-center mt-12 text-lg bg-base-200 opacity-80 text-white p-2 rounded-lg">
+          SAMI has won&nbsp;
           {samiBalance ? (
             <>
               <>{(Number(samiBalance) / DECIMALS).toFixed(0)}</>&nbsp;
@@ -235,6 +236,12 @@ export const ChooseGame = ({ showGame }: any) => {
           ) : (
             <>&nbsp;...&nbsp;&nbsp;</>
           )}
+          &nbsp;so far!
+        </div>
+        <div className="flex flex-row sami-title text-center mt-12 text-lg opacity-80 bg-[#2672BE] glow-blue text-white p-2 rounded-lg">
+          <Link className="link" href="https://x.com/sami_ai_agent" target="_blank" passHref>
+            <span className="sami-title text-xl text-black dark:text-white">Follow SAMI on X!</span>
+          </Link>
         </div>
       </div>
     </>

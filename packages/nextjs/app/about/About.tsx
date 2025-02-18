@@ -167,6 +167,11 @@ export const About = () => {
           ))}
         </div>
       </div>
+      <div className="flex flex-row sami-title text-center mt-12 text-lg opacity-80 bg-[#2672BE] glow-blue text-white p-2 rounded-lg">
+        <Link className="link" href="https://x.com/sami_ai_agent" target="_blank" passHref>
+          <span className="sami-title text-xl text-black dark:text-white">Follow SAMI on X!</span>
+        </Link>
+      </div>
     </div>
   );
 };
