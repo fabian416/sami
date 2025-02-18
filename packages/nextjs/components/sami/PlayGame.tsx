@@ -261,8 +261,8 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
               <PaperAirplaneIcon className="h-5 w-5" />
             </button>
           </div>
-          <progress className="progress progress-primary w-56" value={0} max="100"></progress>
         </div>
+
         {!isMobile && (
           <div className="hidden md:flex items-center justify-center glow-cyan overflow-hidden rounded-2xl">
             <Image

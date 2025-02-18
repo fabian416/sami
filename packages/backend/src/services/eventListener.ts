@@ -17,7 +17,7 @@ const main = async () => {
 
   // Listen when a prize is sent
   contract.on(contract.filters.PrizeSent, async (winner, amount) => {
-    console.log(`Prize sent to ${winner}: ${amount} MODE`);
+    console.log(`Prize sent to ${winner}: ${amount} USDC`);
     gameServiceEmitter.emit("prizeSent", { winner, amount });
   });
 

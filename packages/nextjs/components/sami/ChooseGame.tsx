@@ -195,7 +195,7 @@ export const ChooseGame = ({ showGame }: any) => {
               </h2>
               <p className="text-xl flex flex-col justify-center items-center">
                 <span>Win and split the pot</span>
-                <span>Lose and the house wins</span>
+                <span>Everyone loses, the house wins</span>
               </p>
               <div className="card-actions justify-center">
                 {connectedAddress ? (
