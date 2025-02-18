@@ -40,6 +40,7 @@ contract SimpleSAMI is Ownable {
     /// @param _usdcTokenAddress The address of the USDC ERC20 token
     constructor(address _usdcTokenAddress) Ownable(msg.sender) {
         USDC_TOKEN = IERC20(_usdcTokenAddress);
+        betAmount = 1 * DECIMALS;
     }
 
     /*//////////////////////////////////////////////////////////////
