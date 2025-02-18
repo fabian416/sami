@@ -4,7 +4,7 @@ import { useSocket } from "~~/app/socketContext";
 
 const CountdownClock = () => {
   const [timeLeft, setTimeLeft] = useState(0);
-  const [maxTime, setMaxTime] = useState(0); // Store the max countdown time
+  const [maxTime, setMaxTime] = useState(0);
   const { resolvedTheme } = useTheme();
   const isDarkMode = resolvedTheme === "dark";
   const endTimeRef = useRef<number | null>(null);
@@ -21,7 +21,7 @@ const CountdownClock = () => {
       const endTime = clientTime + timeOffset + timeBeforeEnds;
       endTimeRef.current = endTime;
 
-      setMaxTime(Math.floor(timeBeforeEnds / 1000)); // Set max time in seconds
+      setMaxTime(Math.floor(timeBeforeEnds / 1000));
       setTimeLeft(Math.max(0, Math.floor((endTime - clientTime) / 1000)));
     };
 
@@ -58,6 +58,12 @@ const CountdownClock = () => {
 
   if (timeLeft === 0) return null;
 
+  // Determine the progress bar color based on the percentage left
+  const progressPercentage = maxTime > 0 ? (timeLeft / maxTime) * 100 : 100;
+  let progressClass = "progress-success";
+  if (progressPercentage < 66) progressClass = "progress-warning";
+  if (progressPercentage < 33) progressClass = "progress-error";
+
   return (
     <div className="flex flex-row items-center justify-center gap-2">
       <span
@@ -66,7 +72,7 @@ const CountdownClock = () => {
       >
         {formatTime(timeLeft)}
       </span>
-      <progress className="progress progress-success w-56" value={timeLeft} max={maxTime}></progress>
+      <progress className={`progress ${progressClass} w-56`} value={timeLeft} max={maxTime}></progress>
     </div>
   );
 };
