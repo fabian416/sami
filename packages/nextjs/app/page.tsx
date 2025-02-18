@@ -11,7 +11,7 @@ const Home: NextPage = () => {
   const [choosingGame, setChoosingGame] = useState(true);
   const [connectedPlayers, setConnectedPlayers] = useState<number>(0);
   const { socket } = useSocket();
-  const showGame = ({ timeBeforeEnds, serverTime }: { timeBeforeEnds: any; serverTime: any }) => {
+  const showGame = () => {
     setChoosingGame(false);
   };
 
