@@ -58,7 +58,7 @@ const getPermutations = (str: string) => {
 
 export const NAMES = getPermutations("SAMI").filter(name => name !== "SAMI");
 
-export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
+export const PlayGame = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [players, setPlayers] = useState<Player[]>([]);
   const [currentPhase, setCurrentPhase] = useState<"conversation" | "voting" | "finished">("conversation");
@@ -111,7 +111,7 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
       setMessages(prev => [...prev, data]);
     });
 
-    socket.on("startConversationPhase", (data: { message: string; timeBeforeEnds: number; serverTime: number }) => {
+    socket.on("startConversationPhase", () => {
       setCurrentPhase("conversation");
     });
 

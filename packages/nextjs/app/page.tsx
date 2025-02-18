@@ -9,12 +9,10 @@ import { PlayGame } from "~~/components/sami/PlayGame";
 
 const Home: NextPage = () => {
   const [choosingGame, setChoosingGame] = useState(true);
-  const [timeForFirstRound, setTimeForFirstRound] = useState<any>(null);
   const [connectedPlayers, setConnectedPlayers] = useState<number>(0);
   const { socket } = useSocket();
   const showGame = ({ timeBeforeEnds, serverTime }: { timeBeforeEnds: any; serverTime: any }) => {
     setChoosingGame(false);
-    setTimeForFirstRound({ timeBeforeEnds, serverTime });
   };
 
   useEffect(() => {
@@ -37,7 +35,7 @@ const Home: NextPage = () => {
       </div>
       <div className="flex justify-center items-center flex-col flex-grow pb-1">
         <div className="flex justify-center items-center flex-col flex-grow w-5/6 rounded-2xl border-slate-700 ">
-          {choosingGame ? <ChooseGame showGame={showGame} /> : <PlayGame timeForFirstRound={timeForFirstRound} />}
+          {choosingGame ? <ChooseGame showGame={showGame} /> : <PlayGame />}
         </div>
       </div>
     </>
