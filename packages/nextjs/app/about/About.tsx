@@ -32,7 +32,7 @@ export const About = () => {
       </div>
 
       {/* Section 2: Game Theory Call-to-Action */}
-      <div className="w-full bg-[#DAFB08]">
+      {/* <div className="w-full bg-[#DAFB08]">
         <div className="flex flex-col p-6 justify-center items-center bg-[#DAFB08] text-black">
           <h1 className="text-4xl font-mono text-center">Curious about our game theory?</h1>
           <div>
@@ -46,7 +46,7 @@ export const About = () => {
             </Link>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Section 3: Who is SAMI? */}
       <div className="hero bg-base-200 opacity-80">

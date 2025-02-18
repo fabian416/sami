@@ -175,7 +175,7 @@ export const ChooseGame = ({ showGame }: any) => {
           <div className="card bg-[#1CA297] opacity-80 text-white glow-cyan w-full md:w-96 shadow-xl mx-4">
             <div className="card-body text-center">
               <h2 className="text-3xl sami-title">Play for free</h2>
-              <p className="text-xl">Find SAMI, the impostor AI, among 3 anons</p>
+              <p className="text-xl">Find SAMI, the impostor AI, among 3 anons in a group chat</p>
               <div className="card-actions justify-center">
                 <button
                   className="btn btn-primary rounded-lg text-2xl w-full bg-white text-[#1CA297] hover:text-[#1CA297] hover:bg-white border-0"
@@ -191,17 +191,11 @@ export const ChooseGame = ({ showGame }: any) => {
             <div className="card-body text-center">
               <h2 className="text-3xl sami-title flex flex-row justify-center items-center">
                 <>Betting&nbsp;</>
-                <span className="text-[#3DCCE1]">$USDC&nbsp;</span>
+                <span className="text-[#3DCCE1]">1 $USDC&nbsp;</span>
               </h2>
-              <p className="text-xl flex flex-row justify-center items-center">
-                <></>
-                <span>
-                  Bet&nbsp;
-                  <span className="text-[#3DCCE1]">1&nbsp;</span>
-                  <TokenLogo />, guess correctly and earn&nbsp;
-                  <span className="text-[#3DCCE1]">2&nbsp;</span>
-                  <TokenLogo />
-                </span>
+              <p className="text-xl flex flex-col justify-center items-center">
+                <span>Win and split the pot</span>
+                <span>Lose and the house wins</span>
               </p>
               <div className="card-actions justify-center">
                 {connectedAddress ? (
