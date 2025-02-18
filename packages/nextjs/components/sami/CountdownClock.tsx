@@ -1,12 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useTheme } from "next-themes";
 import { useSocket } from "~~/app/socketContext";
 
 const CountdownClock = () => {
   const [timeLeft, setTimeLeft] = useState(0);
   const [maxTime, setMaxTime] = useState(0);
-  const { resolvedTheme } = useTheme();
-  const isDarkMode = resolvedTheme === "dark";
+
   const endTimeRef = useRef<number | null>(null);
   const { socket } = useSocket();
 
