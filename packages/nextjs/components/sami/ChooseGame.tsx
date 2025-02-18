@@ -31,41 +31,23 @@ export const ChooseGame = ({ showGame }: any) => {
   const { socket, isConnected, playerId, setPlayerId, setPlayerIndex, setRoomId } = useSocket();
   const { address: connectedAddress } = useAccount();
   const { writeContractAsync: USDCwriteContractAsync } = useScaffoldWriteContract("MockUSDC");
-  const { writeContractAsync: ticketSystemwriteContractAsync } = useScaffoldWriteContract("TicketSystem");
-  const { data: ticketSystemContractData } = useDeployedContractInfo("TicketSystem");
+  const { writeContractAsync: simpleSAMIWriteContractAsync } = useScaffoldWriteContract("SimpleSAMI");
+  const { data: simpleSAMIContractData } = useDeployedContractInfo("SimpleSAMI");
 
   const { data: samiBalance } = useScaffoldReadContract({
     contractName: "MockUSDC",
     functionName: "balanceOf",
-    args: [ticketSystemContractData?.address],
+    args: [simpleSAMIContractData?.address],
     watch: true,
   });
 
   const { data: allowance } = useScaffoldReadContract({
     contractName: "MockUSDC",
     functionName: "allowance",
-    args: [connectedAddress, ticketSystemContractData?.address],
+    args: [connectedAddress, simpleSAMIContractData?.address],
     watch: true,
   });
   const [isBetGame, setIsBetGame] = useState<boolean>(false);
-
-  const { data: ticketBoughtEvents } = useScaffoldEventHistory({
-    contractName: "TicketSystem",
-    eventName: "TicketBought",
-    fromBlock: 0n,
-    watch: true,
-  });
-
-  useEffect(() => {
-    if (!ticketBoughtEvents || !connectedAddress) return;
-
-    ticketBoughtEvents.forEach(event => {
-      const { owner, ticketId } = event.args;
-      if (owner && owner.toLowerCase() === connectedAddress.toLowerCase()) {
-        console.log(`Ticket ID: ${ticketId}`);
-      }
-    });
-  }, [ticketBoughtEvents, connectedAddress]);
 
   useEffect(() => {
     allowance && allowance >= BigInt(1 * DECIMALS) && setLoadingApprove(false);
@@ -102,7 +84,7 @@ export const ChooseGame = ({ showGame }: any) => {
     try {
       const contractResponse = await USDCwriteContractAsync({
         functionName: "approve",
-        args: [ticketSystemContractData?.address, BigInt(1 * DECIMALS)],
+        args: [simpleSAMIContractData?.address, BigInt(1 * DECIMALS)],
       });
 
       if (contractResponse) {
@@ -123,15 +105,15 @@ export const ChooseGame = ({ showGame }: any) => {
 
     setLoadingBet(true);
     try {
-      const contractResponse = await ticketSystemwriteContractAsync({
-        functionName: "buyTicket",
+      const contractResponse = await simpleSAMIWriteContractAsync({
+        functionName: "enterGame",
         args: undefined,
       });
 
       console.log("contractResponse", contractResponse);
 
       if (contractResponse) {
-        notification.success("Ticket for a game bought successfully!");
+        notification.success("Paid for a game of SAMI successfully!");
 
         // 🔹 Generar un ID único para el jugador
         const randomPlayerId = uuidv4();

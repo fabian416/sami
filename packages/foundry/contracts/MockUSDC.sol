@@ -8,7 +8,7 @@ import { ERC20Permit } from "@openzeppelin/contracts/token/ERC20/extensions/ERC2
 
 contract MockUSDC is ERC20, ERC20Permit {
     constructor() ERC20("USDC", "USDC") ERC20Permit("USDC") {
-        _mint(msg.sender, 1000 * 10 ** 6);
+        _mint(msg.sender, 1000 * 1e6);
     }
 
     function mint(address to, uint256 amount) external {

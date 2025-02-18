@@ -7,7 +7,7 @@ import { useScaffoldEventHistory } from "~~/hooks/scaffold-eth";
 
 export const Leaderboard = () => {
   const { data: prizeSentEvents } = useScaffoldEventHistory({
-    contractName: "TicketSystem",
+    contractName: "SimpleSAMI",
     eventName: "PrizeSent",
     fromBlock: 0n,
     watch: true,

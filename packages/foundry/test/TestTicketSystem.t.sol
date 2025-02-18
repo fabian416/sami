@@ -3,8 +3,8 @@ pragma solidity ^0.8.0;
 
 import { Test } from "forge-std/Test.sol";
 import { console } from "forge-std/console.sol";
-import { TicketSystem } from "contracts/TicketSystem.sol";
-import { ITicketSystem } from "contracts/ITicketSystem.sol";
+import { TicketSystem } from "contracts/ticket-system/TicketSystem.sol";
+import { ITicketSystem } from "contracts/ticket-system/ITicketSystem.sol";
 import { MockUSDC } from "contracts/MockUSDC.sol";
 
 contract TestTicketSystem is Test, ITicketSystem {
