@@ -14,7 +14,7 @@ const signer = new ethers.Wallet(privateKey, provider);
 
 //  Instance of the contract in order to read and write
 const contract = new ethers.Contract(
-  "0x16e6F5C9bf9b2F0760F6F2d84BD4a31A6A3342cb",
+  "0x500FA05407c9f39Cc188B28dc28814b609e43788",
   SimpleSAMI.abi,
   signer
 );
@@ -36,17 +36,6 @@ export const sendPrizesToWinners = async (winners: string[]) => {
     }
   } catch (error) {
     console.error(`Error sending prizes:`, error);
-  }
-};
-
-export const useTicket = async (ticketId: number) => {
-  try {
-    console.log(`Using ticket ${ticketId}`);
-    const tx = await contract.useTicket(ticketId);
-    await tx.wait();
-    console.log(`Ticket ${ticketId} has been used`);
-  } catch (error) {
-    console.error(`Error using ticket ${ticketId}:`, error);
   }
 };
 
