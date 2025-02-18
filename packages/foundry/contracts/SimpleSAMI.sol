@@ -17,7 +17,7 @@ contract SimpleSAMI is Ownable {
                                  EVENTS
     //////////////////////////////////////////////////////////////*/
 
-    event GameEntered(address indexed owner, uint256 timestamp);
+    event GameEntered(address indexed player, uint256 timestamp);
     event PrizeSent(address indexed winner, uint256 amount);
     event ErrorSendingPrize(address indexed winner, uint256 amount);
     event WithdrawFromReserves(uint256 amount);

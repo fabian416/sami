@@ -1,7 +1,4 @@
-import {
-  Player,
-  createPlayer,
-} from "./playerService";
+import { Player, createPlayer } from "./playerService";
 import { EventEmitter } from "events";
 import { v4 as uuidv4 } from "uuid";
 import _ from "lodash";
@@ -21,11 +18,11 @@ const CONVERTATION_PHASE_TIME = 2 * 60 * 1000;
 const VOTING_PHASE_TIME = 30 * 1000;
 
 export interface Message {
-  roomId: string,
-  playerId: string,
-  playerIndex: number,
-  isPlayerAI: boolean,
-  message: string
+  roomId: string;
+  playerId: string;
+  playerIndex: number;
+  isPlayerAI: boolean;
+  message: string;
 }
 
 interface Game {
@@ -33,7 +30,7 @@ interface Game {
   players: Player[];
   status: "waiting" | "active" | "voting" | "finished";
   votes: { [playerId: string]: string }; // Mapping who vote who
-  isBetGame: boolean,
+  isBetGame: boolean;
 }
 
 export const rooms: { [key: string]: Game } = {};
@@ -42,17 +39,27 @@ export const cachedRoomsMessages: { [key: string]: Message[] } = {};
 
 // Encuentra una partida SOLO si es del mismo tipo (apuesta o gratuita)
 export const findBetGame = (): Game | null => {
-  return _.find(
-    _.reverse(Object.values(rooms)),
-    (game) => game.status === "waiting" && game.players.length < MIN_PLAYERS && game.isBetGame === true
-  ) || null;
+  return (
+    _.find(
+      _.reverse(Object.values(rooms)),
+      (game) =>
+        game.status === "waiting" &&
+        game.players.length < MIN_PLAYERS &&
+        game.isBetGame === true
+    ) || null
+  );
 };
 
 export const findFreeGame = (): Game | null => {
-  return _.find(
-    _.reverse(Object.values(rooms)),
-    (game) => game.status === "waiting" && game.players.length < MIN_PLAYERS && game.isBetGame === false
-  ) || null;
+  return (
+    _.find(
+      _.reverse(Object.values(rooms)),
+      (game) =>
+        game.status === "waiting" &&
+        game.players.length < MIN_PLAYERS &&
+        game.isBetGame === false
+    ) || null
+  );
 };
 
 // Main function to handle the creation or join to a new match
@@ -68,18 +75,24 @@ export const createOrJoin = (
   }
 
   if (!game) {
-    console.error(`Error creating the match for ${playerId} (isBetGame: ${isBetGame})`);
+    console.error(
+      `Error creating the match for ${playerId} (isBetGame: ${isBetGame})`
+    );
     return { roomId: "", success: false };
   }
 
   const success = joinGame(game.roomId, playerId, isBetGame);
 
   if (!success) {
-    console.warn(`⚠️ The player ${playerId} could not join the game${game.roomId}`);
+    console.warn(
+      `⚠️ The player ${playerId} could not join the game${game.roomId}`
+    );
     return { roomId: "", success: false };
   }
 
-  console.log(`Player ${playerId} joined the match ${game.roomId} (isBetGame: ${isBetGame})`);
+  console.log(
+    `Player ${playerId} joined the match ${game.roomId} (isBetGame: ${isBetGame})`
+  );
   return { roomId: game.roomId, success: true };
 };
 
@@ -90,7 +103,7 @@ export const createNewGame = (roomId: string, isBetGame: boolean) => {
     players: [] as Player[],
     status: "waiting",
     votes: {},
-    isBetGame, 
+    isBetGame,
   };
 
   rooms[roomId] = newGame; //  Se almacena en la memoria correctamente
@@ -99,7 +112,11 @@ export const createNewGame = (roomId: string, isBetGame: boolean) => {
   return newGame;
 };
 
-export const joinGame = (roomId: string, playerId: string, isBetGame: boolean): boolean => {
+export const joinGame = (
+  roomId: string,
+  playerId: string,
+  isBetGame: boolean
+): boolean => {
   // Get instance of the created game
   const game = rooms[roomId];
   if (!game) return false;
@@ -108,7 +125,9 @@ export const joinGame = (roomId: string, playerId: string, isBetGame: boolean): 
   if (game.status !== "waiting") return false;
 
   if (game.isBetGame !== isBetGame) {
-    console.warn(`Player ${playerId} tried to join a mismatched game type (expected: ${game.isBetGame}, received: ${isBetGame})`);
+    console.warn(
+      `Player ${playerId} tried to join a mismatched game type (expected: ${game.isBetGame}, received: ${isBetGame})`
+    );
     return false;
   }
 
@@ -138,7 +157,7 @@ export const joinGame = (roomId: string, playerId: string, isBetGame: boolean): 
 
 export const startGame = async (roomId: string) => {
   const game = rooms[roomId];
-  if (!game) return null; 
+  if (!game) return null;
 
   game.players = _.shuffle(game.players);
   game.status = "active";
@@ -147,17 +166,28 @@ export const startGame = async (roomId: string) => {
   console.log(`[${roomId}] Players in the game:`);
   game.players.forEach((player, index) => {
     game.players[index].index = index;
-    console.log(`Index: ${index}, ID: ${player.id}, Role: ${player.isAI ? "AI" : "Human"}`);
+    console.log(
+      `Index: ${index}, ID: ${player.id}, Role: ${player.isAI ? "AI" : "Human"}`
+    );
   });
 
   // Emit event start of the game
   await new Promise((resolve) => setTimeout(resolve, 500));
   const timeBeforeEnds = CONVERTATION_PHASE_TIME;
   const serverTime = Date.now();
-  gameServiceEmitter.emit("gameStarted", { roomId, game, timeBeforeEnds, serverTime });
+  gameServiceEmitter.emit("gameStarted", {
+    roomId,
+    game,
+    timeBeforeEnds,
+    serverTime,
+  });
 
   await new Promise((resolve) => setTimeout(resolve, 100));
-  gameServiceEmitter.emit("startConversation", { roomId, timeBeforeEnds, serverTime });
+  gameServiceEmitter.emit("startConversation", {
+    roomId,
+    timeBeforeEnds,
+    serverTime,
+  });
 
   setTimeout(() => endConversationPhase(roomId), timeBeforeEnds);
 
@@ -187,11 +217,18 @@ export const recordVote = (
   // Register the vote
   game.votes[voterId] = votedPlayerId;
   console.log(`[${roomId}] ${voterId} Voted for ${votedPlayerId}.`);
-  gameServiceEmitter.emit("voteSubmitted", { roomId, voterId, votedId: votedPlayerId });
+  gameServiceEmitter.emit("voteSubmitted", {
+    roomId,
+    voterId,
+    votedId: votedPlayerId,
+  });
 
   //  Verify that all the players have voted
   const voterPlayerIds = Object.keys(game.votes);
-  const amountOfPlayersWhoLeft = _.filter(game.players, (player) => player.left && !voterPlayerIds.includes(player.id)).length;
+  const amountOfPlayersWhoLeft = _.filter(
+    game.players,
+    (player) => player.left && !voterPlayerIds.includes(player.id)
+  ).length;
   const totalAmount = voterPlayerIds.length + amountOfPlayersWhoLeft;
   if (totalAmount === game.players.length - 1) {
     endVotingPhase(roomId);
@@ -204,19 +241,21 @@ export const sendMessageToAI = async (roomId: string) => {
   const game = rooms[roomId];
   const samiPlayer: any = getSamiPlayer(game);
   // Copiar los mensajes actuales en una variable temporal
-  const cachedMessages = [...cachedRoomsMessages[roomId]]; 
+  const cachedMessages = [...cachedRoomsMessages[roomId]];
   cachedRoomsMessages[roomId].length = 0;
 
-  const messages: {[key: string]: any} = {};
+  const messages: { [key: string]: any } = {};
   for (const index in cachedMessages) {
-    const {playerIndex, message} = cachedMessages[index];
+    const { playerIndex, message } = cachedMessages[index];
     messages[index] = {
-      instruction: `YOU ARE PLAYER ${samiPlayer.index + 1} AND PLAYER ${playerIndex + 1} SENT THIS MESSAGE TO THE GROUP CHAT`,
+      instruction: `YOU ARE PLAYER ${samiPlayer.index + 1} AND PLAYER ${
+        playerIndex + 1
+      } SENT THIS MESSAGE TO THE GROUP CHAT`,
       message,
     };
   }
   console.log(`[${roomId}] Input to Sami: ${JSON.stringify(messages)}`);
- 
+
   try {
     const startTime = Date.now();
     // Iniciar solicitud a la IA sin esperar la respuesta (se manejará con timeout)
@@ -240,30 +279,36 @@ export const sendMessageToAI = async (roomId: string) => {
       return console.error("[Backend] Invalid AI response.");
     }
     const agentMessage = responseData[0].text;
-    if (responseData.length > 0 && game.status === "active" && responseData[0].action !== "IGNORE") {
+    if (
+      responseData.length > 0 &&
+      game.status === "active" &&
+      responseData[0].action !== "IGNORE"
+    ) {
       const endTime = Date.now();
       const elapsedTimeSeconds = (endTime - startTime) / 1000;
-      console.log(`[${roomId}] Time taken for AI response: ${elapsedTimeSeconds} seconds.`);
+      console.log(
+        `[${roomId}] Time taken for AI response: ${elapsedTimeSeconds} seconds.`
+      );
 
       gameServiceEmitter.emit("newMessage", {
         roomId,
         playerId: samiPlayer.id,
         playerIndex: samiPlayer.index,
-        message: agentMessage
+        message: agentMessage,
       });
-      
+
       roomsMessages[roomId].push({
         roomId,
         playerId: samiPlayer.id,
         playerIndex: samiPlayer.index,
         isPlayerAI: true,
         message: agentMessage,
-      })
+      });
     }
-   } catch (error) {
-     console.error("[Backend] AI Response Timeout or Error:", error);
-   }
-}
+  } catch (error) {
+    console.error("[Backend] AI Response Timeout or Error:", error);
+  }
+};
 
 const endConversationPhase = async (roomId: string) => {
   const game = rooms[roomId];
@@ -276,9 +321,13 @@ const endConversationPhase = async (roomId: string) => {
 
   gameServiceEmitter.emit("conversationEnded", { roomId });
   await new Promise((resolve) => setTimeout(resolve, 100)); // Controlar tiempos
-  gameServiceEmitter.emit("startVoting", { roomId, timeBeforeEnds, serverTime });
+  gameServiceEmitter.emit("startVoting", {
+    roomId,
+    timeBeforeEnds,
+    serverTime,
+  });
   setTimeout(() => endVotingPhase(roomId), timeBeforeEnds);
-}
+};
 
 export const endVotingPhase = (roomId: string) => {
   const game = rooms[roomId];
@@ -317,10 +366,8 @@ export const endVotingPhase = (roomId: string) => {
     }
   });
 
-  // Enviar premios a todos los ganadores o llamar a sendPrizes([]) si nadie ganó
-  if (winnerAddresses.length > 0) {
-    sendPrizesToWinners(winnerAddresses);
-  }
+  // Call contract to send prizes to winners (if any)
+  sendPrizesToWinners(winnerAddresses);
 
   // Emit game over event
   gameServiceEmitter.emit("gameOver", { roomId, isBetGame, results });
@@ -342,20 +389,22 @@ const saveGameData = async (game: Game, samiIsTheWinner: boolean) => {
   await saveVotes(room.id, game.votes);
   await saveMessages(game.roomId, room.id);
   console.log(`[${room.id}] Game data saved successfully.`);
-}
+};
 
 const saveRoom = async (game: Game, samiIsTheWinner: boolean) => {
   const { data, error } = await supabase
     .from("rooms")
-    .insert([{
+    .insert([
+      {
         status: game.status,
         is_bet_game: game.isBetGame,
-        players: game.players.map(p => p.id),
+        players: game.players.map((p) => p.id),
         is_ai_winner: samiIsTheWinner,
-    }])
+      },
+    ])
     .select()
     .single();
-  
+
   if (error) {
     console.error("[Backend] Error saving room:", error);
     return null;
@@ -365,7 +414,7 @@ const saveRoom = async (game: Game, samiIsTheWinner: boolean) => {
 };
 
 const savePlayers = async (players: Player[]) => {
-  const playerRecords = players.map(player => ({
+  const playerRecords = players.map((player) => ({
     id: player.id,
     is_ai: player.isAI,
     is_eliminated: player.isEliminated,
@@ -382,7 +431,10 @@ const savePlayers = async (players: Player[]) => {
   }
 };
 
-const saveVotes = async (roomId: string, votes: { [playerId: string]: string }) => {
+const saveVotes = async (
+  roomId: string,
+  votes: { [playerId: string]: string }
+) => {
   const voteRecords = Object.entries(votes).map(([voter, voted]) => ({
     room_id: roomId,
     from_player_id: voter,
@@ -412,9 +464,6 @@ const saveMessages = async (tempRoomId: string, roomId: string) => {
   }
 };
 
-
-
-
 // AUXILIAR FUNCTIONS
 // Get a Match by his ID
 export const getGameById = (roomId: string) => {
@@ -426,15 +475,15 @@ export const calculateNumberOfPlayers = ({ roomId }: { roomId: string }) => {
   if (!game) return [-1, -1];
 
   //  Only count players in the same game, no need for `player.isBetGame`
-  const amountOfPlayers = game.players.length > MIN_PLAYERS ? MIN_PLAYERS : game.players.length;
+  const amountOfPlayers =
+    game.players.length > MIN_PLAYERS ? MIN_PLAYERS : game.players.length;
 
   return [amountOfPlayers, MIN_PLAYERS];
 };
 
 export const getSamiPlayer = (game: Game) => {
   return _.find(game.players, { isAI: true });
-
-}
+};
 
 const safeParseJSON = (text: string): any | null => {
   try {
@@ -455,7 +504,6 @@ const processRoomsMessages = async () => {
 
       // Ejecutar sendMessageToAI para cada roomId encontrado
       await Promise.all(activeRoomIds.map((roomId) => sendMessageToAI(roomId)));
-      
     } catch (error) {
       console.error("[Backend] Error in processRoomsMessages:", error);
     }
