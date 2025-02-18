@@ -55,6 +55,16 @@ export const HeaderMenuLinks = () => {
           </li>
         );
       })}
+      <li>
+        <Link
+          href="https://docs.google.com/forms/d/e/1FAIpQLSf1mWUBPNvDFOpUZj3tweC_3hNZr9ju0-yA3x6lw0VIeXZdAA/viewform"
+          passHref
+          className="bg-success hover:bg-success text-black focus:bg-success active:text-neutral py-1.5 px-3 text-sm rounded-full gap-2 grid grid-flow-col"
+          target="_blank"
+        >
+          <span>Share your feedback!</span>
+        </Link>
+      </li>
     </>
   );
 };
@@ -157,6 +167,7 @@ export const Header = () => {
           <HeaderMenuLinks />
         </ul>
       </div>
+      <div className="navbar-center hidden lg:flex flex-grow justify-center"></div>
       <div className="navbar-end flex-grow mr-4">
         {isConnected &&
           typeof balance !== "undefined" &&
@@ -172,7 +183,7 @@ export const Header = () => {
             <>
               <span className="flex flex-row bg-[#2672BE] text-white glow-blue px-2 py-1 rounded-lg items-center justify-center gap-1 ml-4 mr-2 text-lg font-bold">
                 <TokenLogo className="" />
-                <span className="ml-1">{(Number(balance) / DECIMALS).toFixed(0)}</span>
+                <span className="ml-1">{(Number(balance) / DECIMALS).toFixed(2)}</span>
               </span>
             </>
           ))}

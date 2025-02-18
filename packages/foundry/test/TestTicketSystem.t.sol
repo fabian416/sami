@@ -3,8 +3,8 @@ pragma solidity ^0.8.0;
 
 import { Test } from "forge-std/Test.sol";
 import { console } from "forge-std/console.sol";
-import { TicketSystem } from "contracts/TicketSystem.sol";
-import { ITicketSystem } from "contracts/ITicketSystem.sol";
+import { TicketSystem } from "contracts/ticket-system/TicketSystem.sol";
+import { ITicketSystem } from "contracts/ticket-system/ITicketSystem.sol";
 import { MockUSDC } from "contracts/MockUSDC.sol";
 
 contract TestTicketSystem is Test, ITicketSystem {
@@ -48,7 +48,7 @@ contract TestTicketSystem is Test, ITicketSystem {
     }
 
     // Required override for using the interface
-    function buyTicket() external override { }
+    function buyTicket() external override returns (uint256) { }
 
     function testInitialParameters() public view {
         assertEq(address(USDC_TOKEN), address(ticketSystem.USDC_TOKEN()));

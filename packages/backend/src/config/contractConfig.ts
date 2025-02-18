@@ -1,6 +1,6 @@
 import { ethers, JsonRpcProvider } from "ethers";
 import dotenv from "dotenv";
-import TicketSystem from "@abi/TicketSystem.json";
+import SimpleSAMI from "@abi/SimpleSAMI.json";
 
 dotenv.config();
 
@@ -8,41 +8,35 @@ dotenv.config();
 const provider = new JsonRpcProvider(process.env.RPC_URL);
 
 //  Set the signer with the private key
-const privateKey = process.env.PRIVATE_KEY || "Debes configurar una clave privada";
+const privateKey =
+  process.env.PRIVATE_KEY || "Debes configurar una clave privada";
 const signer = new ethers.Wallet(privateKey, provider);
 
 //  Instance of the contract in order to read and write
-const contract = new ethers.Contract("0x8d06D63e2D74413b972dCd23F943b3E73028f96F", TicketSystem.abi, signer);
+const contract = new ethers.Contract(
+  "0x500FA05407c9f39Cc188B28dc28814b609e43788",
+  SimpleSAMI.abi,
+  signer
+);
 
 export const sendPrizesToWinners = async (winners: string[]) => {
-    try {
-        console.log(`sendPrizesToWinners called with winners: ${JSON.stringify(winners)}`);
+  try {
+    console.log(
+      `sendPrizesToWinners called with winners: ${JSON.stringify(winners)}`
+    );
 
-        if (winners.length === 0) {
-            console.log("No winners, calling sendPrizes([]) to update SAMI stats.");
-        } else {
-            console.log(`Sending prizes to: ${winners.join(", ")}`);
-        }
+    if (winners.length === 0) {
+      console.log("No winners, SAMI won all bets!.");
+    } else {
+      const tx = await contract.sendPrizes(winners);
+      console.log("sendPrizes transaction sent:", tx.hash);
 
-        const tx = await contract.sendPrizes(winners);
-        console.log("sendPrizes transaction sent:", tx.hash);
-
-        await tx.wait();
-        console.log(`Prizes sent successfully to: ${winners.length > 0 ? winners.join(", ") : "No winners, SAMI won"}`);
-    } catch (error) {
-        console.error(`Error sending prizes:`, error);
+      await tx.wait();
+      console.log(`Prizes sent successfully to: ${winners.join(", ")}`);
     }
-};
-
-export const useTicket = async (ticketId: number) => {
-    try {
-        console.log(`Using ticket ${ticketId}`);
-        const tx = await contract.useTicket(ticketId);
-        await tx.wait();
-        console.log(`Ticket ${ticketId} has been used`);
-    } catch (error) {
-        console.error(`Error using ticket ${ticketId}:`, error);
-    }
+  } catch (error) {
+    console.error(`Error sending prizes:`, error);
+  }
 };
 
 export { provider, signer, contract };

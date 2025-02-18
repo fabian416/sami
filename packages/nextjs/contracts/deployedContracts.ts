@@ -5,9 +5,9 @@
 import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
 const deployedContracts = {
-  31337: {
+  84532: {
     MockUSDC: {
-      address: "0x700b6a60ce7eaaea56f065753d8dcb9653dbad35",
+      address: "0x25c930f8d63e7032e28ba4f15bbd0d504e2ca316",
       abi: [
         {
           type: "constructor",
@@ -552,11 +552,11 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deploymentFile: "run-1739806821.json",
+      deploymentFile: "run-1739854156.json",
       deploymentScript: "Deploy.s.sol",
     },
-    TicketSystem: {
-      address: "0xa15bb66138824a1c7167f5e85b957d04dd34e468",
+    SimpleSAMI: {
+      address: "0x500fa05407c9f39cc188b28dc28814b609e43788",
       abi: [
         {
           type: "constructor",
@@ -610,62 +610,10 @@ const deployedContracts = {
         },
         {
           type: "function",
-          name: "buyTicket",
+          name: "enterGame",
           inputs: [],
           outputs: [],
           stateMutability: "nonpayable",
-        },
-        {
-          type: "function",
-          name: "collectedFees",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "getLiquidityCoefficient",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "getWinRatioCoefficient",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "houseFee",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          stateMutability: "view",
         },
         {
           type: "function",
@@ -682,30 +630,6 @@ const deployedContracts = {
         },
         {
           type: "function",
-          name: "ownerTickets",
-          inputs: [
-            {
-              name: "",
-              type: "address",
-              internalType: "address",
-            },
-            {
-              name: "",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          outputs: [
-            {
-              name: "",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
           name: "renounceOwnership",
           inputs: [],
           outputs: [],
@@ -713,25 +637,12 @@ const deployedContracts = {
         },
         {
           type: "function",
-          name: "samiWins",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
           name: "sendPrizes",
           inputs: [
             {
-              name: "_ticketIds",
-              type: "uint256[]",
-              internalType: "uint256[]",
+              name: "_winners",
+              type: "address[]",
+              internalType: "address[]",
             },
           ],
           outputs: [],
@@ -752,109 +663,6 @@ const deployedContracts = {
         },
         {
           type: "function",
-          name: "setHouseFee",
-          inputs: [
-            {
-              name: "_newHouseFee",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          outputs: [],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "function",
-          name: "setThreshold",
-          inputs: [
-            {
-              name: "_newThreshold",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          outputs: [],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "function",
-          name: "threshold",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "ticketCounter",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "ticketToOwner",
-          inputs: [
-            {
-              name: "",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          outputs: [
-            {
-              name: "",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "ticketUsed",
-          inputs: [
-            {
-              name: "",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          outputs: [
-            {
-              name: "",
-              type: "bool",
-              internalType: "bool",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "totalRounds",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
           name: "transferOwnership",
           inputs: [
             {
@@ -868,33 +676,7 @@ const deployedContracts = {
         },
         {
           type: "function",
-          name: "useTicket",
-          inputs: [
-            {
-              name: "_ticketId",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          outputs: [],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "function",
           name: "withdraw",
-          inputs: [
-            {
-              name: "_amount",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          outputs: [],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "function",
-          name: "withdrawFees",
           inputs: [
             {
               name: "_amount",
@@ -939,10 +721,16 @@ const deployedContracts = {
         },
         {
           type: "event",
-          name: "HouseFeeChanged",
+          name: "GameEntered",
           inputs: [
             {
-              name: "newHouseFee",
+              name: "player",
+              type: "address",
+              indexed: true,
+              internalType: "address",
+            },
+            {
+              name: "timestamp",
               type: "uint256",
               indexed: false,
               internalType: "uint256",
@@ -990,57 +778,6 @@ const deployedContracts = {
         },
         {
           type: "event",
-          name: "ThresholdChanged",
-          inputs: [
-            {
-              name: "newThreshold",
-              type: "uint256",
-              indexed: false,
-              internalType: "uint256",
-            },
-          ],
-          anonymous: false,
-        },
-        {
-          type: "event",
-          name: "TicketBought",
-          inputs: [
-            {
-              name: "owner",
-              type: "address",
-              indexed: true,
-              internalType: "address",
-            },
-            {
-              name: "ticketId",
-              type: "uint256",
-              indexed: false,
-              internalType: "uint256",
-            },
-          ],
-          anonymous: false,
-        },
-        {
-          type: "event",
-          name: "TicketUsed",
-          inputs: [
-            {
-              name: "owner",
-              type: "address",
-              indexed: true,
-              internalType: "address",
-            },
-            {
-              name: "ticketId",
-              type: "uint256",
-              indexed: false,
-              internalType: "uint256",
-            },
-          ],
-          anonymous: false,
-        },
-        {
-          type: "event",
           name: "WithdrawFromReserves",
           inputs: [
             {
@@ -1076,37 +813,12 @@ const deployedContracts = {
         },
         {
           type: "error",
-          name: "TicketSystem__FeeWithdrawalFailed",
-          inputs: [],
-        },
-        {
-          type: "error",
-          name: "TicketSystem__InvalidAmount",
-          inputs: [],
-        },
-        {
-          type: "error",
-          name: "TicketSystem__NotEnoughFeesCollected",
-          inputs: [],
-        },
-        {
-          type: "error",
-          name: "TicketSystem__NotEnoughReserves",
-          inputs: [],
-        },
-        {
-          type: "error",
-          name: "TicketSystem__TicketAlreadyUsed",
-          inputs: [],
-        },
-        {
-          type: "error",
-          name: "TicketSystem__TransferFailed",
+          name: "SimpleSAMI__TransferFailed",
           inputs: [],
         },
       ],
       inheritedFunctions: {},
-      deploymentFile: "run-1739806821.json",
+      deploymentFile: "run-1739854156.json",
       deploymentScript: "Deploy.s.sol",
     },
   },

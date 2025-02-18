@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { TokenLogo } from "../Header";
 import { RainbowKitCustomConnectButton } from "../scaffold-eth";
 import { ModalWaitingForPlayers } from "./ModalWaitingForPlayers";
@@ -26,20 +27,20 @@ export const ChooseGame = ({ showGame }: any) => {
   const { socket, isConnected, playerId, setPlayerId, setPlayerIndex, setRoomId } = useSocket();
   const { address: connectedAddress } = useAccount();
   const { writeContractAsync: USDCwriteContractAsync } = useScaffoldWriteContract("MockUSDC");
-  const { writeContractAsync: ticketSystemwriteContractAsync } = useScaffoldWriteContract("TicketSystem");
-  const { data: ticketSystemContractData } = useDeployedContractInfo("TicketSystem");
+  const { writeContractAsync: simpleSAMIWriteContractAsync } = useScaffoldWriteContract("SimpleSAMI");
+  const { data: simpleSAMIContractData } = useDeployedContractInfo("SimpleSAMI");
 
   const { data: samiBalance } = useScaffoldReadContract({
     contractName: "MockUSDC",
     functionName: "balanceOf",
-    args: [ticketSystemContractData?.address],
+    args: [simpleSAMIContractData?.address],
     watch: true,
   });
 
   const { data: allowance } = useScaffoldReadContract({
     contractName: "MockUSDC",
     functionName: "allowance",
-    args: [connectedAddress, ticketSystemContractData?.address],
+    args: [connectedAddress, simpleSAMIContractData?.address],
     watch: true,
   });
   const [isBetGame, setIsBetGame] = useState<boolean>(false);
@@ -79,7 +80,7 @@ export const ChooseGame = ({ showGame }: any) => {
     try {
       const contractResponse = await USDCwriteContractAsync({
         functionName: "approve",
-        args: [ticketSystemContractData?.address, BigInt(1 * DECIMALS)],
+        args: [simpleSAMIContractData?.address, BigInt(1 * DECIMALS)],
       });
 
       if (contractResponse) {
@@ -100,13 +101,15 @@ export const ChooseGame = ({ showGame }: any) => {
 
     setLoadingBet(true);
     try {
-      const contractResponse = await ticketSystemwriteContractAsync({
-        functionName: "buyTicket",
+      const contractResponse = await simpleSAMIWriteContractAsync({
+        functionName: "enterGame",
         args: undefined,
       });
 
+      console.log("contractResponse", contractResponse);
+
       if (contractResponse) {
-        notification.success("Ticket for a game bought successfully!");
+        notification.success("Paid for a game of SAMI successfully!");
 
         // 🔹 Generar un ID único para el jugador
         const randomPlayerId = uuidv4();
@@ -173,7 +176,7 @@ export const ChooseGame = ({ showGame }: any) => {
           <div className="card bg-[#1CA297] opacity-80 text-white glow-cyan w-full md:w-96 shadow-xl mx-4">
             <div className="card-body text-center">
               <h2 className="text-3xl sami-title">Play for free</h2>
-              <p className="text-xl">Find SAMI, the impostor AI, among 3 anons</p>
+              <p className="text-xl">Find SAMI, the impostor AI, among 3 anons in a group chat</p>
               <div className="card-actions justify-center">
                 <button
                   className="btn btn-primary rounded-lg text-2xl w-full bg-white text-[#1CA297] hover:text-[#1CA297] hover:bg-white border-0"
@@ -189,17 +192,11 @@ export const ChooseGame = ({ showGame }: any) => {
             <div className="card-body text-center">
               <h2 className="text-3xl sami-title flex flex-row justify-center items-center">
                 <>Betting&nbsp;</>
-                <span className="text-[#3DCCE1]">$USDC&nbsp;</span>
+                <span className="text-[#3DCCE1]">1 $USDC&nbsp;</span>
               </h2>
-              <p className="text-xl flex flex-row justify-center items-center">
-                <></>
-                <span>
-                  Bet&nbsp;
-                  <span className="text-[#3DCCE1]">1&nbsp;</span>
-                  <TokenLogo />, guess correctly and earn&nbsp;
-                  <span className="text-[#3DCCE1]">2&nbsp;</span>
-                  <TokenLogo />
-                </span>
+              <p className="text-xl flex flex-col justify-center items-center">
+                <span>Win and split the pot!</span>
+                <span>If everyone loses, SAMI wins!</span>
               </p>
               <div className="card-actions justify-center">
                 {connectedAddress ? (
@@ -227,8 +224,8 @@ export const ChooseGame = ({ showGame }: any) => {
             </div>
           </div>
         </div>
-        <div className="flex flex-row sami-title text-center mt-12 text-lg bg-[#2672BE] glow-blue text-white p-2 rounded-lg">
-          SAMI Reserves:&nbsp;
+        <div className="flex flex-row sami-title text-center mt-12 text-lg bg-base-200 opacity-80 text-white p-2 rounded-lg">
+          SAMI has won&nbsp;
           {samiBalance ? (
             <>
               <>{(Number(samiBalance) / DECIMALS).toFixed(0)}</>&nbsp;
@@ -239,6 +236,12 @@ export const ChooseGame = ({ showGame }: any) => {
           ) : (
             <>&nbsp;...&nbsp;&nbsp;</>
           )}
+          &nbsp;so far!
+        </div>
+        <div className="flex flex-row sami-title text-center mt-12 text-lg opacity-80 bg-[#2672BE] glow-blue text-white p-2 rounded-lg">
+          <Link className="link" href="https://x.com/sami_ai_agent" target="_blank" passHref>
+            <span className="sami-title text-xl text-black dark:text-white">Follow SAMI on X!</span>
+          </Link>
         </div>
       </div>
     </>

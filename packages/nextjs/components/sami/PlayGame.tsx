@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import CountdownClock from "../CountdownClock";
+import CountdownClock from "./CountdownClock";
 import { ModalFinished } from "./ModalFinished";
 import { ModalForVoting } from "./ModalForVoting";
 import { useTheme } from "next-themes";
@@ -58,11 +58,10 @@ const getPermutations = (str: string) => {
 
 export const NAMES = getPermutations("SAMI").filter(name => name !== "SAMI");
 
-export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
+export const PlayGame = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [players, setPlayers] = useState<Player[]>([]);
   const [currentPhase, setCurrentPhase] = useState<"conversation" | "voting" | "finished">("conversation");
-  const [clockTimer, setClockTimer] = useState<Clock | null>(null);
   const [winner, setWinner] = useState<string | null>(null);
   const [isBetGame, setIsBetGame] = useState<boolean | null>(false);
   const [shuffledColors, setShuffledColors] = useState<string[]>([]);
@@ -91,12 +90,6 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
   }, []);
 
   useEffect(() => {
-    if (timeForFirstRound) {
-      setClockTimer(timeForFirstRound);
-    }
-  }, [timeForFirstRound]);
-
-  useEffect(() => {
     if (!socket) return;
     if (!playerIndex && playerId && roomId) {
       socket.emit("getPlayerIndex", { roomId, playerId });
@@ -118,9 +111,8 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
       setMessages(prev => [...prev, data]);
     });
 
-    socket.on("startConversationPhase", (data: { message: string; timeBeforeEnds: number; serverTime: number }) => {
+    socket.on("startConversationPhase", () => {
       setCurrentPhase("conversation");
-      setClockTimer({ timeBeforeEnds: data.timeBeforeEnds, serverTime: data.serverTime });
     });
 
     socket.on(
@@ -128,7 +120,6 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
       (data: { players: Player[]; message: string; timeBeforeEnds: number; serverTime: number }) => {
         setCurrentPhase("voting");
         setPlayers(data.players);
-        setClockTimer({ timeBeforeEnds: data.timeBeforeEnds, serverTime: data.serverTime });
       },
     );
 
@@ -184,9 +175,6 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
 
       {/* Modal Finished  */}
       {currentPhase === "finished" && <ModalFinished winner={winner} isBetGame={isBetGame} />}
-
-      {/* Clock */}
-      <CountdownClock setClockTimer={setClockTimer} clockTimer={clockTimer} />
 
       <div className="flex-grow grid grid-cols-2 gap-9 rounded-2xl backdrop-brightness-95 flex-col h-[calc(100vh-12rem)] md:h-[calc(100vh-9rem)]">
         <div
@@ -261,7 +249,11 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
               <PaperAirplaneIcon className="h-5 w-5" />
             </button>
           </div>
+
+          {/* Clock */}
+          <CountdownClock />
         </div>
+
         {!isMobile && (
           <div className="hidden md:flex items-center justify-center glow-cyan overflow-hidden rounded-2xl">
             <Image

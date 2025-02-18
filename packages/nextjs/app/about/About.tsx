@@ -32,7 +32,7 @@ export const About = () => {
       </div>
 
       {/* Section 2: Game Theory Call-to-Action */}
-      <div className="w-full bg-[#DAFB08]">
+      {/* <div className="w-full bg-[#DAFB08]">
         <div className="flex flex-col p-6 justify-center items-center bg-[#DAFB08] text-black">
           <h1 className="text-4xl font-mono text-center">Curious about our game theory?</h1>
           <div>
@@ -46,10 +46,10 @@ export const About = () => {
             </Link>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Section 3: Who is SAMI? */}
-      <div className="hero bg-base-200">
+      <div className="hero bg-base-200 opacity-80">
         <div className="hero-content flex-col lg:flex-row-reverse lg:px-14">
           <div className="flex flex-col items-center justify-center">
             <div className="hero-content flex-col lg:flex-row-reverse">
@@ -83,7 +83,7 @@ export const About = () => {
       </div>
 
       {/* Section 4: RLHF and Turing Test */}
-      <div className="hero bg-base-300">
+      <div className="hero bg-base-300 opacity-80">
         <div className="hero-content flex-col lg:flex-row-reverse lg:px-14">
           <div className="flex flex-col items-center justify-center">
             <div className="hero-content flex-col lg:flex-row-reverse">
@@ -166,6 +166,11 @@ export const About = () => {
             </div>
           ))}
         </div>
+      </div>
+      <div className="flex flex-row sami-title text-center mt-4 mb-4 text-lg opacity-80 bg-[#2672BE] glow-blue text-white p-2 rounded-lg">
+        <Link className="link" href="https://x.com/sami_ai_agent" target="_blank" passHref>
+          <span className="sami-title text-xl text-black dark:text-white">Follow SAMI on X!</span>
+        </Link>
       </div>
     </div>
   );

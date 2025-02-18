@@ -1,4 +1,6 @@
 import { useState } from "react";
+import Image from "next/image";
+import CountdownClock from "./CountdownClock";
 import { Player } from "./PlayGame";
 import { useSocket } from "~~/app/socketContext";
 
@@ -78,6 +80,7 @@ const VoteModal = ({
         <div className="flex justify-between items-center my-8">
           <div className="flex-grow text-center">
             <span className="block text-4xl font-bold">Who is SAMI?</span>
+            <CountdownClock />
           </div>
         </div>
         <div className="flex justify-center items-center gap-12 flex-col sm:flex-row pb-16">
@@ -85,7 +88,7 @@ const VoteModal = ({
             <div className="flex flex-col items-center justify-center gap-2" key={player.index}>
               <div className="avatar">
                 <div className="w-10 rounded-full">
-                  <img alt="Tailwind CSS chat bubble component" src={avatars[Number(player.index)]} />
+                  <Image alt="SAMI player avatar" src={avatars[Number(player.index)]} width={50} height={50} />
                 </div>
               </div>
               <button
