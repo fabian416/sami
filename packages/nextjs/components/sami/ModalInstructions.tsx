@@ -42,17 +42,6 @@ export const ModalInstructions = ({ closeModal }: any) => {
               <span className="text-white"> in the chat.</span>
             </p>
           </div>
-          <div className="flex flex-col bg-[#2c2171] p-4 text-center items-center max-w-xs rounded-3xl">
-            {/* <CurrencyDollarIcon className="h-20 w-20 fill-secondary" /> */}
-            <TokenLogo width={100} height={100} />
-            <p className="text-md md:text-xl">
-              <span className="text-white">
-                {" "}
-                Bet 1 $USDC, and if you guess, you get 2. <br />
-              </span>
-              <span className="text-[#3DCCE1]">Free version available.</span>
-            </p>
-          </div>
         </div>
       </div>
     </div>
