@@ -62,7 +62,6 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [players, setPlayers] = useState<Player[]>([]);
   const [currentPhase, setCurrentPhase] = useState<"conversation" | "voting" | "finished">("conversation");
-  const [clockTimer, setClockTimer] = useState<Clock | null>(null);
   const [winner, setWinner] = useState<string | null>(null);
   const [isBetGame, setIsBetGame] = useState<boolean | null>(false);
   const [shuffledColors, setShuffledColors] = useState<string[]>([]);
@@ -91,12 +90,6 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
   }, []);
 
   useEffect(() => {
-    if (timeForFirstRound) {
-      setClockTimer(timeForFirstRound);
-    }
-  }, [timeForFirstRound]);
-
-  useEffect(() => {
     if (!socket) return;
     if (!playerIndex && playerId && roomId) {
       socket.emit("getPlayerIndex", { roomId, playerId });
@@ -120,7 +113,6 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
 
     socket.on("startConversationPhase", (data: { message: string; timeBeforeEnds: number; serverTime: number }) => {
       setCurrentPhase("conversation");
-      setClockTimer({ timeBeforeEnds: data.timeBeforeEnds, serverTime: data.serverTime });
     });
 
     socket.on(
@@ -128,7 +120,6 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
       (data: { players: Player[]; message: string; timeBeforeEnds: number; serverTime: number }) => {
         setCurrentPhase("voting");
         setPlayers(data.players);
-        setClockTimer({ timeBeforeEnds: data.timeBeforeEnds, serverTime: data.serverTime });
       },
     );
 
