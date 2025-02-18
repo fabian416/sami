@@ -185,9 +185,6 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
       {/* Modal Finished  */}
       {currentPhase === "finished" && <ModalFinished winner={winner} isBetGame={isBetGame} />}
 
-      {/* Clock */}
-      <CountdownClock setClockTimer={setClockTimer} clockTimer={clockTimer} />
-
       <div className="flex-grow grid grid-cols-2 gap-9 rounded-2xl backdrop-brightness-95 flex-col h-[calc(100vh-12rem)] md:h-[calc(100vh-9rem)]">
         <div
           className={`col-span-2 md:col-span-1 flex flex-col items-center justify-between p-4 rounded-2xl shadow-lg overflow-y-scroll max-w-screen-sm
@@ -261,6 +258,9 @@ export const PlayGame = ({ timeForFirstRound }: { timeForFirstRound: any }) => {
               <PaperAirplaneIcon className="h-5 w-5" />
             </button>
           </div>
+
+          {/* Clock */}
+          <CountdownClock />
         </div>
 
         {!isMobile && (

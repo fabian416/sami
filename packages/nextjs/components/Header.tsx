@@ -157,6 +157,7 @@ export const Header = () => {
           <HeaderMenuLinks />
         </ul>
       </div>
+      <div className="navbar-center hidden lg:flex flex-grow justify-center"></div>
       <div className="navbar-end flex-grow mr-4">
         {isConnected &&
           typeof balance !== "undefined" &&
