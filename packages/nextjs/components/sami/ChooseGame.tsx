@@ -224,20 +224,6 @@ export const ChooseGame = ({ showGame }: any) => {
             </div>
           </div>
         </div>
-        <div className="flex flex-row sami-title text-center mt-12 text-lg bg-base-200 opacity-80 text-white p-2 rounded-lg">
-          SAMI has won&nbsp;
-          {samiBalance ? (
-            <>
-              <>{(Number(samiBalance) / DECIMALS).toFixed(0)}</>&nbsp;
-              <>
-                <TokenLogo className="" />
-              </>
-            </>
-          ) : (
-            <>&nbsp;...&nbsp;&nbsp;</>
-          )}
-          &nbsp;so far!
-        </div>
       </div>
     </>
   );
