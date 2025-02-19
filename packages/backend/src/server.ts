@@ -35,7 +35,6 @@ io.on("connection", (socket) => {
   console.log("Player connected :)", socket.id);
   players[socket.id] = { socketId: socket.id };
   io.emit("connectedPlayers", { amount: Object.keys(players).length });
-  console.log({players});
 
   
   socket.on("registerWallet", (data) => {

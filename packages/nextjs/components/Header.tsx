@@ -171,7 +171,7 @@ export const Header = () => {
       <div className="navbar-end flex-grow mr-4">
         {isConnected &&
           typeof balance !== "undefined" &&
-          (balance < BigInt(3 * DECIMALS) ? (
+          (balance < BigInt(1 * DECIMALS) ? (
             <button
               className="flex flex-row btn btn-primary bg-[#2672BE] hover:bg-[#2672BE] glow-blue mr-2 text-white border-0 shadow-[0_0_10px_#A1CA00] btn-sm text-xl"
               onClick={handleMint}
