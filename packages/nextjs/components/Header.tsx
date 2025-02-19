@@ -6,11 +6,16 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { DECIMALS } from "./sami/ChooseGame";
 import { ModalInstructions } from "./sami/ModalInstructions";
+import dotenv from "dotenv";
 import { useAccount } from "wagmi";
 import { Bars3Icon } from "@heroicons/react/20/solid";
 import { FaucetButton, RainbowKitCustomConnectButtonOpaque } from "~~/components/scaffold-eth";
 import { useOutsideClick, useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { notification } from "~~/utils/scaffold-eth";
+
+dotenv.config();
+
+const ENVIRONMENT = process.env.NEXT_PUBLIC_ENVIRONMENT;
 
 type HeaderMenuLink = {
   label: string;
@@ -172,13 +177,15 @@ export const Header = () => {
         {isConnected &&
           typeof balance !== "undefined" &&
           (balance < BigInt(1 * DECIMALS) ? (
-            <button
-              className="flex flex-row btn btn-primary bg-[#2672BE] hover:bg-[#2672BE] glow-blue mr-2 text-white border-0 shadow-[0_0_10px_#A1CA00] btn-sm text-xl"
-              onClick={handleMint}
-            >
-              <div className="text-sm">Get $USDC</div>
-              <TokenLogo className="" />
-            </button>
+            ENVIRONMENT !== "production" && (
+              <button
+                className="flex flex-row btn btn-primary bg-[#2672BE] hover:bg-[#2672BE] glow-blue mr-2 text-white border-0 shadow-[0_0_10px_#A1CA00] btn-sm text-xl"
+                onClick={handleMint}
+              >
+                <div className="text-sm">Get $USDC</div>
+                <TokenLogo className="" />
+              </button>
+            )
           ) : (
             <>
               <span className="flex flex-row bg-[#2672BE] text-white glow-blue px-3 py-1 rounded-lg items-center justify-center gap-1 ml-4 mr-2 text-lg font-bold">
