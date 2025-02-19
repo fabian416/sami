@@ -4,20 +4,39 @@ import simpleSami from "@abi/SimpleSAMI.json";
 
 dotenv.config();
 
-//  set provider
-const provider = new JsonRpcProvider(process.env.RPC_URL);
+// Detect environment
+const ENVIRONMENT = process.env.NEXT_PUBLIC_ENVIRONMENT || "development";
 
-//  Set the signer with the private key
-const privateKey =
-  process.env.PRIVATE_KEY || "Debes configurar una clave privada";
+// Set contract address based on environment
+const RPC_URL = ENVIRONMENT === "production"
+  ? process.env.RPC_URL_PRODUCTION
+  : process.env.RPC_URL_DEVELOPMENT;
+if (!RPC_URL) {
+  throw new Error("Missing RPC URL in environment variables");
+}
+
+// Set contract address based on environment
+const CONTRACT_ADDRESS = ENVIRONMENT === "production"
+  ? process.env.BASE_SEPOLIA_SIMPLE_SAMI_ADDRESS
+  : process.env.BASE_MAINNET_SIMPLE_SAMI_ADDRESS;
+if (!CONTRACT_ADDRESS) {
+  throw new Error("Missing contract addresses in environment variables");
+}
+// Validate private key
+const privateKey = ENVIRONMENT === "production"
+  ? process.env.PRIVATE_KEY_PRODUCTION
+  : process.env.PRIVATE_KEY_DEVELOPMENT;
+
+if (!privateKey) {
+  throw new Error("Missing PRIVATE_KEY in environment variables");
+}
+
+// Initialize provider and signer
+const provider = new JsonRpcProvider(RPC_URL);
 const signer = new ethers.Wallet(privateKey, provider);
 
-//  Instance of the contract in order to read and write
-const contract = new ethers.Contract(
-  "0x500FA05407c9f39Cc188B28dc28814b609e43788",
-  simpleSami.abi,
-  signer
-);
+// Instance of the contract
+const contract = new ethers.Contract(CONTRACT_ADDRESS, simpleSami.abi, signer);
 
 export const sendPrizesToWinners = async (winners: string[]) => {
   try {

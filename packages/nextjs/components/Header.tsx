@@ -84,7 +84,7 @@ export const Header = () => {
 
   const { address: connectedAddress, isConnected } = useAccount();
 
-  const { writeContractAsync: MODEwriteContractAsync } = useScaffoldWriteContract("MockUSDC");
+  const { writeContractAsync: MODEwriteContractAsync } = useScaffoldWriteContract({ contractName: "MockUSDC" });
 
   const { data: balance } = useScaffoldReadContract({
     contractName: "MockUSDC",

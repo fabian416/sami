@@ -25,16 +25,9 @@ export const ChooseGame = ({ showGame }: any) => {
   const [loadingBet, setLoadingBet] = useState(false);
   const { socket, isConnected, playerId, setPlayerId, setPlayerIndex, setRoomId } = useSocket();
   const { address: connectedAddress } = useAccount();
-  const { writeContractAsync: USDCwriteContractAsync } = useScaffoldWriteContract("MockUSDC");
-  const { writeContractAsync: simpleSAMIWriteContractAsync } = useScaffoldWriteContract("SimpleSAMI");
-  const { data: simpleSAMIContractData } = useDeployedContractInfo("SimpleSAMI");
-
-  const { data: samiBalance } = useScaffoldReadContract({
-    contractName: "MockUSDC",
-    functionName: "balanceOf",
-    args: [simpleSAMIContractData?.address],
-    watch: true,
-  });
+  const { writeContractAsync: USDCwriteContractAsync } = useScaffoldWriteContract({ contractName: "MockUSDC" });
+  const { writeContractAsync: simpleSAMIWriteContractAsync } = useScaffoldWriteContract({ contractName: "SimpleSAMI" });
+  const { data: simpleSAMIContractData } = useDeployedContractInfo({ contractName: "SimpleSAMI" });
 
   const { data: allowance } = useScaffoldReadContract({
     contractName: "MockUSDC",
