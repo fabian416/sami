@@ -5,15 +5,13 @@ import {
   createOrJoin,
   rooms,
   calculateNumberOfPlayers,
-  getSamiPlayer,
   Message,
   cachedRoomsMessages,
   roomsMessages,
 } from "../services/gameService";
 import { Server, Socket } from "socket.io";
-import { io, players } from "../server";
+import { io } from "../server";
 import gameServiceEmitter from "@services/gameService";
-import supabase from "@config/supabaseClient";
 
 
 gameServiceEmitter.on("startConversation", (data: { roomId: string, timeBeforeEnds: number, serverTime: number }) => {
@@ -105,19 +103,11 @@ export const createOrJoinGame = (data: any, socket: Socket, io: Server) => {
 
   console.log(`Creating or joining game. Player: ${playerId}, isBetGame: ${isBetGame}`);
   // Delegate to the service, passing and `isBetGame`
-  const { roomId, success } = createOrJoin(playerId, isBetGame);
+  const { roomId, success } = createOrJoin(playerId, isBetGame, socket.id);
 
   if (!success) {
     console.error(` Error joining the player ${playerId} into the room ${roomId}`);
     return socket.emit("error", { message: "There was an error creating or joining the match" });
-  }
-  // Store playerId inside `players`
-  if (players[socket.id]) {
-    players[socket.id].playerId = playerId;
-    players[playerId] = { ...players[socket.id] };  // Store playerId separately
-    console.log(`Mapped playerId: ${playerId} to wallet: ${players[socket.id].walletAddress}`);
-  } else {
-    console.warn(`No socket entry found for player ${playerId}`);
   }
 
   // Notify the client that the player joined successfully

@@ -1,9 +1,9 @@
 import { Player, createPlayer } from "./playerService";
 import { EventEmitter } from "events";
 import { v4 as uuidv4 } from "uuid";
+import { players } from "src/server";
 import _ from "lodash";
 import { sendPrizesToWinners } from "../config/contractConfig";
-import { players } from "../server"; // Import player mapping
 import supabase from "@config/supabaseClient";
 
 class GameServiceEmitter extends EventEmitter {}
@@ -65,7 +65,8 @@ export const findFreeGame = (): Game | null => {
 // Main function to handle the creation or join to a new match
 export const createOrJoin = (
   playerId: string,
-  isBetGame: boolean = false
+  isBetGame: boolean = false,
+  socketId: string,
 ): { roomId: string; success: boolean } => {
   let game = isBetGame ? findBetGame() : findFreeGame(); // find based on type bet or not
 
@@ -81,7 +82,7 @@ export const createOrJoin = (
     return { roomId: "", success: false };
   }
 
-  const success = joinGame(game.roomId, playerId, isBetGame);
+  const success = joinGame(game.roomId, playerId, isBetGame, socketId);
 
   if (!success) {
     console.warn(
@@ -115,7 +116,8 @@ export const createNewGame = (roomId: string, isBetGame: boolean) => {
 export const joinGame = (
   roomId: string,
   playerId: string,
-  isBetGame: boolean
+  isBetGame: boolean,
+  socketId: string,
 ): boolean => {
   // Get instance of the created game
   const game = rooms[roomId];
@@ -138,13 +140,13 @@ export const joinGame = (
   }
 
   // Add the new player
-  const newPlayer = createPlayer(playerId, false);
+  const newPlayer = createPlayer(playerId, socketId);
   game.players.push(newPlayer);
 
   // If the game reaches 5 players, add SAMI and start the game
   if (game.players.length === MIN_PLAYERS) {
     const samiID = uuidv4();
-    const samiPlayer = createPlayer(samiID, true);
+    const samiPlayer = createPlayer(samiID);
     game.players.push(samiPlayer); // Add SAMI as the sixth player
 
     // Start the game
@@ -352,8 +354,8 @@ export const endVotingPhase = (roomId: string) => {
       console.log(`[${roomId}] ¡${player.id} ganó! Identificó a SAMI.`);
       results.push({ playerId: player.id, won: true });
 
-      if (isBetGame) {
-        const winnerAddress = players[player.id]?.walletAddress;
+      if (isBetGame && player.socketId) {
+        const winnerAddress = players[player.socketId]?.walletAddress;
         if (winnerAddress) {
           winnerAddresses.push(winnerAddress); // Agregamos la dirección del ganador al array
         } else {

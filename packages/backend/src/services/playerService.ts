@@ -1,4 +1,3 @@
-import { rooms } from "./gameService";
 import { EventEmitter } from "events";
 
 
@@ -11,6 +10,7 @@ export default playerServiceEmitter;
 // Interface to describe a player
 export interface Player{
     id: string;
+    socketId?: string;
     index?: number;
     isAI: boolean;
     left: boolean;
@@ -18,10 +18,11 @@ export interface Player{
 }
 
 // Create a new player
-export const createPlayer = (playerId: string, isAI = false): Player => { 
+export const createPlayer = (playerId: string, socketId?: string): Player => { 
     return  {
         id: playerId,
-        isAI,
+        socketId,
+        isAI: socketId ? false : true,
         isEliminated: false,
         left: false,
     };

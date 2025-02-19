@@ -181,7 +181,7 @@ export const Header = () => {
             </button>
           ) : (
             <>
-              <span className="flex flex-row bg-[#2672BE] text-white glow-blue px-2 py-1 rounded-lg items-center justify-center gap-1 ml-4 mr-2 text-lg font-bold">
+              <span className="flex flex-row bg-[#2672BE] text-white glow-blue px-3 py-1 rounded-lg items-center justify-center gap-1 ml-4 mr-2 text-lg font-bold">
                 <TokenLogo className="" />
                 <span className="ml-1">{(Number(balance) / DECIMALS).toFixed(2)}</span>
               </span>

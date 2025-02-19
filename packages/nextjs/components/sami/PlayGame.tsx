@@ -3,6 +3,7 @@ import Image from "next/image";
 import CountdownClock, { startCountdown } from "./CountdownClock";
 import { ModalFinished } from "./ModalFinished";
 import { ModalForVoting } from "./ModalForVoting";
+import _ from "lodash";
 import { useTheme } from "next-themes";
 import { isMobile } from "react-device-detect";
 import { PaperAirplaneIcon } from "@heroicons/react/24/solid";
@@ -63,6 +64,7 @@ export const PlayGame = () => {
   const [players, setPlayers] = useState<Player[]>([]);
   const [currentPhase, setCurrentPhase] = useState<"conversation" | "voting" | "finished">("conversation");
   const [winner, setWinner] = useState<string | null>(null);
+  const [amountOfWinners, setAmountOfWinners] = useState<number | null>(null);
   const [isBetGame, setIsBetGame] = useState<boolean | null>(false);
   const [chatDisabled, setChatDisabled] = useState<boolean>(false);
   const [focusInput, setFocusInput] = useState<boolean>(true);
@@ -143,6 +145,8 @@ export const PlayGame = () => {
         // Obtener el resultado del jugador actual
         const playerResult = results.find(r => r.playerId === playerId);
         if (playerResult) {
+          const amountOfWinners = _.filter(results, { won: true }).length;
+          setAmountOfWinners(amountOfWinners);
           setWinner(playerResult.won ? "You win" : "sami");
         }
 
@@ -185,7 +189,9 @@ export const PlayGame = () => {
       )}
 
       {/* Modal Finished  */}
-      {currentPhase === "finished" && <ModalFinished winner={winner} isBetGame={isBetGame} />}
+      {currentPhase === "finished" && (
+        <ModalFinished winner={winner} isBetGame={isBetGame} amountOfWinners={amountOfWinners} />
+      )}
 
       <div className="flex-grow grid grid-cols-2 gap-9 m-4 rounded-2xl backdrop-brightness-95 flex-col h-[calc(100vh-12rem)] md:h-[calc(100vh-9rem)]">
         <div

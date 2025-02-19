@@ -1,7 +1,8 @@
 import Image from "next/image";
 import { TokenLogo } from "../Header";
 
-export const ModalFinished = ({ winner, isBetGame }: any) => {
+export const ModalFinished = ({ winner, isBetGame, amountOfWinners }: any) => {
+  const finalAmountOfTokens = (3 / amountOfWinners).toFixed(2);
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-[#2c2171] glow-purple text-white rounded-2xl items-center justify-center pb-8 px-12">
@@ -13,7 +14,7 @@ export const ModalFinished = ({ winner, isBetGame }: any) => {
             <div className="flex justify-center items-center flex-col py-2">
               {isBetGame && (
                 <div className="flex flex-row py-2">
-                  <div>Your 3</div>&nbsp;
+                  <div>Your {finalAmountOfTokens}</div>&nbsp;
                   <TokenLogo />
                   &nbsp;
                   <div>are on the way!</div>
@@ -27,7 +28,7 @@ export const ModalFinished = ({ winner, isBetGame }: any) => {
             <div className="flex justify-center items-center flex-col py-2">
               {isBetGame && (
                 <div className="flex flex-row py-2">
-                  <div>Sami just claimed your 1 </div>&nbsp;
+                  <div>Sami just claimed your {(1).toFixed(2)} </div>&nbsp;
                   <TokenLogo />
                   &nbsp;
                   <div></div>
