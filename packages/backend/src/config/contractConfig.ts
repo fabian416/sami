@@ -1,6 +1,6 @@
 import { ethers, JsonRpcProvider } from "ethers";
 import dotenv from "dotenv";
-import TicketSystem from "@abi/TicketSystem.json";
+import SimpleSami from "@abi/SimpleSAMI.json";
 
 dotenv.config();
 
@@ -15,7 +15,7 @@ const signer = new ethers.Wallet(privateKey, provider);
 //  Instance of the contract in order to read and write
 const contract = new ethers.Contract(
   "0x500FA05407c9f39Cc188B28dc28814b609e43788",
-  TicketSystem.abi,
+  SimpleSami.abi,
   signer
 );
 

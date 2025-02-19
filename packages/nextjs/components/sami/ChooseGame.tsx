@@ -196,7 +196,7 @@ export const ChooseGame = ({ showGame }: any) => {
                 <TokenLogo width={40} height={40} />
               </h2>
               <p className="text-xl flex flex-col justify-center items-center">
-                <span>Win and split the pot!</span>
+                <span>Win and split the pot</span>
                 <span>If everyone loses, SAMI wins!</span>
               </p>
               <div className="card-actions justify-center">

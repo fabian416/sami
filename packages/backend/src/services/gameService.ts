@@ -1,9 +1,9 @@
 import { Player, createPlayer } from "./playerService";
 import { EventEmitter } from "events";
 import { v4 as uuidv4 } from "uuid";
-import { players } from "src/server";
+import { players } from "@src/server";
 import _ from "lodash";
-import { sendPrizesToWinners } from "../config/contractConfig";
+import { sendPrizesToWinners } from "@config/contractConfig";
 import supabase from "@config/supabaseClient";
 
 class GameServiceEmitter extends EventEmitter {}

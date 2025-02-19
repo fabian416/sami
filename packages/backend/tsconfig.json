@@ -8,6 +8,7 @@
     "resolveJsonModule": true,
     "baseUrl": "./",
     "paths": {
+      "@src/*": ["./src/*", "./dist/*"],
       "@abi/*": ["./src/abi/*", "./dist/abi/*"],
       "@config/*": ["./src/config/*", "./dist/config/*"],
       "@controllers/*": ["./src/controllers/*", "./dist/controllers/*"],
