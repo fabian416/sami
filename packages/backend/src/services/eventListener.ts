@@ -1,10 +1,13 @@
 import gameServiceEmitter from "./gameService";
 import { contract } from "@config/contractConfig";
+/*
 const main = async () => {
   console.log(" Starting event listeners...");
 
   // Remove previous listeners
-  contract.removeAllListeners();
+  if (await contract.listenerCount() > 0) {
+    contract.removeAllListeners();
+  }
   
   // Listen when someone enters the game
   contract.on("GameEntered", async (player, timestamp) => {
@@ -31,3 +34,4 @@ const main = async () => {
 main().catch((error) =>
   console.error(" Error initializing event listeners:", error)
 );
+*/
