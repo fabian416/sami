@@ -84,10 +84,10 @@ export const Header = () => {
 
   const { address: connectedAddress, isConnected } = useAccount();
 
-  const { writeContractAsync: MODEwriteContractAsync } = useScaffoldWriteContract({ contractName: "MockUSDC" });
+  const { writeContractAsync: MODEwriteContractAsync } = useScaffoldWriteContract({ contractName: "USDC" });
 
   const { data: balance } = useScaffoldReadContract({
-    contractName: "MockUSDC",
+    contractName: "USDC",
     functionName: "balanceOf",
     args: [connectedAddress],
     watch: true,

@@ -14,7 +14,7 @@ const AGENT_URL = process.env.AGENT_URL;
 export const SAMI_URI = AGENT_URL || "http://localhost:3000";
 
 const MIN_PLAYERS = 3;
-const CONVERTATION_PHASE_TIME = 45 * 1000;
+const CONVERTATION_PHASE_TIME = 60 * 1000;
 const VOTING_PHASE_TIME = 15 * 1000;
 
 export interface Message {
@@ -335,12 +335,16 @@ export const endVotingPhase = (roomId: string) => {
   const game = rooms[roomId];
   if (!game || game.status !== "voting") return; // Ensure game is in the voting phase
   console.log(`[${roomId}] Ending voting phase...`);
-  const isBetGame = rooms[roomId].isBetGame;
 
   const results: { playerId: string; won: boolean }[] = [];
   const winnerAddresses: string[] = []; // Guardamos las direcciones de los ganadores
+  const isBetGame = rooms[roomId].isBetGame;
+  const samiPlayer = _.find(game.players, { isAI: true });
+  if (!samiPlayer) return console.error(`SAMI player not found.`);
 
   game.players.forEach((player) => {
+    const voterPlayer = _.find(game.players, { id: player.id });
+    if (!voterPlayer) return console.error(`Voter player not found: ${player.id}`);
     const votedPlayerId = game.votes[player.id];
     const votedPlayer = _.find(game.players, { id: votedPlayerId });
 
@@ -351,11 +355,12 @@ export const endVotingPhase = (roomId: string) => {
     }
 
     if (votedPlayer.isAI) {
+      voterPlayer.winner = true;
       console.log(`[${roomId}] ¡${player.id} ganó! Identificó a SAMI.`);
       results.push({ playerId: player.id, won: true });
 
       if (isBetGame && player.socketId) {
-        const winnerAddress = players[player.socketId]?.walletAddress;
+        const winnerAddress = voterPlayer.walletAddress;
         if (winnerAddress) {
           winnerAddresses.push(winnerAddress); // Agregamos la dirección del ganador al array
         } else {
@@ -363,6 +368,7 @@ export const endVotingPhase = (roomId: string) => {
         }
       }
     } else {
+      voterPlayer.winner = false;
       console.log(`[${roomId}] ${player.id} falló. SAMI gana.`);
       results.push({ playerId: player.id, won: false });
     }
@@ -377,6 +383,7 @@ export const endVotingPhase = (roomId: string) => {
   // Mark game as finished
   game.status = "finished";
   const samiIsTheWinner = _.every(results, (r) => r.won === false);
+  if (samiIsTheWinner) samiPlayer.winner = true;
   saveGameData(game, samiIsTheWinner);
 };
 
@@ -418,10 +425,11 @@ const saveRoom = async (game: Game, samiIsTheWinner: boolean) => {
 const savePlayers = async (players: Player[]) => {
   const playerRecords = players.map((player) => ({
     id: player.id,
-    is_ai: player.isAI,
-    is_eliminated: player.isEliminated,
-    left: player.left,
     index: player.index,
+    is_ai: player.isAI,
+    winner: player.winner,
+    left: player.left,
+    wallet_address: player.walletAddress,
   }));
 
   const { error } = await supabase.from("players").upsert(playerRecords);

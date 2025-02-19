@@ -60,11 +60,7 @@ io.on("connection", (socket) => {
     try {
       const { playerId, isBetGame } = data;
 
-      const result = gameController.createOrJoinGame(
-        { playerId, isBetGame },
-        socket,
-        io
-      );
+      const result = gameController.createOrJoinGame({ playerId, isBetGame }, socket, io);
 
       // Enviar confirmación al cliente
       socket.emit("gameJoined", result);

@@ -1,5 +1,5 @@
 import { EventEmitter } from "events";
-
+import { players } from "@src/server";
 
 class PlayerServiceEmitter extends EventEmitter {}
 
@@ -11,19 +11,22 @@ export default playerServiceEmitter;
 export interface Player{
     id: string;
     socketId?: string;
+    walletAddress?: string
     index?: number;
     isAI: boolean;
     left: boolean;
-    isEliminated: boolean; // Indicate if was eliminated because of votation of because it didn't fullfill the minimum 20 chars
+    winner: boolean;
 }
 
 // Create a new player
-export const createPlayer = (playerId: string, socketId?: string): Player => { 
+export const createPlayer = (playerId: string, socketId?: string): Player => {
+    const walletAddress = socketId ? players[socketId].walletAddress : undefined;
     return  {
         id: playerId,
         socketId,
+        walletAddress,
         isAI: socketId ? false : true,
-        isEliminated: false,
+        winner: false,
         left: false,
     };
 };
@@ -41,10 +44,6 @@ export const addCharsToPlayer = (roomId: string, playerId: string, charCount: nu
     // Incrementar chars (tope en 20, si quieres)
     player.totalChars = Math.min(player.totalChars + charCount, 20);
 }*/
-
-export const eliminatePlayer = (player: Player) => {
-    player.isEliminated = true;
-}
 
 export const assignIARole = (player: Player) => {
     player.isAI = true; 
