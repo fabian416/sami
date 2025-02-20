@@ -10,7 +10,7 @@ on:
   push:
     branches:
       - production
-      - develop
+      - staging
 
 jobs:
   build_backend:
