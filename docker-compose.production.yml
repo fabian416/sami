@@ -10,7 +10,6 @@ services:
       - .env
     environment:
       - HOST=0.0.0.0
-      - NEXT_PUBLIC_ENVIRONMENT=production
 
   frontend:
     image: ghcr.io/fabian416/sami/frontend:latest
@@ -25,7 +24,6 @@ services:
       - .env
     environment:
       - PORT=3001
-      - NEXT_PUBLIC_ENVIRONMENT=production
 
   staging-backend:
     image: ghcr.io/fabian416/sami/backend:staging
@@ -39,7 +37,6 @@ services:
     environment:
       - HOST=0.0.0.0
       - PORT=6001
-      - NEXT_PUBLIC_ENVIRONMENT=development
 
   staging-frontend:
     image: ghcr.io/fabian416/sami/frontend:staging
@@ -54,7 +51,6 @@ services:
       - .env
     environment:
       - PORT=4001
-      - NEXT_PUBLIC_ENVIRONMENT=development
 
   ai-agent:
     image: ghcr.io/fabian416/sami/ai-agent:latest
