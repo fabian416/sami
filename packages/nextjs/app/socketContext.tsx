@@ -1,13 +1,10 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import dotenv from "dotenv";
 import { Socket, io } from "socket.io-client";
 import { useAccount } from "wagmi";
 
-dotenv.config();
-
-const ENVIRONMENT = process.env.ENVIRONMENT;
+const ENVIRONMENT = process.env.NEXT_PUBLIC_ENVIRONMENT;
 const API_URL =
   ENVIRONMENT === "production"
     ? process.env.NEXT_PUBLIC_API_URL_PRODUCTION

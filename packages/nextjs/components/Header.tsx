@@ -6,14 +6,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { DECIMALS } from "./sami/ChooseGame";
 import { ModalInstructions } from "./sami/ModalInstructions";
-import dotenv from "dotenv";
 import { useAccount } from "wagmi";
 import { Bars3Icon } from "@heroicons/react/20/solid";
 import { FaucetButton, RainbowKitCustomConnectButtonOpaque } from "~~/components/scaffold-eth";
 import { useOutsideClick, useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { notification } from "~~/utils/scaffold-eth";
-
-dotenv.config();
 
 const ENVIRONMENT = process.env.NEXT_PUBLIC_ENVIRONMENT;
 

@@ -1,7 +1,4 @@
-import dotenv from "dotenv";
 import * as chains from "viem/chains";
-
-dotenv.config();
 
 export type ScaffoldConfig = {
   targetNetworks: readonly chains.Chain[];
