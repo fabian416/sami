@@ -191,10 +191,38 @@ export const startGame = async (roomId: string) => {
     serverTime,
   });
 
+  if (Math.random() < 0.5) {
+    sendAIFirstMessage(roomId);
+  }
+
   setTimeout(() => endConversationPhase(roomId), timeBeforeEnds);
 
   return game;
 };
+
+const sendAIFirstMessage = async (roomId: string) => {
+  const game = rooms[roomId];
+  const samiPlayer: any = getSamiPlayer(game);
+  let message;
+  if (Math.random() < 0.5) {
+    message = "YOU ARE IN A NEW GAME AND YOU NEED TO START VERY BRIEFLY THE CONVERSATION";
+  } else {
+    message = "ESTAR POR EMPEZAR UN NUEVO JUEGO Y TENES QUE EMPEZAR LA CONVERSACIÓN MUY BREVEMENTE";
+  }
+  
+  if (!cachedRoomsMessages[roomId]) cachedRoomsMessages[roomId] = [];
+  cachedRoomsMessages[roomId].push({
+    roomId,
+    playerId: samiPlayer.id,
+    playerIndex: samiPlayer.index,
+    isPlayerAI: true,
+    message,
+  });
+
+  const delay = Math.floor(Math.random() * (2000 - 10 + 1));
+  await new Promise((resolve) => setTimeout(resolve, delay));
+  sendMessageToAI(roomId);
+}
 
 export const recordVote = (
   roomId: string,
@@ -286,6 +314,8 @@ export const sendMessageToAI = async (roomId: string) => {
       game.status === "active" &&
       responseData[0].action !== "IGNORE"
     ) {
+      const finalAgentMessage = maybeDisguiseResponse(agentMessage);
+
       const endTime = Date.now();
       const elapsedTimeSeconds = (endTime - startTime) / 1000;
       console.log(
@@ -296,21 +326,108 @@ export const sendMessageToAI = async (roomId: string) => {
         roomId,
         playerId: samiPlayer.id,
         playerIndex: samiPlayer.index,
-        message: agentMessage,
+        message: finalAgentMessage,
       });
 
+      if (!roomsMessages[roomId]) roomsMessages[roomId] = [];
       roomsMessages[roomId].push({
         roomId,
         playerId: samiPlayer.id,
         playerIndex: samiPlayer.index,
         isPlayerAI: true,
-        message: agentMessage,
+        message: finalAgentMessage,
       });
     }
   } catch (error) {
     console.error("[Backend] AI Response Timeout or Error:", error);
   }
 };
+
+const maybeDisguiseResponse = (agentMessage: string): string => {
+  let modifiedMessage = agentMessage;
+
+  if (Math.random() < 0.7) {
+    modifiedMessage = modifiedMessage.replace(/,/g, "");
+  }
+
+  if (Math.random() < 0.5) {
+    return modifiedMessage;
+  }
+
+  if (Math.random() < 0.1) {
+    modifiedMessage = modifiedMessage.toUpperCase();
+  }
+
+  const transformations = [];
+
+  if (modifiedMessage.includes("q")) {
+    transformations.push((msg: string) => {
+      const index = msg.indexOf("q");
+      return msg.substring(0, index) + "w" + msg.substring(index + 1);
+    });
+  }
+  if (modifiedMessage.includes("c")) {
+    transformations.push((msg: string) => {
+      const index = msg.indexOf("c");
+      return msg.substring(0, index) + "x" + msg.substring(index + 1);
+    });
+  }
+  if (modifiedMessage.includes("i")) {
+    transformations.push((msg: string) => {
+      const index = msg.indexOf("i");
+      return msg.substring(0, index) + "u" + msg.substring(index + 1);
+    });
+  }
+  if (modifiedMessage.includes("h")) {
+    transformations.push((msg: string) => {
+      const index = msg.indexOf("h");
+      return msg.substring(0, index) + "j" + msg.substring(index + 1);
+    });
+  }
+  if (modifiedMessage.includes("t")) {
+    transformations.push((msg: string) => {
+      const index = msg.indexOf("t");
+      return msg.substring(0, index) + "r" + msg.substring(index + 1);
+    });
+  }
+  if (modifiedMessage.includes("m")) {
+    transformations.push((msg: string) => {
+      const index = msg.indexOf("m");
+      return msg.substring(0, index) + "n" + msg.substring(index + 1);
+    });
+  }
+  if (modifiedMessage.includes("p")) {
+    transformations.push((msg: string) => {
+      const index = msg.indexOf("p");
+      return msg.substring(0, index) + "o" + msg.substring(index + 1);
+    });
+  }
+  if (modifiedMessage.length > 1) {
+    transformations.push((msg: string) => {
+      const index = Math.floor(Math.random() * msg.length);
+      return msg.substring(0, index) + msg[index].toUpperCase() + msg.substring(index + 1);
+    });
+  }
+  if (modifiedMessage.length > 1) {
+    transformations.push((msg: string) => {
+      return msg.substring(1);
+    });
+  }
+  if (modifiedMessage.length > 1) {
+    transformations.push((msg: string) => {
+      return msg.substring(2);
+    });
+  }
+  transformations.push((msg: string) => msg.toLowerCase());
+
+  if (transformations.length === 0) {
+    return modifiedMessage;
+  }
+
+  const randomTransformation = transformations[Math.floor(Math.random() * transformations.length)];
+  return randomTransformation(modifiedMessage);
+};
+
 
 const endConversationPhase = async (roomId: string) => {
   const game = rooms[roomId];
@@ -518,8 +635,8 @@ const processRoomsMessages = async () => {
       console.error("[Backend] Error in processRoomsMessages:", error);
     }
 
-    // Esperar entre 2 y 8 segundos de manera aleatoria antes de la siguiente ejecución
-    const delay = Math.floor(Math.random() * (10000 - 2000 + 1)) + 2000;
+    // Esperar entre 2 y 7 segundos de manera aleatoria antes de la siguiente ejecución
+    const delay = Math.floor(Math.random() * (9000 - 2000 + 1)) + 2000;
     await new Promise((resolve) => setTimeout(resolve, delay));
   }
 };
