@@ -173,23 +173,24 @@ export const Header = () => {
       <div className="navbar-end flex-grow mr-4">
         {isConnected &&
           typeof balance !== "undefined" &&
-          (balance < BigInt(1 * DECIMALS) ? (
-            ENVIRONMENT !== "production" && (
-              <button
-                className="flex flex-row btn btn-primary bg-[#2672BE] hover:bg-[#2672BE] glow-blue mr-2 text-white border-0 shadow-[0_0_10px_#A1CA00] btn-sm text-xl"
-                onClick={handleMint}
-              >
-                <div className="text-sm">Get $USDC</div>
-                <TokenLogo className="" />
-              </button>
-            )
+          (ENVIRONMENT === "production" ? (
+            <span className="flex flex-row bg-[#2672BE] text-white glow-blue px-3 py-1 rounded-lg items-center justify-center gap-1 ml-4 mr-2 text-lg font-bold">
+              <TokenLogo className="" />
+              <span className="ml-1">{(Number(balance) / DECIMALS).toFixed(2)}</span>
+            </span>
+          ) : balance < BigInt(1 * DECIMALS) ? (
+            <button
+              className="flex flex-row btn btn-primary bg-[#2672BE] hover:bg-[#2672BE] glow-blue mr-2 text-white border-0 shadow-[0_0_10px_#A1CA00] btn-sm text-xl"
+              onClick={handleMint}
+            >
+              <div className="text-sm">Get $USDC</div>
+              <TokenLogo className="" />
+            </button>
           ) : (
-            <>
-              <span className="flex flex-row bg-[#2672BE] text-white glow-blue px-3 py-1 rounded-lg items-center justify-center gap-1 ml-4 mr-2 text-lg font-bold">
-                <TokenLogo className="" />
-                <span className="ml-1">{(Number(balance) / DECIMALS).toFixed(2)}</span>
-              </span>
-            </>
+            <span className="flex flex-row bg-[#2672BE] text-white glow-blue px-3 py-1 rounded-lg items-center justify-center gap-1 ml-4 mr-2 text-lg font-bold">
+              <TokenLogo className="" />
+              <span className="ml-1">{(Number(balance) / DECIMALS).toFixed(2)}</span>
+            </span>
           ))}
         <RainbowKitCustomConnectButtonOpaque />
         <FaucetButton />
