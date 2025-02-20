@@ -74,6 +74,7 @@ export const PlayGame = () => {
 
   const inputRef = useRef<HTMLInputElement | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const { socket, playerIndex, playerId, setPlayerIndex, roomId } = useSocket();
   const { resolvedTheme } = useTheme();
@@ -126,6 +127,7 @@ export const PlayGame = () => {
 
     socket.on("startConversationPhase", () => {
       setCurrentPhase("conversation");
+      audioRef.current?.play(); // Play the sound when the conversation phase starts
     });
 
     socket.on(
@@ -280,6 +282,9 @@ export const PlayGame = () => {
           </div>
         )}
       </div>
+
+      {/* Audio element */}
+      <audio ref={audioRef} src="/start-conversation.mp3" preload="auto" />
     </>
   );
 };
