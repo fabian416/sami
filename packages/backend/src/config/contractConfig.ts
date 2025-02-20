@@ -17,8 +17,8 @@ if (!RPC_URL) {
 
 // Set contract address based on environment
 const CONTRACT_ADDRESS = ENVIRONMENT === "production"
-  ? process.env.BASE_SEPOLIA_SIMPLE_SAMI_ADDRESS
-  : process.env.BASE_MAINNET_SIMPLE_SAMI_ADDRESS;
+  ? process.env.BASE_MAINNET_SIMPLE_SAMI_ADDRESS
+  : process.env.BASE_SEPOLIA_SIMPLE_SAMI_ADDRESS;
 if (!CONTRACT_ADDRESS) {
   throw new Error("Missing contract addresses in environment variables");
 }
