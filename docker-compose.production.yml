@@ -10,6 +10,7 @@ services:
       - .env
     environment:
       - HOST=0.0.0.0
+      - NEXT_PUBLIC_ENVIRONMENT=production
 
   frontend:
     image: ghcr.io/fabian416/sami/frontend:latest
@@ -24,6 +25,35 @@ services:
       - .env
     environment:
       - PORT=3001
+      - NEXT_PUBLIC_ENVIRONMENT=production
+
+  staging-backend:
+    image: ghcr.io/fabian416/sami/backend:staging
+    ports:
+      - "6001:5001"
+    restart: always
+    networks:
+      - sami_network
+    env_file:
+      - .env
+    environment:
+      - HOST=0.0.0.0
+      - NEXT_PUBLIC_ENVIRONMENT=development
+
+  staging-frontend:
+    image: ghcr.io/fabian416/sami/frontend:staging
+    ports:
+      - "4001:3001"
+    restart: always
+    networks:
+      - sami_network
+    depends_on:
+      - backend
+    env_file:
+      - .env
+    environment:
+      - PORT=3001
+      - NEXT_PUBLIC_ENVIRONMENT=development
 
   ai-agent:
     image: ghcr.io/fabian416/sami/ai-agent:latest
@@ -51,6 +81,8 @@ services:
     environment:
       - SAMI_SITE=playsami.fun
       - SAMI_API=api.playsami.fun
+      - STAGING_SAMI_SITE=staging.playsami.fun
+      - STAGING_SAMI_API=staging-api.playsami.fun
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data

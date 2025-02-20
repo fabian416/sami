@@ -1,10 +1,17 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
+import dotenv from "dotenv";
 import { Socket, io } from "socket.io-client";
 import { useAccount } from "wagmi";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+dotenv.config();
+
+const ENVIRONMENT = process.env.ENVIRONMENT;
+const API_URL =
+  ENVIRONMENT === "production"
+    ? process.env.NEXT_PUBLIC_API_URL_PRODUCTION
+    : process.env.NEXT_PUBLIC_API_URL_DEVELOPMENT;
 
 // Define el tipo del contexto
 interface SocketContextType {

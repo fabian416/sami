@@ -6,13 +6,26 @@ import * as playerController from "@controllers/playerController";
 import "@services/eventListener";
 const HOST = process.env.HOST || "localhost";
 const PORT = parseInt(process.env.PORT || "5001", 10);
-
+const ENVIRONMENT = process.env.NEXT_PUBLIC_ENVIRONMENT;
 const server = http.createServer(app);
+
+const allowedOrigins = [
+  "https://playsami.fun",
+  "https://staging.playsami.fun",
+  ...(ENVIRONMENT !== "production" ? ["http://localhost:3001", "https://8lh8dmll-3001.brs.devtunnels.ms"] : [])
+];
+
 
 // Socket configuration.IO for the server
 export const io = new Server(server, {
     cors: {
-        origin: '*', // Allowing connections from any origin
+      origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error("Not allowed by CORS"));
+        }
+      },
         methods: ['GET', 'POST', 'OPTIONS'],
     },
     transports: ["websocket", "polling"],

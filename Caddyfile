@@ -12,3 +12,11 @@
 {$SAMI_API} {
         reverse_proxy backend:5001
 }
+
+{$STAGING_SAMI_SITE} {
+        reverse_proxy staging-frontend:4001
+}
+
+{$STAGING_SAMI_API} {
+        reverse_proxy staging-backend:6001
+}
