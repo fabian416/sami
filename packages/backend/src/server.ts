@@ -35,7 +35,6 @@ io.on("connection", (socket) => {
   console.log("Player connected :)", socket.id);
   players[socket.id] = { socketId: socket.id };
   io.emit("connectedPlayers", { amount: Object.keys(players).length });
-  console.log({players});
 
   
   socket.on("registerWallet", (data) => {
@@ -61,11 +60,7 @@ io.on("connection", (socket) => {
     try {
       const { playerId, isBetGame } = data;
 
-      const result = gameController.createOrJoinGame(
-        { playerId, isBetGame },
-        socket,
-        io
-      );
+      const result = gameController.createOrJoinGame({ playerId, isBetGame }, socket, io);
 
       // Enviar confirmación al cliente
       socket.emit("gameJoined", result);

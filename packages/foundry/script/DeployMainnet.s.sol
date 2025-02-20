@@ -17,10 +17,7 @@ contract DeployScript is ScaffoldETHDeploy {
     function run() external returns (address mockUSDC, address simpleSAMI) {
         // Deploys all your contracts sequentially
         // Add new deployments here when needed
-/*
-        DeployMockUSDC deployMockUSDC = new DeployMockUSDC();
-        mockUSDC = deployMockUSDC.run();
-*/
+        
         DeploySimpleSAMI deploySimpleSAMI = new DeploySimpleSAMI();
         simpleSAMI = deploySimpleSAMI.run(0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913);
 

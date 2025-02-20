@@ -39,7 +39,6 @@ gameServiceEmitter.on("startVoting", (data: {roomId: string, timeBeforeEnds: num
 
   // Get list of active players
   const activePlayers = game.players
-    .filter((player) => !player.isEliminated)
     .map((player) => ({ id: player.id, index: player.index }));
 
   console.log(`[${data.roomId}] Starting voting phase.`);

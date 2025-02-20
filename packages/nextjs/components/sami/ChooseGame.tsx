@@ -23,21 +23,17 @@ export const ChooseGame = ({ showGame }: any) => {
   const [loading, setLoading] = useState(false);
   const [loadingApprove, setLoadingApprove] = useState(false);
   const [loadingBet, setLoadingBet] = useState(false);
+  const [localAllowance, setLocalAllowance] = useState<bigint | null>(null);
   const { socket, isConnected, playerId, setPlayerId, setPlayerIndex, setRoomId } = useSocket();
   const { address: connectedAddress } = useAccount();
-  const { writeContractAsync: USDCwriteContractAsync } = useScaffoldWriteContract("MockUSDC");
-  const { writeContractAsync: simpleSAMIWriteContractAsync } = useScaffoldWriteContract("SimpleSAMI");
-  const { data: simpleSAMIContractData } = useDeployedContractInfo("SimpleSAMI");
-
-  const { data: samiBalance } = useScaffoldReadContract({
-    contractName: "MockUSDC",
-    functionName: "balanceOf",
-    args: [simpleSAMIContractData?.address],
-    watch: true,
+  const { writeContractAsync: USDCwriteContractAsync } = useScaffoldWriteContract({ contractName: "USDC" });
+  const { writeContractAsync: simpleSAMIWriteContractAsync } = useScaffoldWriteContract({
+    contractName: "USDCSimpleSAMI",
   });
+  const { data: simpleSAMIContractData } = useDeployedContractInfo({ contractName: "USDCSimpleSAMI" });
 
   const { data: allowance } = useScaffoldReadContract({
-    contractName: "MockUSDC",
+    contractName: "USDC",
     functionName: "allowance",
     args: [connectedAddress, simpleSAMIContractData?.address],
     watch: true,
@@ -45,7 +41,9 @@ export const ChooseGame = ({ showGame }: any) => {
   const [isBetGame, setIsBetGame] = useState<boolean>(false);
 
   useEffect(() => {
-    allowance && allowance >= BigInt(1 * DECIMALS) && setLoadingApprove(false);
+    if (allowance !== undefined) {
+      setLocalAllowance(allowance);
+    }
   }, [allowance]);
 
   useEffect(() => {
@@ -83,6 +81,7 @@ export const ChooseGame = ({ showGame }: any) => {
       });
 
       if (contractResponse) {
+        setLocalAllowance(BigInt(1 * DECIMALS));
         notification.success("Allowance increased successfully!");
       }
     } catch (error) {
@@ -200,7 +199,7 @@ export const ChooseGame = ({ showGame }: any) => {
               </p>
               <div className="card-actions justify-center">
                 {connectedAddress ? (
-                  allowance && allowance >= BigInt(1 * DECIMALS) ? (
+                  localAllowance && localAllowance >= BigInt(1 * DECIMALS) ? (
                     <>
                       <button
                         onClick={handleBetAndPlay}

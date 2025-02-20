@@ -2,7 +2,7 @@
 pragma solidity ^0.8.19;
 
 import "./DeployHelpers.s.sol";
-import { MockUSDC } from "../contracts/MockUSDC.sol";
+import { USDC } from "../contracts/USDC.sol";
 
 /**
  * @notice Deploy script for YourContract contract
@@ -25,7 +25,7 @@ contract DeployMockUSDC is ScaffoldETHDeploy {
      *      - Export contract addresses & ABIs to `nextjs` packages
      */
     function run() external ScaffoldEthDeployerRunner returns (address) {
-        MockUSDC mockUsdc = new MockUSDC();
+        USDC mockUsdc = new USDC();
         console.logString(string.concat("MockUSDC deployed at: ", vm.toString(address(mockUsdc))));
         return address(mockUsdc);
     }

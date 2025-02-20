@@ -6,7 +6,7 @@ import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 
 /// @title SimpleSAMI - A simple contract for managing tickets and prizes
 /// @notice This contract allows users to buy tickets to play SAMI,and allows the owner to send prizes.
-contract SimpleSAMI is Ownable {
+contract USDCSimpleSAMI is Ownable {
     /*//////////////////////////////////////////////////////////////
                                  ERRORS
     //////////////////////////////////////////////////////////////*/
