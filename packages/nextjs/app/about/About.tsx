@@ -120,53 +120,6 @@ export const About = () => {
           </div>
         </div>
       </div>
-
-      {/* Section 5: Meet the Team */}
-      <div className="w-full pt-6">
-        <h1 className="text-4xl font-mono text-center">Meet the team! 🤖</h1>
-      </div>
-      <div className="hero">
-        <div className="hero-content flex-col md:flex-row gap-9">
-          {[
-            {
-              name: "Lulox",
-              role: "Fullstack Developer",
-              image: "/lulox.jpg",
-              link: "https://linktr.ee/lulox",
-            },
-            {
-              name: "Fabián Díaz",
-              role: "Fullstack Developer",
-              image: "/fabian.jpg",
-              link: "https://x.com/Fabian_diaz222",
-            },
-            {
-              name: "Luciano Carreño",
-              role: "Fullstack Developer",
-              image: "/lucho.jpg",
-              link: "https://x.com/lucho_leonel1",
-            },
-          ].map((member, index) => (
-            <div key={index} className="flex flex-col items-center gap-3 bg-base-100 rounded-lg border-2">
-              <figure className="px-10 pt-5 flex-shrink-0">
-                <Image src={member.image} alt={member.name} className="rounded-xl" width={200} height={200} />
-              </figure>
-              <div className="flex pb-5 flex-col items-center justify-center">
-                <h2 className="text-3xl">{member.name}</h2>
-                <span className="italic">{member.role}</span>
-                <a
-                  className="flex justify-center items-center gap-1"
-                  href={member.link}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <button className="btn btn-success mt-2">Contact</button>
-                </a>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
       <div className="flex flex-row sami-title text-center mt-4 mb-4 text-lg opacity-80 bg-[#2672BE] glow-blue text-white p-2 rounded-lg">
         <Link className="link" href="https://x.com/sami_ai_agent" target="_blank" passHref>
           <span className="sami-title text-xl text-black dark:text-white">Follow SAMI on X!</span>
