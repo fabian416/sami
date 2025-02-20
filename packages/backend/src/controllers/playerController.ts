@@ -3,6 +3,7 @@ import PlayerServiceEmitter from "@services/playerService";
 import { io } from "../server";
 import { rooms } from "@services/gameService";
 import { Player } from "@services/playerService";
+import supabase from "@src/config/supabaseClient";
 import _ from 'lodash';
 
 
@@ -24,15 +25,29 @@ PlayerServiceEmitter.on("playerRoomId", (data: { roomId: string, playerId: strin
 export const disconnectPlayer = (data: {roomId: string, playerId: string}) => {
   const { roomId, playerId } = data;
   const game = rooms[roomId];
+  const lefterPlayer = game.players.find((p: Player) => p.id === playerId);
   if (game && game.status === "waiting") {
+    if (game.isBetGame) {
+      lefterPlayer && saveLefterPlayer(lefterPlayer)
+    }
     _.remove(game.players, (player: Player) => player.id === playerId);
   } else {
-    const player = game.players.find((p: Player) => p.id === playerId);
-    if (player) {
-      player.left = true;
-    }
+    if (lefterPlayer) lefterPlayer.left = true;
   }
 }
+
+const saveLefterPlayer = async (player: Player) => {
+  const { error } = await supabase.from("lefters_before_game_starts").insert({
+    id: player.id,
+    wallet_address: player.walletAddress,
+  });
+
+  if (error) {
+    console.error("[Backend] Error saving players:", error);
+  } else {
+    console.log("[Backend] Players saved successfully.");
+  }
+};
 
 
 export const getPlayerIndex = (data: {roomId: string, playerId: string}) => {

@@ -14,6 +14,10 @@ COPY . .
 # Instalar dependencias antes de copiar el código fuente para aprovechar la cache
 RUN yarn install
 
+
+ARG NEXT_PUBLIC_ENVIRONMENT
+ENV NEXT_PUBLIC_ENVIRONMENT=${NEXT_PUBLIC_ENVIRONMENT:-development}
+
 RUN yarn backend:build
 
 # Etapa 2: Producción
@@ -29,6 +33,8 @@ COPY --from=builder /app/packages/backend/package*.json ./
 COPY --from=builder /app/packages/backend/tsconfig.json ./
 COPY --from=builder /app/packages/backend/node_modules ./node_modules
 COPY --from=builder /app/packages/backend/dist ./dist
+
+ENV NEXT_PUBLIC_ENVIRONMENT=${NEXT_PUBLIC_ENVIRONMENT:-development} 
 
 # Expone el puerto del backend
 EXPOSE 5001
