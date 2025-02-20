@@ -350,7 +350,7 @@ const maybeDisguiseResponse = (agentMessage: string): string => {
     modifiedMessage = modifiedMessage.replace(/,/g, "");
   }
 
-  if (Math.random() < 0.7) {
+  if (Math.random() < 0.65) {
     return modifiedMessage;
   }
 
