@@ -30,7 +30,7 @@ services:
   staging-backend:
     image: ghcr.io/fabian416/sami/backend:staging
     ports:
-      - "6001:5001"
+      - "6001:6001"
     restart: always
     networks:
       - sami_network
@@ -38,12 +38,13 @@ services:
       - .env
     environment:
       - HOST=0.0.0.0
+      - PORT=6001
       - NEXT_PUBLIC_ENVIRONMENT=development
 
   staging-frontend:
     image: ghcr.io/fabian416/sami/frontend:staging
     ports:
-      - "4001:3001"
+      - "4001:4001"
     restart: always
     networks:
       - sami_network
@@ -52,7 +53,7 @@ services:
     env_file:
       - .env
     environment:
-      - PORT=3001
+      - PORT=4001
       - NEXT_PUBLIC_ENVIRONMENT=development
 
   ai-agent:
