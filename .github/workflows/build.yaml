@@ -4,13 +4,13 @@ env:
   IMAGE_TAG_FRONTEND: ghcr.io/fabian416/sami/frontend
   IMAGE_TAG_AI_AGENT: ghcr.io/fabian416/sami/ai-agent
 
-  IMAGE_VERSION: ${{ github.ref == 'refs/heads/production' && 'latest' || 'staging' }}
-  NEXT_PUBLIC_ENVIRONMENT: ${{ github.ref == 'refs/heads/production' && 'production' || 'development' }}
+  IMAGE_VERSION: ${{ github.ref == 'refs/heads/main' && 'latest' || 'staging' }}
+  NEXT_PUBLIC_ENVIRONMENT: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
 
 on:
   push:
     branches:
-      - production
+      - main
       - staging
 
 jobs:
