@@ -29,7 +29,7 @@ const Home: NextPage = () => {
 
   return (
     <>
-      <div className="fixed flex gap-2 items-center justify-center mt-4 mx-4 max-w-16 outline outline-1 outline-green-600 border border-green-600 rounded-lg px-2 py-1 text-sm text-green-600">
+      <div className="md:fixed self-start flex gap-2 items-center justify-center mt-4 mb-2 mx-8 md:mx-4 max-w-16 outline outline-1 outline-green-600 border border-green-600 rounded-lg px-2 py-1 text-sm text-green-600">
         {connectedPlayers}
         <UserIcon className="w-4 h-4 fill-current text-green-600" />
       </div>
