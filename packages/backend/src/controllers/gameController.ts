@@ -115,8 +115,6 @@ export const createOrJoinGame = (data: any, socket: Socket, io: Server) => {
 
   // Send response to the specific player who joined
   socket.emit("gameJoined", { roomId, success, isBetGame });
-
-  console.log(` Player ${playerId} joined room ${roomId} (isBetGame: ${isBetGame})`);
 };
 
 
