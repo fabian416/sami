@@ -5,6 +5,7 @@ import { players } from "@src/server";
 import _ from "lodash";
 import { sendPrizesToWinners } from "@config/contractConfig";
 import supabase from "@config/supabaseClient";
+import axios from "axios";
 
 class GameServiceEmitter extends EventEmitter {}
 const gameServiceEmitter = new GameServiceEmitter();
@@ -16,6 +17,10 @@ export const SAMI_URI = AGENT_URL || "http://localhost:3000";
 const MIN_PLAYERS = 3;
 const CONVERTATION_PHASE_TIME = 60 * 1000;
 const VOTING_PHASE_TIME = 15 * 1000;
+
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const CHAT_ID = -1002404242449;
+const ENVIRONMENT = process.env.NEXT_PUBLIC_ENVIRONMENT;
 
 export interface Message {
   roomId: string;
@@ -109,6 +114,7 @@ export const createNewGame = (roomId: string, isBetGame: boolean) => {
 
   rooms[roomId] = newGame; //  Se almacena en la memoria correctamente
   console.log(`New match created ${roomId} | Bet: ${isBetGame}`);
+  if (TELEGRAM_BOT_TOKEN) sendTelegramMessage(isBetGame);
 
   return newGame;
 };
@@ -620,6 +626,19 @@ const safeParseJSON = (text: string): any | null => {
     return null;
   }
 };
+
+async function sendTelegramMessage(isBetGame: boolean) {
+  const message = `A player has tried to initiate a ${isBetGame ? "betting" : "free"} room in ${ENVIRONMENT}`;
+  console.log(message);
+  try {
+      await axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+          chat_id: CHAT_ID,
+          text: message,
+      }, { timeout: 10000 });
+  } catch (error: any) {
+      console.error("Error sending the message:", error);
+  }
+}
 
 const processRoomsMessages = async () => {
   while (true) {
