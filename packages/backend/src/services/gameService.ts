@@ -628,7 +628,7 @@ const safeParseJSON = (text: string): any | null => {
 };
 
 async function sendTelegramMessage(isBetGame: boolean) {
-  const message = `A player has tried to initiate a ${isBetGame ? "betting" : "free"} room in ${ENVIRONMENT}`;
+  const message = `A player has tried to initiate a ${isBetGame ? "betting" : "free"} room in ${ENVIRONMENT === "production" ? "https://playsami.fun" : "https://staging.playsami.fun"}`;
   console.log(message);
   try {
       await axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
