@@ -114,7 +114,6 @@ export const createNewGame = (roomId: string, isBetGame: boolean) => {
 
   rooms[roomId] = newGame; //  Se almacena en la memoria correctamente
   console.log(`New match created ${roomId} | Bet: ${isBetGame}`);
-  if (TELEGRAM_BOT_TOKEN) sendTelegramMessage(isBetGame);
 
   return newGame;
 };
@@ -157,6 +156,8 @@ export const joinGame = (
 
     // Start the game
     startGame(roomId);
+  } else {
+    if (TELEGRAM_BOT_TOKEN) sendTelegramMessage(isBetGame, game.players.length);
   }
 
   // If everything succeeds, return true
@@ -627,8 +628,8 @@ const safeParseJSON = (text: string): any | null => {
   }
 };
 
-async function sendTelegramMessage(isBetGame: boolean) {
-  const message = `A player has tried to initiate a ${isBetGame ? "betting" : "free"} room in ${ENVIRONMENT === "production" ? "https://playsami.fun" : "https://staging.playsami.fun"}`;
+async function sendTelegramMessage(isBetGame: boolean, playersAmount: number) {
+  const message = `A player has joined a ${isBetGame ? "betting" : "free"} room in ${ENVIRONMENT === "production" ? "https://playsami.fun" : "https://staging.playsami.fun"} (players ${playersAmount}/${MIN_PLAYERS})`;
   console.log(message);
   try {
       await axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
