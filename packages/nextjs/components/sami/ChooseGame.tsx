@@ -192,16 +192,15 @@ export const ChooseGame = ({ showGame }: any) => {
               <h2 className="text-3xl sami-title flex flex-row justify-center items-center">
                 {isBetGame ? (
                   <>
-                    Bet&nbsp;
-                    <span className="text-[#3DCCE1]">1 $USDC&nbsp;</span>
+                    Bet 1 $USDC
                     <TokenLogo width={40} height={40} />
                   </>
                 ) : (
-                  "Play SAMI for free!"
+                  "Play for free!"
                 )}
               </h2>
               <p className="text-xl flex flex-col justify-center items-center">
-                Jump into a chat with three mystery people.
+                Jump into a chat with 3 mystery people.
                 <br />
                 One is SAMI, a sneaky AI pretending to be human.
                 <br />
