@@ -24,6 +24,10 @@ body {
   line-height: 0.2;
 } */
 
+.gradient-bg {
+  background: linear-gradient(75deg, #3dcce1, #2c2171);
+}
+
 .sami-title {
   font-family: "Audiowide", serif;
   font-optical-sizing: auto;

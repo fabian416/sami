@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { DECIMALS } from "./sami/ChooseGame";
-import { ModalInstructions } from "./sami/ModalInstructions";
+// import { ModalInstructions } from "./sami/ModalInstructions";
 import { useAccount } from "wagmi";
 import { Bars3Icon } from "@heroicons/react/20/solid";
 import { FaucetButton, RainbowKitCustomConnectButtonOpaque } from "~~/components/scaffold-eth";
@@ -75,7 +75,7 @@ export const HeaderMenuLinks = () => {
  * Site header
  */
 export const Header = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  // const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const burgerMenuRef = useRef<HTMLDivElement>(null);
@@ -116,21 +116,21 @@ export const Header = () => {
     }
   };
 
-  const openModal = () => {
-    setIsModalOpen(true);
-  };
+  // const openModal = () => {
+  //   setIsModalOpen(true);
+  // };
 
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
+  // const closeModal = () => {
+  //   setIsModalOpen(false);
+  // };
 
-  useEffect(() => {
-    const firstTime = localStorage.getItem("firstTime");
-    if (!firstTime) {
-      openModal();
-      localStorage.setItem("firstTime", "true");
-    }
-  }, []);
+  // useEffect(() => {
+  //   const firstTime = localStorage.getItem("firstTime");
+  //   if (!firstTime) {
+  //     openModal();
+  //     localStorage.setItem("firstTime", "true");
+  //   }
+  // }, []);
 
   return (
     <div className="sticky lg:static top-0 navbar bg-base-100 min-h-0 flex-shrink-0 justify-between z-20 shadow-md shadow-secondary px-0 sm:px-2">
@@ -195,14 +195,14 @@ export const Header = () => {
         <RainbowKitCustomConnectButtonOpaque />
         <FaucetButton />
       </div>
-      <button
+      {/* <button
         className="btn btn-primary bg-[#1CA297] hover:bg-[#33B3A8] mr-2 text-white border-0 glow-cyan btn-sm text-xl"
         onClick={openModal}
       >
         ?
-      </button>
+      </button> */}
 
-      {isModalOpen && <ModalInstructions closeModal={closeModal} />}
+      {/* {isModalOpen && <ModalInstructions closeModal={closeModal} />} */}
     </div>
   );
 };
