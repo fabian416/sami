@@ -186,54 +186,76 @@ export const ChooseGame = ({ showGame }: any) => {
       {loading && <ModalWaitingForPlayers isBetGame={isBetGame} />}
       {!loading && (loadingApprove || loadingBet) && <ModalWaitingForTransaction />}
       <div className="flex flex-col items-center w-full">
-        <div className="flex md:flex-row flex-col justify-center items-center w-full gap-10 md:gap-20">
-          <div className="card bg-[#1CA297] opacity-80 text-white glow-cyan w-full md:w-96 shadow-xl mx-4">
-            <div className="card-body text-center">
-              <h2 className="text-3xl sami-title">Play for free</h2>
-              <p className="text-xl">Find SAMI, the impostor AI, among 3 anons in a group chat</p>
-              <div className="card-actions justify-center">
-                <button
-                  className="btn btn-primary rounded-lg text-2xl w-full bg-white text-[#1CA297] hover:text-[#1CA297] hover:bg-white border-0"
-                  onClick={handleEnterGame}
-                  disabled={loading || !isConnected}
-                >
-                  {loading ? "Enter" : "Enter"}
-                </button>
-              </div>
-            </div>
-          </div>
-          <div className="card bg-[#2c2171] opacity-80 text-white glow-purple w-full md:w-96 shadow-xl mx-4">
+        <div className="flex md:flex-row flex-col justify-center items-center w-full md:w-2/3 gap-10 md:gap-20">
+          <div className="card gradient-bg opacity-80 text-white glow-cyan w-full shadow-xl mx-4 mt-16 md:mt-4">
             <div className="card-body text-center">
               <h2 className="text-3xl sami-title flex flex-row justify-center items-center">
-                <>Bet&nbsp;</>
-                <span className="text-[#3DCCE1]">1 $USDC&nbsp;</span>
-                <TokenLogo width={40} height={40} />
+                {isBetGame ? (
+                  <>
+                    Bet 1 $USDC
+                    <TokenLogo width={40} height={40} />
+                  </>
+                ) : (
+                  "Play for free!"
+                )}
               </h2>
               <p className="text-xl flex flex-col justify-center items-center">
-                <span>Win and split the pot</span>
-                <span>If everyone loses, SAMI wins!</span>
+                Jump into a chat with 3 mystery people.
+                <br />
+                One is SAMI, a sneaky AI pretending to be human.
+                <br />
+                You have just 2 minutes to spot the fake.
+                <br />
+                <span>
+                  Vote at the end—<strong>who is SAMI?</strong>
+                </span>
               </p>
-              <div className="card-actions justify-center">
-                {connectedAddress ? (
-                  localAllowance && localAllowance >= BigInt(1 * DECIMALS) ? (
-                    <>
+              <p className="text-xl  flex flex-col justify-center items-center">
+                <span>
+                  <strong>Betting mode: </strong>Win and split the pot. If everyone loses, SAMI wins!
+                </span>
+              </p>
+              <div className="card-actions justify-center items-center">
+                <div className="form-control">
+                  <label className="cursor-pointer label">
+                    <span className="mr-2 text-xl label-text text-white">Free</span>
+                    <input
+                      type="checkbox"
+                      className="toggle toggle-success"
+                      checked={isBetGame}
+                      onChange={() => setIsBetGame(!isBetGame)}
+                    />
+                    <span className="ml-2 text-xl label-text text-white">Betting</span>
+                  </label>
+                </div>
+                {isBetGame ? (
+                  connectedAddress ? (
+                    localAllowance && localAllowance >= BigInt(1 * DECIMALS) ? (
                       <button
                         onClick={handleBetAndPlay}
                         className="cool-button !flex !flex-row !justify-center !items-center"
                       >
                         <div className="text-[#2c2171]">Bet</div>&nbsp;<>1</>&nbsp;$USDC&nbsp;
                       </button>
-                    </>
+                    ) : (
+                      <button
+                        onClick={handleApprove}
+                        className="cool-button !flex !flex-row !justify-center !items-center"
+                      >
+                        <div className="">Approve</div>&nbsp;<>1</>&nbsp;$USDC&nbsp;
+                      </button>
+                    )
                   ) : (
-                    <button
-                      onClick={handleApprove}
-                      className="cool-button !flex !flex-row !justify-center !items-center"
-                    >
-                      <div className="">Approve</div>&nbsp;<>1</>&nbsp;$USDC&nbsp;
-                    </button>
+                    <RainbowKitCustomConnectButton />
                   )
                 ) : (
-                  <RainbowKitCustomConnectButton />
+                  <button
+                    className="btn btn-primary rounded-lg text-2xl w-full bg-white text-[#1CA297] hover:text-[#1CA297] hover:bg-white border-0"
+                    onClick={handleEnterGame}
+                    disabled={loading || !isConnected}
+                  >
+                    {loading ? "Enter" : "Enter"}
+                  </button>
                 )}
               </div>
             </div>
