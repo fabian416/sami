@@ -1,25 +1,21 @@
 import Image from "next/image";
+import { TokenLogo } from "../Header";
 
-export const ModalFinished = ({ winner, isBetGame }: any) => {
+export const ModalFinished = ({ winner, isBetGame, amountOfWinners }: any) => {
+  const finalAmountOfTokens = (3 / amountOfWinners).toFixed(2);
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-[#2c2171] glow-purple text-white rounded-2xl items-center justify-center pb-8 px-12">
         <div className="flex items-center justify-center text-center text-4xl pt-8 pb-2">
-          {winner === "You win" ? <strong>You won</strong> : <strong>SAMI won</strong>}
+          {winner === "You win" ? <strong>You won</strong> : <strong>You lost</strong>}
         </div>
         <div className="flex items-center justify-center text-center flex-col gap-2">
           {winner === "You win" ? (
             <div className="flex justify-center items-center flex-col py-2">
               {isBetGame && (
                 <div className="flex flex-row py-2">
-                  <div>Your 3 USDC</div>&nbsp;
-                  <Image
-                    src="/usdc.png"
-                    alt="USDC Logo"
-                    width="25"
-                    height="25"
-                    className="inline-block align-middle" // Add this to align the image with the text
-                  />
+                  <div>Your {finalAmountOfTokens}</div>&nbsp;
+                  <TokenLogo />
                   &nbsp;
                   <div>are on the way!</div>
                 </div>
@@ -32,14 +28,9 @@ export const ModalFinished = ({ winner, isBetGame }: any) => {
             <div className="flex justify-center items-center flex-col py-2">
               {isBetGame && (
                 <div className="flex flex-row py-2">
-                  <div>Sami just claimed your 1 USDC</div>&nbsp;
-                  <Image
-                    src="/usdc.png"
-                    alt="USDC Logo"
-                    width="25"
-                    height="25"
-                    className="inline-block align-middle" // Add this to align the image with the text
-                  />
+                  <div>Say goodbye to your {(1).toFixed(2)} </div>&nbsp;
+                  <TokenLogo />
+                  &nbsp;
                   <div></div>
                 </div>
               )}

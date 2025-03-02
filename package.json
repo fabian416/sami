@@ -2,18 +2,18 @@
   "name": "se-2",
   "version": "0.0.1",
   "private": true,
-  "workspaces": {
-    "packages": [
-      "packages/*"
-    ]
-  },
+  "workspaces": [
+    "packages/nextjs",
+    "packages/backend",
+    "packages/foundry"
+  ],
   "scripts": {
     "account": "yarn foundry:account",
     "account:generate": "yarn foundry:generate",
     "account:import": "yarn foundry:account-import",
-    "ai:build": "cd packages/ai/sami && pnpm install && pnpm build",
-    "ai:rebuild": "cd packages/ai/sami && pnpm rebuild",
-    "ai:dev": "cd packages/ai/sami && pnpm start",
+    "ai:build": "cd packages/eliza && pnpm install && pnpm build",
+    "ai:rebuild": "cd packages/eliza && pnpm rebuild",
+    "ai:dev": "cd packages/eliza && pnpm start",
     "backend:build": "yarn workspace backend run build",
     "backend:dev": "yarn workspace backend run dev",
     "chain": "yarn foundry:chain",
@@ -57,15 +57,12 @@
     "husky": "~8.0.3",
     "lint-staged": "~13.2.2"
   },
-  "packageManager": "yarn@3.2.3",
-  "engines": {
-    "node": ">=18.18.0"
-  },
   "dependencies": {
     "lodash": "^4.17.21",
     "react-countdown": "^2.3.6",
     "react-device-detect": "^2.2.3",
     "three": "^0.172.0",
     "uuid": "^11.0.5"
-  }
+  },
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }

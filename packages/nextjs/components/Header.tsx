@@ -1,14 +1,18 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { DECIMALS } from "./sami/ChooseGame";
 import { ModalInstructions } from "./sami/ModalInstructions";
 import { useAccount } from "wagmi";
+import { Bars3Icon } from "@heroicons/react/20/solid";
 import { FaucetButton, RainbowKitCustomConnectButtonOpaque } from "~~/components/scaffold-eth";
-import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { useOutsideClick, useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { notification } from "~~/utils/scaffold-eth";
+
+const ENVIRONMENT = process.env.NEXT_PUBLIC_ENVIRONMENT;
 
 type HeaderMenuLink = {
   label: string;
@@ -17,10 +21,18 @@ type HeaderMenuLink = {
 };
 
 export const menuLinks: HeaderMenuLink[] = [
-  // {
-  //   label: "Home",
-  //   href: "/",
-  // }
+  {
+    label: "Home",
+    href: "/",
+  },
+  {
+    label: "Leaderboard",
+    href: "/leaderboard",
+  },
+  {
+    label: "About",
+    href: "/about",
+  },
 ];
 
 export const HeaderMenuLinks = () => {
@@ -45,6 +57,16 @@ export const HeaderMenuLinks = () => {
           </li>
         );
       })}
+      <li>
+        <Link
+          href="https://docs.google.com/forms/d/e/1FAIpQLSf1mWUBPNvDFOpUZj3tweC_3hNZr9ju0-yA3x6lw0VIeXZdAA/viewform"
+          passHref
+          className="bg-success hover:bg-success !text-black focus:bg-success py-1.5 px-3 text-sm rounded-full gap-2 grid grid-flow-col"
+          target="_blank"
+        >
+          <span>Share your feedback!</span>
+        </Link>
+      </li>
     </>
   );
 };
@@ -54,13 +76,20 @@ export const HeaderMenuLinks = () => {
  */
 export const Header = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  const burgerMenuRef = useRef<HTMLDivElement>(null);
+  useOutsideClick(
+    burgerMenuRef,
+    useCallback(() => setIsDrawerOpen(false), []),
+  );
 
   const { address: connectedAddress, isConnected } = useAccount();
 
-  const { writeContractAsync: MODEwriteContractAsync } = useScaffoldWriteContract("MockMODE");
+  const { writeContractAsync: MODEwriteContractAsync } = useScaffoldWriteContract({ contractName: "USDC" });
 
   const { data: balance } = useScaffoldReadContract({
-    contractName: "MockMODE",
+    contractName: "USDC",
     functionName: "balanceOf",
     args: [connectedAddress],
     watch: true,
@@ -75,7 +104,7 @@ export const Header = () => {
     try {
       const contractResponse = await MODEwriteContractAsync({
         functionName: "mint",
-        args: [connectedAddress, BigInt(200 * 1e18)],
+        args: [connectedAddress, BigInt(3 * DECIMALS)],
       });
 
       if (contractResponse) {
@@ -106,6 +135,28 @@ export const Header = () => {
   return (
     <div className="sticky lg:static top-0 navbar bg-base-100 min-h-0 flex-shrink-0 justify-between z-20 shadow-md shadow-secondary px-0 sm:px-2">
       <div className="navbar-start w-auto lg:w-1/2">
+        <div className="lg:hidden dropdown" ref={burgerMenuRef}>
+          <label
+            tabIndex={0}
+            className={`ml-1 btn btn-ghost ${isDrawerOpen ? "hover:bg-secondary" : "hover:bg-transparent"}`}
+            onClick={() => {
+              setIsDrawerOpen(prevIsOpenState => !prevIsOpenState);
+            }}
+          >
+            <Bars3Icon className="h-1/2" />
+          </label>
+          {isDrawerOpen && (
+            <ul
+              tabIndex={0}
+              className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52"
+              onClick={() => {
+                setIsDrawerOpen(false);
+              }}
+            >
+              <HeaderMenuLinks />
+            </ul>
+          )}
+        </div>
         <Link href="/" passHref className="hidden lg:flex items-center gap-2 ml-2 mr-6 shrink-0">
           <div className="flex relative w-8 h-8">
             <Image alt="SE2 logo" className="w-auto h-auto cursor-pointer" fill src="/logo.png" />
@@ -118,36 +169,28 @@ export const Header = () => {
           <HeaderMenuLinks />
         </ul>
       </div>
+      <div className="navbar-center hidden lg:flex flex-grow justify-center"></div>
       <div className="navbar-end flex-grow mr-4">
         {isConnected &&
           typeof balance !== "undefined" &&
-          (balance < BigInt(100 * 1e18) ? (
+          (ENVIRONMENT === "production" ? (
+            <span className="flex flex-row bg-[#2672BE] text-white glow-blue px-3 py-1 rounded-lg items-center justify-center gap-1 ml-4 mr-2 text-lg font-bold">
+              <TokenLogo className="" />
+              <span className="ml-1">{(Number(balance) / DECIMALS).toFixed(2)}</span>
+            </span>
+          ) : balance < BigInt(1 * DECIMALS) ? (
             <button
-              className="btn btn-primary bg-[#B2CB00] hover:bg-[#A1CA00] glow-yellow mr-2 text-black border-0 shadow-[0_0_10px_#A1CA00] btn-sm text-xl"
+              className="flex flex-row btn btn-primary bg-[#2672BE] hover:bg-[#2672BE] glow-blue mr-2 text-white border-0 shadow-[0_0_10px_#A1CA00] btn-sm text-xl"
               onClick={handleMint}
             >
               <div className="text-sm">Get $USDC</div>
-              <Image
-                src="/usdc.png"
-                alt="USDC Logo"
-                width="25"
-                height="25"
-                className="inline-block align-middle" // Add this to align the image with the text
-              />
+              <TokenLogo className="" />
             </button>
           ) : (
-            <>
-              <span className="bg-[#2c2171] glow-yellow px-2 py-1 rounded-lg items-center justify-center gap-1 ml-4 mr-2 text-lg text-blue-600 font-bold">
-                <Image
-                  src="/usdc.png"
-                  alt="USDC Logo"
-                  width="25"
-                  height="25"
-                  className="inline-block align-bottom" // Add this to align the image with the text
-                />
-                <span className="ml-2 text-[#D8FF01]">{(Number(balance) / 10 ** 18).toFixed(0)}</span>
-              </span>
-            </>
+            <span className="flex flex-row bg-[#2672BE] text-white glow-blue px-3 py-1 rounded-lg items-center justify-center gap-1 ml-4 mr-2 text-lg font-bold">
+              <TokenLogo className="" />
+              <span className="ml-1">{(Number(balance) / DECIMALS).toFixed(2)}</span>
+            </span>
           ))}
         <RainbowKitCustomConnectButtonOpaque />
         <FaucetButton />
@@ -162,4 +205,17 @@ export const Header = () => {
       {isModalOpen && <ModalInstructions closeModal={closeModal} />}
     </div>
   );
+};
+
+export const TokenLogo = ({
+  width = 25,
+  height = 25,
+  className = "inline-block align-bottom",
+}: // Add this to align the image with the text
+{
+  width?: number;
+  height?: number;
+  className?: string;
+}) => {
+  return <Image src="/usdc-logo.png" alt="USDC Logo" width={width} height={height} className={className} />;
 };

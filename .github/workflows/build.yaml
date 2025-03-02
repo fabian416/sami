@@ -4,13 +4,14 @@ env:
   IMAGE_TAG_FRONTEND: ghcr.io/fabian416/sami/frontend
   IMAGE_TAG_AI_AGENT: ghcr.io/fabian416/sami/ai-agent
 
-  IMAGE_VERSION: ${{ github.ref == 'refs/heads/production' && 'latest' || 'staging' }}
+  IMAGE_VERSION: ${{ github.ref == 'refs/heads/main' && 'latest' || 'staging' }}
+  NEXT_PUBLIC_ENVIRONMENT: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
 
 on:
   push:
     branches:
-      - production
-      - develop
+      - main
+      - staging
 
 jobs:
   build_backend:
@@ -41,6 +42,8 @@ jobs:
           tags: ${{env.IMAGE_TAG_BACKEND}}:${{env.IMAGE_VERSION}}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args:
+            NEXT_PUBLIC_ENVIRONMENT=${{ env.NEXT_PUBLIC_ENVIRONMENT }}
 
   build_frontend:
     runs-on: ubuntu-latest
@@ -75,6 +78,8 @@ jobs:
           tags: ${{env.IMAGE_TAG_FRONTEND}}:${{env.IMAGE_VERSION}}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args:
+            NEXT_PUBLIC_ENVIRONMENT=${{ env.NEXT_PUBLIC_ENVIRONMENT }}
 
   build_ai_agent:
     runs-on: ubuntu-latest
@@ -98,8 +103,8 @@ jobs:
       - name: Build and Push AI Agent Image
         uses: docker/build-push-action@v5
         with:
-          context: ./packages/ai/sami
-          file: ./packages/ai/sami/Dockerfile
+          context: ./packages/eliza
+          file: ./packages/eliza/Dockerfile
           push: true
           tags: ${{env.IMAGE_TAG_AI_AGENT}}:${{env.IMAGE_VERSION}}
           cache-from: type=gha

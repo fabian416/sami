@@ -29,8 +29,6 @@ body {
   font-optical-sizing: auto;
   font-weight: 400;
   font-style: normal;
-  margin: 0;
-  padding: 0;
 }
 
 .x-logo-dark {
@@ -95,6 +93,21 @@ p {
   50% {
     box-shadow: 0 0 20px 9px rgba(255, 255, 255, 0.8);
   }
+}
+
+@keyframes glow-blue-animation {
+  0%,
+  100% {
+    box-shadow: 0 0 10px 3px rgba(38, 114, 190, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 15px 7px rgba(38, 114, 190, 0.8);
+  }
+}
+
+.glow-blue {
+  box-shadow: 0 0 10px 3px rgba(38, 114, 190, 0.6);
+  animation: glow-blue-animation 2s infinite;
 }
 
 .glow-white {

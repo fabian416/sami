@@ -1,8 +1,9 @@
 
 import PlayerServiceEmitter from "@services/playerService";
 import { io } from "../server";
-import { games } from "@services/gameService";
+import { rooms } from "@services/gameService";
 import { Player } from "@services/playerService";
+import supabase from "@src/config/supabaseClient";
 import _ from 'lodash';
 
 
@@ -23,16 +24,35 @@ PlayerServiceEmitter.on("playerRoomId", (data: { roomId: string, playerId: strin
 
 export const disconnectPlayer = (data: {roomId: string, playerId: string}) => {
   const { roomId, playerId } = data;
-  const game = games[roomId];
-  if (game) {
+  const game = rooms[roomId];
+  const lefterPlayer = game.players.find((p: Player) => p.id === playerId);
+  if (game && game.status === "waiting") {
+    if (game.isBetGame) {
+      lefterPlayer && saveLefterPlayer(lefterPlayer)
+    }
     _.remove(game.players, (player: Player) => player.id === playerId);
+  } else {
+    if (lefterPlayer) lefterPlayer.left = true;
   }
 }
+
+const saveLefterPlayer = async (player: Player) => {
+  const { error } = await supabase.from("lefters_before_game_starts").insert({
+    id: player.id,
+    wallet_address: player.walletAddress,
+  });
+
+  if (error) {
+    console.error("[Backend] Error saving players:", error);
+  } else {
+    console.log("[Backend] Players saved successfully.");
+  }
+};
 
 
 export const getPlayerIndex = (data: {roomId: string, playerId: string}) => {
     const { roomId, playerId } = data;
-    const game = games[roomId];
+    const game = rooms[roomId];
     if (!game) return -1;
     const player = game.players.find((p: Player) => p.id === playerId);
     if (!player) return -1;
@@ -43,7 +63,7 @@ export const getPlayerIndex = (data: {roomId: string, playerId: string}) => {
 export const getPlayerRoomId = (data: {playerId: string}) => {
   const { playerId } = data;
 
-  const reverseGames = _.reverse(Object.entries(games)); // Convertimos a [roomId, game] y lo invertimos
+  const reverseGames = _.reverse(Object.entries(rooms)); // Convertimos a [roomId, game] y lo invertimos
 
   // Buscamos el jugador junto con su roomId
   const result: any = _.find(reverseGames, ([roomId, game]: any) =>

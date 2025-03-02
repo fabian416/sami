@@ -1,13 +1,17 @@
 import { useEffect, useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
+import { TokenLogo } from "../Header";
 import { RainbowKitCustomConnectButton } from "../scaffold-eth";
 import { ModalWaitingForPlayers } from "./ModalWaitingForPlayers";
 import { ModalWaitingForTransaction } from "./ModalWaitingForTransaction";
 import { v4 as uuidv4 } from "uuid";
 import { useAccount } from "wagmi";
 import { useSocket } from "~~/app/socketContext";
-import { useDeployedContractInfo, useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import {
+  useDeployedContractInfo,
+  useScaffoldReadContract,
+  useScaffoldWriteContract,
+  useTransactor,
+} from "~~/hooks/scaffold-eth";
 import { notification } from "~~/utils/scaffold-eth";
 
 interface Player {
@@ -18,26 +22,34 @@ interface Player {
   isEliminated: boolean;
 }
 
+export const DECIMALS = 1e6;
+
 export const ChooseGame = ({ showGame }: any) => {
   const [loading, setLoading] = useState(false);
   const [loadingApprove, setLoadingApprove] = useState(false);
   const [loadingBet, setLoadingBet] = useState(false);
+  const [localAllowance, setLocalAllowance] = useState<bigint | null>(null);
   const { socket, isConnected, playerId, setPlayerId, setPlayerIndex, setRoomId } = useSocket();
   const { address: connectedAddress } = useAccount();
-  const { writeContractAsync: MODEwriteContractAsync } = useScaffoldWriteContract("MockMODE");
-  const { writeContractAsync: simpleSamiwriteContractAsync } = useScaffoldWriteContract("SimpleSAMI");
-  const { data: simpleSamiContractData } = useDeployedContractInfo("SimpleSAMI");
+  const transactor = useTransactor();
+  const { writeContractAsync: USDCwriteContractAsync } = useScaffoldWriteContract({ contractName: "USDC" });
+  const { writeContractAsync: simpleSAMIWriteContractAsync } = useScaffoldWriteContract({
+    contractName: "USDCSimpleSAMI",
+  });
+  const { data: simpleSAMIContractData } = useDeployedContractInfo({ contractName: "USDCSimpleSAMI" });
 
   const { data: allowance } = useScaffoldReadContract({
-    contractName: "MockMODE",
+    contractName: "USDC",
     functionName: "allowance",
-    args: [connectedAddress, simpleSamiContractData?.address],
+    args: [connectedAddress, simpleSAMIContractData?.address],
     watch: true,
   });
   const [isBetGame, setIsBetGame] = useState<boolean>(false);
 
   useEffect(() => {
-    allowance && allowance >= BigInt(90 * 1e18) && setLoadingApprove(false);
+    if (allowance !== undefined) {
+      setLocalAllowance(allowance);
+    }
   }, [allowance]);
 
   useEffect(() => {
@@ -69,14 +81,21 @@ export const ChooseGame = ({ showGame }: any) => {
 
     setLoadingApprove(true);
     try {
-      const contractResponse = await MODEwriteContractAsync({
-        functionName: "approve",
-        args: [simpleSamiContractData?.address, BigInt(100 * 1e18)],
-      });
+      const transactionHash = await transactor(
+        async () => {
+          const txHash = await USDCwriteContractAsync({
+            functionName: "approve",
+            args: [simpleSAMIContractData?.address, BigInt(1 * DECIMALS)],
+          });
+          if (!txHash) throw new Error("Transaction was not sent properly.");
+          return txHash;
+        },
+        { blockConfirmations: 1 },
+      );
 
-      if (contractResponse) {
-        notification.success("Allowance increased successfully!");
-      }
+      if (!transactionHash) throw new Error("Transaction was not sent properly.");
+      setLocalAllowance(BigInt(1 * DECIMALS));
+      console.log("Transaction confirmed:", transactionHash);
     } catch (error) {
       console.error("Error increasing allowance:", error);
       notification.error("Increasing allowance failed, please try again.");
@@ -92,37 +111,43 @@ export const ChooseGame = ({ showGame }: any) => {
 
     setLoadingBet(true);
     try {
-      const contractResponse = await simpleSamiwriteContractAsync({
-        functionName: "buyTicket",
-        args: undefined,
-      });
+      const transactionHash = await transactor(
+        async () => {
+          const txHash = await simpleSAMIWriteContractAsync({
+            functionName: "enterGame",
+            args: undefined,
+          });
+          if (!txHash) throw new Error("Transaction was not sent properly.");
+          return txHash;
+        },
+        { blockConfirmations: 1 },
+      );
 
-      if (contractResponse) {
-        notification.success("Ticket for a game bought successfully!");
+      if (!transactionHash) throw new Error("Transaction was not sent properly.");
+      console.log("Transaction confirmed:", transactionHash);
 
-        // 🔹 Generar un ID único para el jugador
-        const randomPlayerId = uuidv4();
-        setPlayerId(randomPlayerId);
-        setIsBetGame(true);
+      // 🔹 Generar un ID único para el jugador
+      const randomPlayerId = uuidv4();
+      setPlayerId(randomPlayerId);
+      setIsBetGame(true);
 
-        setLoading(true);
+      setLoading(true);
 
-        // 🔥 **Emitir evento al backend para unirse a la partida**
-        socket.emit(
-          "createOrJoinGame",
-          { playerId: randomPlayerId, isBetGame: true }, // ✅ Se marca como partida de apuestas
-          (response: { success: boolean; roomId: string }) => {
-            setLoading(false);
+      // 🔥 **Emitir evento al backend para unirse a la partida**
+      socket.emit(
+        "createOrJoinGame",
+        { playerId: randomPlayerId, isBetGame: true }, // ✅ Se marca como partida de apuestas
+        (response: { success: boolean; roomId: string }) => {
+          setLoading(false);
 
-            if (response.success && response.roomId) {
-              setRoomId(response.roomId); // ✅ Almacena `roomId` en el contexto
-            } else {
-              console.error("Failed to join game:", response);
-              alert("Error joining the game. Please try again.");
-            }
-          },
-        );
-      }
+          if (response.success && response.roomId) {
+            setRoomId(response.roomId); // ✅ Almacena `roomId` en el contexto
+          } else {
+            console.error("Failed to join game:", response);
+            alert("Error joining the game. Please try again.");
+          }
+        },
+      );
     } catch (error) {
       console.error("Error buying ticket:", error);
       notification.error("Buying ticket failed, please try again.");
@@ -161,28 +186,11 @@ export const ChooseGame = ({ showGame }: any) => {
       {loading && <ModalWaitingForPlayers isBetGame={isBetGame} />}
       {!loading && (loadingApprove || loadingBet) && <ModalWaitingForTransaction />}
       <div className="flex flex-col items-center w-full">
-        <div className="mb-4">
-          <h1 className="sami-title text-2xl md:text-7xl text-center">
-            Who is&nbsp;
-            <span className="text-[#3DCCE1]">
-              SAMI&nbsp;
-              <Image
-                src="/logo.png"
-                alt="SAMI Logo"
-                width="90"
-                height="90"
-                className="inline-block align-middle" // Add this to align the image with the text
-              />
-              &nbsp;
-            </span>
-            ?!1
-          </h1>
-        </div>
         <div className="flex md:flex-row flex-col justify-center items-center w-full gap-10 md:gap-20">
           <div className="card bg-[#1CA297] opacity-80 text-white glow-cyan w-full md:w-96 shadow-xl mx-4">
             <div className="card-body text-center">
               <h2 className="text-3xl sami-title">Play for free</h2>
-              <p className="text-xl">Find SAMI among 3 anons</p>
+              <p className="text-xl">Find SAMI, the impostor AI, among 3 anons in a group chat</p>
               <div className="card-actions justify-center">
                 <button
                   className="btn btn-primary rounded-lg text-2xl w-full bg-white text-[#1CA297] hover:text-[#1CA297] hover:bg-white border-0"
@@ -198,35 +206,22 @@ export const ChooseGame = ({ showGame }: any) => {
             <div className="card-body text-center">
               <h2 className="text-3xl sami-title flex flex-row justify-center items-center">
                 <>Bet&nbsp;</>
-                <span className="text-[#3DCCE1]">1 USDC&nbsp;</span>
-                <Image
-                  src="/usdc.png"
-                  alt="USDC Logo"
-                  width="40"
-                  height="40"
-                  className="inline-block align-middle" // Add this to align the image with the text
-                />
+                <span className="text-[#3DCCE1]">1 $USDC&nbsp;</span>
+                <TokenLogo width={40} height={40} />
               </h2>
-              <p className="text-xl flex flex-row justify-center items-center">
-                <>Win and earn&nbsp;</>
-                <span className="text-[#3DCCE1]">3 USDC</span>&nbsp;
-                <Image
-                  src="/usdc.png"
-                  alt="USDC Logo"
-                  width="25"
-                  height="25"
-                  className="inline-block align-middle" // Add this to align the image with the text
-                />
+              <p className="text-xl flex flex-col justify-center items-center">
+                <span>Win and split the pot</span>
+                <span>If everyone loses, SAMI wins!</span>
               </p>
               <div className="card-actions justify-center">
                 {connectedAddress ? (
-                  allowance && allowance >= BigInt(90 * 1e18) ? (
+                  localAllowance && localAllowance >= BigInt(1 * DECIMALS) ? (
                     <>
                       <button
                         onClick={handleBetAndPlay}
                         className="cool-button !flex !flex-row !justify-center !items-center"
                       >
-                        <div className="text-[#b3ca06]">Bet</div>&nbsp;<>100</>&nbsp;$MODE&nbsp;
+                        <div className="text-[#2c2171]">Bet</div>&nbsp;<>1</>&nbsp;$USDC&nbsp;
                       </button>
                     </>
                   ) : (
@@ -234,7 +229,7 @@ export const ChooseGame = ({ showGame }: any) => {
                       onClick={handleApprove}
                       className="cool-button !flex !flex-row !justify-center !items-center"
                     >
-                      <div className="text-[#2c2171]">Approve</div>&nbsp;<>100</>&nbsp;$MODE&nbsp;
+                      <div className="">Approve</div>&nbsp;<>1</>&nbsp;$USDC&nbsp;
                     </button>
                   )
                 ) : (
@@ -243,20 +238,6 @@ export const ChooseGame = ({ showGame }: any) => {
               </div>
             </div>
           </div>
-        </div>
-        <div className="mt-4 text-4xl">
-          <Link className="link" href="https://x.com/sami_ai_agent" target="_blank" passHref>
-            <div className=" p-2 rounded-lg  opacity-80">
-              <span className="sami-title text-xl text-black dark:text-white">Follow SAMI on X!</span>
-              {/* <Image
-                src={theme === "dark" ? "/x-white.png" : "/x.png"}
-                alt="X Logo"
-                width="40"
-                height="40"
-                className="dark:x-logo-dark inline-block align-top" // Add this to align the image with the text
-              />{" "} */}
-            </div>
-          </Link>
         </div>
       </div>
     </>

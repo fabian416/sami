@@ -1,18 +1,20 @@
 import { useState } from "react";
-import { Player } from "./PlayGame";
+import Image from "next/image";
+import CountdownClock from "./CountdownClock";
+import { AVATARS, COLORS, NAMES, Player } from "./PlayGame";
 import { useSocket } from "~~/app/socketContext";
 
 export const ModalForVoting = ({
   players,
-  shuffledColors,
-  shuffledNames,
-  avatars,
+  timeLeft,
+  maxTime,
+  endTime,
 }: {
   players: Player[];
   setMessages: any;
-  avatars: string[];
-  shuffledColors: string[];
-  shuffledNames: string[];
+  timeLeft: any;
+  maxTime: any;
+  endTime: any;
 }) => {
   const [castedVote, setCastedVote] = useState(false);
   const { socket, isConnected, playerId, roomId } = useSocket();
@@ -34,9 +36,9 @@ export const ModalForVoting = ({
         <VoteModal
           players={playersToVote}
           handleVote={handleVote}
-          avatars={avatars}
-          shuffledColors={shuffledColors}
-          shuffledNames={shuffledNames}
+          timeLeft={timeLeft}
+          maxTime={maxTime}
+          endTime={endTime}
         />
       )}
       {castedVote && <WaitingOtherToVote />}
@@ -62,15 +64,15 @@ const WaitingOtherToVote = () => {
 const VoteModal = ({
   players,
   handleVote,
-  avatars,
-  shuffledColors,
-  shuffledNames,
+  timeLeft,
+  maxTime,
+  endTime,
 }: {
   players: Player[];
   handleVote: any;
-  avatars: string[];
-  shuffledColors: string[];
-  shuffledNames: string[];
+  timeLeft: any;
+  maxTime: any;
+  endTime: any;
 }) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
@@ -85,19 +87,20 @@ const VoteModal = ({
             <div className="flex flex-col items-center justify-center gap-2" key={player.index}>
               <div className="avatar">
                 <div className="w-10 rounded-full">
-                  <img alt="Tailwind CSS chat bubble component" src={avatars[Number(player.index)]} />
+                  <Image alt="SAMI player avatar" src={AVATARS[Number(player.index)]} width={50} height={50} />
                 </div>
               </div>
               <button
                 key={player.index}
-                className={`cool-button after:bg-gray-200 !bg-[#1CA297] ${shuffledColors[player.index]}`}
+                className={`cool-button after:bg-gray-200 !bg-[#1CA297] ${COLORS[player.index]}`}
                 onClick={() => handleVote(player.index, player.id)}
               >
-                {shuffledNames[player.index]}
+                {NAMES[player.index]}
               </button>
             </div>
           ))}
         </div>
+        <CountdownClock maybeTimeLeft={timeLeft} maybeMaxTime={maxTime} maybeEndTime={endTime} />
       </div>
     </div>
   );

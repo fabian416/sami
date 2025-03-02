@@ -3,16 +3,15 @@ import {
   getGameById,
   recordVote,
   createOrJoin,
-  games,
+  rooms,
   calculateNumberOfPlayers,
-  getSamiPlayer,
+  Message,
+  cachedRoomsMessages,
+  roomsMessages,
 } from "../services/gameService";
 import { Server, Socket } from "socket.io";
-import { io, players } from "../server";
+import { io } from "../server";
 import gameServiceEmitter from "@services/gameService";
-
-const AGENT_URL = process.env.AGENT_URL;
-export const SAMI_URI = AGENT_URL || "http://localhost:3000";
 
 
 gameServiceEmitter.on("startConversation", (data: { roomId: string, timeBeforeEnds: number, serverTime: number }) => {
@@ -30,13 +29,16 @@ gameServiceEmitter.on("voteSubmitted", (data: {roomId: string, voterId: string, 
   io.to(data.roomId).emit("voteSubmitted", { voterId: data.voterId, votedId: data.votedId });
 });
 
+gameServiceEmitter.on("newMessage", (data) => {
+  io.to(data.roomId).emit("newMessage", data);
+})
+
 gameServiceEmitter.on("startVoting", (data: {roomId: string, timeBeforeEnds: number, serverTime: number}) => {
-  const game = games[data.roomId];
+  const game = rooms[data.roomId];
   if (!game) return;
 
   // Get list of active players
   const activePlayers = game.players
-    .filter((player) => !player.isEliminated)
     .map((player) => ({ id: player.id, index: player.index }));
 
   console.log(`[${data.roomId}] Starting voting phase.`);
@@ -77,7 +79,7 @@ export const getNumberOfPlayers = (data: any, socket: Socket, io: Server) => {
   }
 
   // Get info of the room
-  const game = games[roomId];
+  const game = rooms[roomId];
   if (!game) {
     console.error(`[getNumberOfPlayers] Room not found:`, roomId);
     return socket.emit("error", { message: "Room not found" });
@@ -99,21 +101,12 @@ export const createOrJoinGame = (data: any, socket: Socket, io: Server) => {
   const { playerId, isBetGame } = data; // Extract `isBetGame`
 
   console.log(`Creating or joining game. Player: ${playerId}, isBetGame: ${isBetGame}`);
-
-  // Delegate to the service, passing `socket`, `io`, and `isBetGame`
-  const { roomId, success } = createOrJoin(playerId, socket, io, isBetGame);
+  // Delegate to the service, passing and `isBetGame`
+  const { roomId, success } = createOrJoin(playerId, isBetGame, socket.id);
 
   if (!success) {
     console.error(` Error joining the player ${playerId} into the room ${roomId}`);
     return socket.emit("error", { message: "There was an error creating or joining the match" });
-  }
-  // Store playerId inside `players`
-  if (players[socket.id]) {
-    players[socket.id].playerId = playerId;
-    players[playerId] = { ...players[socket.id] };  // Store playerId separately
-    console.log(`Mapped playerId: ${playerId} to wallet: ${players[socket.id].walletAddress}`);
-  } else {
-    console.warn(`No socket entry found for player ${playerId}`);
   }
 
   // Notify the client that the player joined successfully
@@ -122,8 +115,6 @@ export const createOrJoinGame = (data: any, socket: Socket, io: Server) => {
 
   // Send response to the specific player who joined
   socket.emit("gameJoined", { roomId, success, isBetGame });
-
-  console.log(` Player ${playerId} joined room ${roomId} (isBetGame: ${isBetGame})`);
 };
 
 
@@ -181,92 +172,26 @@ export const castVote = (data: any, socket: Socket, io: Server) => {
   }
 };
 
-export const handleMessage = async (data: any, socket: Socket, io: Server) => {
-  const { roomId, message, playerId, playerIndex } = data;
-  const startTime = Date.now();
 
-  // Validar si la sala existe
-  const game = games[roomId];
+export const handleMessage = async (data: Message, socket: Socket, io: Server) => {
+  const { roomId } = data;
+  data.isPlayerAI = false;
+  
+  const game = rooms[roomId];
   if (!game) {
     return socket.emit("error", { message: "Room doesn't exist" });
   }
 
-  // Verificar si la partida está activa
   if (game.status !== "active") {
     return socket.emit("error", { message: "La partida no ha comenzado" });
   }
 
-  // Obtener el jugador AI
-  const samiPlayer: any = getSamiPlayer(game);
-  const body = JSON.stringify({
-    text: `You are Player ${samiPlayer.index + 1} and Player ${playerIndex + 1} sent this to the group chat: ${message}`,
-    userId: playerId,
-    userName: playerIndex + 1,
-  });
+  if (!cachedRoomsMessages[roomId]) cachedRoomsMessages[roomId] = [];
+  if (!roomsMessages[roomId]) roomsMessages[roomId] = [];
+  cachedRoomsMessages[roomId].push(data);
+  roomsMessages[roomId].push(data);
 
-  console.log(`[${roomId}] Input to Sami: ${body}`);
-
-  // Iniciar solicitud a la IA sin esperar la respuesta (se manejará con timeout)
-  const aiResponsePromise = fetch(`${SAMI_URI}/SAMI-AGENT/message`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body,
-  });
-/*
-  // Registrar el mensaje en Supabase sin bloquear la respuesta de la IA
-  const supabasePromise = supabase
-    .from("SAMI")
-    .insert([{ messages: message, room_id: roomId, player_id: playerId }])
-    .then(({ error }) => {
-      if (error) console.error("[Backend] Error al insertar en Supabase:", error);
-    });
-*/
-  // Emitir mensaje a todos los jugadores de la sala inmediatamente
-  io.to(roomId).emit("newMessage", data);
-
-  //let supabasePromise2: any = null;
-  try {
-    // ⏳ Timeout de 8 segundos para la respuesta de la IA
-    const responseText = await Promise.race([
-      aiResponsePromise.then((res) => res.text()), // Convierte Response a string antes de la carrera
-      new Promise<string>((_, reject) =>
-        setTimeout(() => reject(new Error("Timeout: AI response took too long")), 2 * 30 * 1000)
-      ),
-    ]);
-  
-    console.log(`[${roomId}] Output of Sami: ${responseText}`);
-    const responseData = safeParseJSON(responseText);
-    if (!responseData) {
-      console.error("[Backend] Invalid AI response.");
-      return //await supabasePromise; // Asegurar que la primera escritura en Supabase termine antes de salir.
-    }
-
-    const agentMessage = responseData[0].text;
-    if (responseData.length > 0 && game.status === "active" && responseData[0].action !== "IGNORE") {
-      const endTime = Date.now();
-      const elapsedTimeSeconds = (endTime - startTime) / 1000;
-      console.log(`[${roomId}] Time taken for AI response: ${elapsedTimeSeconds} seconds.`);
-
-/*      supabasePromise2 = supabase
-        .from("SAMI")
-        .insert([{ messages: agentMessage, room_id: roomId, player_id: samiPlayer.id }])
-        .then(({ error }) => {
-          if (error) console.error("[Backend] Error al insertar en Supabase:", error);
-        })
-*/
-      io.to(roomId).emit("newMessage", {
-        playerId: samiPlayer.id,
-        playerIndex: samiPlayer.index,
-        message: agentMessage,
-      });
-    }
-    
-  } catch (error) {
-    console.error("[Backend] AI Response Timeout or Error:", error);
-  }
-
-  // Esperar que Supabase termine, pero sin bloquear el proceso
-  //await Promise.all([supabasePromise, supabasePromise2].filter(Boolean));
+  gameServiceEmitter.emit("newMessage", data);
 };
 
 
@@ -294,13 +219,4 @@ export const getGame = (req: Request, res: Response) => {
 
   res.status(200).json(game);
   return;
-};
-
-const safeParseJSON = (text: string): any | null => {
-  try {
-    return JSON.parse(text);
-  } catch (error) {
-    console.error("[Backend] Error parsing JSON:", error);
-    return null;
-  }
 };

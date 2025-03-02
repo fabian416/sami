@@ -2,7 +2,7 @@
 pragma solidity ^0.8.19;
 
 import "./DeployHelpers.s.sol";
-import { SimpleSAMI } from "../contracts/SimpleSAMI.sol";
+import { USDCSimpleSAMI } from "../contracts/USDCSimpleSAMI.sol";
 
 /**
  * @notice Deploy script for YourContract contract
@@ -24,10 +24,12 @@ contract DeploySimpleSAMI is ScaffoldETHDeploy {
      *      - Setup correct `deployer` account and fund it
      *      - Export contract addresses & ABIs to `nextjs` packages
      */
-    function run() external ScaffoldEthDeployerRunner { 
-        SimpleSAMI simpleSAMI = new SimpleSAMI(0xA580840C00Fe98Dfbbd43B2d50644539f9830079);
+    function run(address usdcAddress) external ScaffoldEthDeployerRunner returns (address) {
+        USDCSimpleSAMI simpleSAMI = new USDCSimpleSAMI(usdcAddress);
         console.logString(string.concat("SimpleSAMI deployed at: ", vm.toString(address(simpleSAMI))));
 
-        simpleSAMI.setBetAmount(100 * 1e18);
+        simpleSAMI.setBetAmount(1 * 1e6);
+
+        return address(simpleSAMI);
     }
 }

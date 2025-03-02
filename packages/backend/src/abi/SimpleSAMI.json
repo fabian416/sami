@@ -4,7 +4,7 @@
       "type": "constructor",
       "inputs": [
         {
-          "name": "_modeTokenAddress",
+          "name": "_usdcTokenAddress",
           "type": "address",
           "internalType": "address"
         }
@@ -13,7 +13,14 @@
     },
     {
       "type": "function",
-      "name": "MODE_TOKEN",
+      "name": "DECIMALS",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "USDC_TOKEN",
       "inputs": [],
       "outputs": [
         { "name": "", "type": "address", "internalType": "contract IERC20" }
@@ -29,7 +36,7 @@
     },
     {
       "type": "function",
-      "name": "buyTicket",
+      "name": "enterGame",
       "inputs": [],
       "outputs": [],
       "stateMutability": "nonpayable"
@@ -47,13 +54,6 @@
       "inputs": [],
       "outputs": [],
       "stateMutability": "nonpayable"
-    },
-    {
-      "type": "function",
-      "name": "samiReserves",
-      "inputs": [],
-      "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
-      "stateMutability": "view"
     },
     {
       "type": "function",
@@ -75,39 +75,9 @@
     },
     {
       "type": "function",
-      "name": "ticketCounter",
-      "inputs": [],
-      "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
-      "stateMutability": "view"
-    },
-    {
-      "type": "function",
-      "name": "ticketToOwner",
-      "inputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
-      "outputs": [{ "name": "", "type": "address", "internalType": "address" }],
-      "stateMutability": "view"
-    },
-    {
-      "type": "function",
-      "name": "ticketUsed",
-      "inputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
-      "outputs": [{ "name": "", "type": "bool", "internalType": "bool" }],
-      "stateMutability": "view"
-    },
-    {
-      "type": "function",
       "name": "transferOwnership",
       "inputs": [
         { "name": "newOwner", "type": "address", "internalType": "address" }
-      ],
-      "outputs": [],
-      "stateMutability": "nonpayable"
-    },
-    {
-      "type": "function",
-      "name": "useTicket",
-      "inputs": [
-        { "name": "_ticketId", "type": "uint256", "internalType": "uint256" }
       ],
       "outputs": [],
       "stateMutability": "nonpayable"
@@ -123,6 +93,19 @@
     },
     {
       "type": "event",
+      "name": "BetAmountChanged",
+      "inputs": [
+        {
+          "name": "newBetAmount",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
       "name": "ErrorSendingPrize",
       "inputs": [
         {
@@ -133,6 +116,25 @@
         },
         {
           "name": "amount",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "GameEntered",
+      "inputs": [
+        {
+          "name": "owner",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "timestamp",
           "type": "uint256",
           "indexed": false,
           "internalType": "uint256"
@@ -180,35 +182,10 @@
     },
     {
       "type": "event",
-      "name": "TicketBought",
+      "name": "WithdrawFromReserves",
       "inputs": [
         {
-          "name": "owner",
-          "type": "address",
-          "indexed": true,
-          "internalType": "address"
-        },
-        {
-          "name": "ticketId",
-          "type": "uint256",
-          "indexed": false,
-          "internalType": "uint256"
-        }
-      ],
-      "anonymous": false
-    },
-    {
-      "type": "event",
-      "name": "TicketUsed",
-      "inputs": [
-        {
-          "name": "owner",
-          "type": "address",
-          "indexed": true,
-          "internalType": "address"
-        },
-        {
-          "name": "ticketId",
+          "name": "amount",
           "type": "uint256",
           "indexed": false,
           "internalType": "uint256"
@@ -229,6 +206,7 @@
       "inputs": [
         { "name": "account", "type": "address", "internalType": "address" }
       ]
-    }
+    },
+    { "type": "error", "name": "SimpleSAMI__TransferFailed", "inputs": [] }
   ]
 }

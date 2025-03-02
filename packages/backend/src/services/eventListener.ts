@@ -1,45 +1,37 @@
-import gameServiceEmitter, { createOrJoin } from "./gameService";
-import { contract, useTicket } from "../config/contractConfig";
-import { io } from "../server";
-import { players } from "../server";  
+import gameServiceEmitter from "./gameService";
+import { contract } from "@config/contractConfig";
+/*
 const main = async () => {
-    console.log(" Starting event listeners...");
+  console.log(" Starting event listeners...");
 
-    // Remove previous listeners 
+  // Remove previous listeners
+  if (await contract.listenerCount() > 0) {
     contract.removeAllListeners();
+  }
+  
+  // Listen when someone enters the game
+  contract.on("GameEntered", async (player, timestamp) => {
+    console.log(
+      `Player ${player} entered the game and paid the entrance fee, Block timestamp: ${timestamp}`
+    );
+  });
 
-    // Listen when someoen purchase a ticket
-    contract.on(contract.filters.TicketBought, async (owner, ticketId) => {
-        console.log(`Handling ticket purchase for ${owner}, Ticket ID: ${ticketId}`);
-        
-        try {
-            // Solo marcar el ticket como usado, sin crear partidas
-            await useTicket(ticketId);
-            console.log(` Ticket ${ticketId} used by ${owner}`);
-            
-        } catch (error) {
-            console.error(`Error using the ticket for ${owner}:`, error);
-        }
-    });
+  // Listen when a prize is sent
+  contract.on("PrizeSent", async (winner, amount) => {
+    console.log(`Prize sent to ${winner}: ${amount} USDC`);
+    gameServiceEmitter.emit("prizeSent", { winner, amount });
+  });
 
-    // Emit when a ticket is used
-    contract.on(contract.filters.TicketUsed, (owner, ticketId) => {
-        console.log(`🎯 Ticket ${ticketId} used by ${owner}`);
-    });
+  // Listen when a en error happens sending prize
+  contract.on("ErrorSendingPrize", async (user, amount) => {
+    console.log(`Error sending prize to ${user}: ${amount} MODE`);
+    gameServiceEmitter.emit("ErrorSendingPrize", { user, amount });
+  });
 
-    // Listen when a prize is sent
-    contract.on(contract.filters.PrizeSent, async (winner, amount) => {
-        console.log(`Prize sent to ${winner}: ${amount} MODE`);
-        gameServiceEmitter.emit("prizeSent", { winner, amount });
-    });
-
-    // Listen when a en error happens sending prize
-       contract.on(contract.filters.ErrorSendingPrize, async (user, amount) => {
-        console.log(`Error sending prize to ${user}: ${amount} MODE`);
-        gameServiceEmitter.emit("ErrorSendingPrize", { user, amount });
-    });
-
-    console.log("Event listeners are now running.");
+  console.log("Event listeners are now running.");
 };
 
-main().catch((error) => console.error(" Error initializing event listeners:", error));
+main().catch((error) =>
+  console.error(" Error initializing event listeners:", error)
+);
+*/
