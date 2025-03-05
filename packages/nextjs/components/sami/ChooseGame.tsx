@@ -186,8 +186,8 @@ export const ChooseGame = ({ showGame }: any) => {
       {loading && <ModalWaitingForPlayers isBetGame={isBetGame} />}
       {!loading && (loadingApprove || loadingBet) && <ModalWaitingForTransaction />}
       <div className="flex flex-col items-center w-full">
-        <div className="flex md:flex-row flex-col justify-center items-center w-full md:w-2/3 gap-10 md:gap-20">
-          <div className="card gradient-bg opacity-80 text-white glow-cyan w-full shadow-xl mx-4 mt-16 md:mt-4">
+        <div className="flex md:flex-row flex-col justify-center items-center w-full md:w-1/2 gap-10 md:gap-20">
+          <div className="card gradient-bg opacity-80 text-white glow-cyan w-full shadow-xl mx-4 ">
             <div className="card-body text-center">
               <h2 className="text-3xl sami-title flex flex-row justify-center items-center">
                 {isBetGame ? (
@@ -202,7 +202,7 @@ export const ChooseGame = ({ showGame }: any) => {
               <p className="text-xl flex flex-col justify-center items-center">
                 Jump into a chat with 3 mystery people.
                 <br />
-                One is SAMI, a sneaky AI pretending to be human.
+                One is SAMI, an AI pretending to be human.
                 <br />
                 You have just 2 minutes to spot the fake.
                 <br />
@@ -212,7 +212,8 @@ export const ChooseGame = ({ showGame }: any) => {
               </p>
               <p className="text-xl  flex flex-col justify-center items-center">
                 <span>
-                  <strong>Betting mode: </strong>Win and split the pot. If everyone loses, SAMI wins!
+                  <strong>Betting mode: </strong>Win and split the pot. <br />
+                  If everyone loses, SAMI wins!
                 </span>
               </p>
               <div className="card-actions justify-center items-center">
@@ -228,35 +229,37 @@ export const ChooseGame = ({ showGame }: any) => {
                     <span className="ml-2 text-xl label-text text-white">Betting</span>
                   </label>
                 </div>
-                {isBetGame ? (
-                  connectedAddress ? (
-                    localAllowance && localAllowance >= BigInt(1 * DECIMALS) ? (
-                      <button
-                        onClick={handleBetAndPlay}
-                        className="cool-button !flex !flex-row !justify-center !items-center"
-                      >
-                        <div className="text-[#2c2171]">Bet</div>&nbsp;<>1</>&nbsp;$USDC&nbsp;
-                      </button>
+                <div className="w-full flex flex-col items-center">
+                  {isBetGame ? (
+                    connectedAddress ? (
+                      localAllowance && localAllowance >= BigInt(1 * DECIMALS) ? (
+                        <button
+                          onClick={handleBetAndPlay}
+                          className="cool-button !flex !flex-row !justify-center !items-center mb-2"
+                        >
+                          <div className="text-[#2c2171]">Bet</div>&nbsp;<>1</>&nbsp;$USDC&nbsp;
+                        </button>
+                      ) : (
+                        <button
+                          onClick={handleApprove}
+                          className="cool-button !flex !flex-row !justify-center !items-center mb-2"
+                        >
+                          <div className="">Approve</div>&nbsp;<>1</>&nbsp;$USDC&nbsp;
+                        </button>
+                      )
                     ) : (
-                      <button
-                        onClick={handleApprove}
-                        className="cool-button !flex !flex-row !justify-center !items-center"
-                      >
-                        <div className="">Approve</div>&nbsp;<>1</>&nbsp;$USDC&nbsp;
-                      </button>
+                      <RainbowKitCustomConnectButton />
                     )
                   ) : (
-                    <RainbowKitCustomConnectButton />
-                  )
-                ) : (
-                  <button
-                    className="btn btn-primary rounded-lg text-2xl w-full bg-white text-[#1CA297] hover:text-[#1CA297] hover:bg-white border-0"
-                    onClick={handleEnterGame}
-                    disabled={loading || !isConnected}
-                  >
-                    {loading ? "Enter" : "Enter"}
-                  </button>
-                )}
+                    <button
+                      className="btn btn-primary rounded-lg text-2xl bg-white text-[#1CA297] hover:text-[#1CA297] hover:bg-white border-0 mb-2"
+                      onClick={handleEnterGame}
+                      disabled={loading || !isConnected}
+                    >
+                      {loading ? "Enter" : "Enter"}
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </div>
