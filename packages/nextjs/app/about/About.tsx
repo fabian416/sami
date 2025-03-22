@@ -120,10 +120,22 @@ export const About = () => {
           </div>
         </div>
       </div>
-      <div className="flex flex-row sami-title text-center mt-4 mb-4 text-lg opacity-80 bg-[#2672BE] glow-blue text-white p-2 rounded-lg">
-        <Link className="link" href="https://x.com/sami_ai_agent" target="_blank" passHref>
-          <span className="sami-title text-xl text-black dark:text-white">Follow SAMI on X!</span>
-        </Link>
+      <div className="bg-transparent flex flex-row gap-3">
+        <div className="flex flex-row sami-title text-center mt-4 mb-4 text-lg opacity-80 bg-[#2672BE] glow-blue text-white p-2 rounded-lg">
+          <Link className="link" href="https://x.com/sami_ai_game" target="_blank" passHref>
+            <span className="sami-title text-xl text-black dark:text-white">Follow SAMI on X!</span>
+          </Link>
+        </div>
+        <div className="flex flex-row sami-title text-center mt-4 mb-4 text-lg opacity-80 bg-[#2c2171] glow-purple text-white p-2 rounded-lg">
+          <Link
+            className="link"
+            href="https://lulox.notion.site/SAMI-s-Data-Room-1ac13362a5748053a513c9736b569f13?pvs=74"
+            target="_blank"
+            passHref
+          >
+            <span className="sami-title text-xl text-black dark:text-white">SAMI&apos;s Data Room</span>
+          </Link>
+        </div>
       </div>
     </div>
   );
