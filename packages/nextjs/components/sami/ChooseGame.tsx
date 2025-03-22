@@ -189,16 +189,6 @@ export const ChooseGame = ({ showGame }: any) => {
         <div className="flex md:flex-row flex-col justify-center items-center w-full md:w-1/2 gap-10 md:gap-20">
           <div className="card gradient-bg opacity-80 text-white glow-cyan w-full shadow-xl mx-4 ">
             <div className="card-body text-center">
-              <h2 className="text-3xl sami-title flex flex-row justify-center items-center">
-                {isBetGame ? (
-                  <>
-                    Bet 1 $USDC
-                    <TokenLogo width={40} height={40} />
-                  </>
-                ) : (
-                  "Play for free!"
-                )}
-              </h2>
               <p className="text-xl flex flex-col justify-center items-center">
                 Jump into a chat with 3 mystery people.
                 <br />
@@ -226,7 +216,7 @@ export const ChooseGame = ({ showGame }: any) => {
                       checked={isBetGame}
                       onChange={() => setIsBetGame(!isBetGame)}
                     />
-                    <span className="ml-2 text-xl label-text text-white">Betting</span>
+                    <span className="ml-2 text-xl label-text text-white">Bet 1 $USDC</span>
                   </label>
                 </div>
                 <div className="w-full flex flex-col items-center">
@@ -252,7 +242,7 @@ export const ChooseGame = ({ showGame }: any) => {
                     )
                   ) : (
                     <button
-                      className="btn btn-primary rounded-lg text-2xl bg-white text-[#1CA297] hover:text-[#1CA297] hover:bg-white border-0 mb-2"
+                      className="btn btn-primary rounded-lg text-2xl bg-white text-[#1CA297] hover:text-[#1CA297] hover:bg-white border-0 mt-1"
                       onClick={handleEnterGame}
                       disabled={loading || !isConnected}
                     >

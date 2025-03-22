@@ -1,11 +1,8 @@
 import React, { useEffect, useRef } from "react";
-import { useTheme } from "next-themes";
 import * as THREE from "three";
 
 const ParticleBackground = () => {
   const mountRef = useRef(null);
-  const { resolvedTheme } = useTheme();
-  const isDarkMode = resolvedTheme === "dark";
 
   useEffect(() => {
     const mount = mountRef.current;
@@ -19,15 +16,11 @@ const ParticleBackground = () => {
 
     // Crear el renderer
     const renderer = new THREE.WebGLRenderer();
-    if (resolvedTheme === "dark") {
-      renderer.setClearColor(0x000000, 1); // Fondo negro
-    } else {
-      renderer.setClearColor(0xffffff, 1); // Fondo blanco
-    }
+    renderer.setClearColor(0x000000, 1); // Fondo negro fijo
     renderer.setSize(mount.clientWidth, mount.clientHeight);
     mount.appendChild(renderer.domElement);
 
-    // Generar una textura circular manualmente
+    // Generar una textura circular manualmente (siempre blanca)
     const generateCircleTexture = () => {
       const size = 50; // Tamaño de la textura
       const canvas = document.createElement("canvas");
@@ -35,15 +28,13 @@ const ParticleBackground = () => {
       canvas.height = size;
       const context = canvas.getContext("2d");
 
-      // Dibujar un círculo
+      // Dibujar un círculo blanco
       context.beginPath();
       context.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
-      context.fillStyle = resolvedTheme === "dark" ? "white" : "black";
+      context.fillStyle = "white"; // Siempre blanco
       context.fill();
       return new THREE.CanvasTexture(canvas);
     };
-
-    // Your existing code for adding objects to the scene
 
     const circleTexture = generateCircleTexture();
 
@@ -51,7 +42,7 @@ const ParticleBackground = () => {
     const particleCount = 5000;
     const particlesGeometry = new THREE.BufferGeometry();
     const particlesMaterial = new THREE.PointsMaterial({
-      color: isDarkMode ? 0xffffff : 0x000000, // Color negro o blanco
+      color: 0xffffff, // Puntos blancos fijos
       size: 0.02, // Tamaño de las partículas
       sizeAttenuation: true, // Tamaño ajustado a la perspectiva
       map: circleTexture, // Aplicar textura circular
@@ -70,10 +61,7 @@ const ParticleBackground = () => {
     // Animación
     const animate = () => {
       requestAnimationFrame(animate);
-
-      // Rotar las partículas
-      particles.rotation.y += 0.002;
-
+      particles.rotation.y += 0.002; // Rotar las partículas
       renderer.render(scene, camera);
     };
 
@@ -83,12 +71,8 @@ const ParticleBackground = () => {
     const handleResize = () => {
       const width = mount.clientWidth;
       const height = mount.clientHeight;
-
-      // Actualizar el tamaño del renderer
-      renderer.setSize(width, height);
-
-      // Actualizar la relación de aspecto y la cámara
-      camera.aspect = width / height;
+      renderer.setSize(width, height); // Actualizar el tamaño del renderer
+      camera.aspect = width / height; // Actualizar la relación de aspecto
       camera.updateProjectionMatrix();
     };
 
@@ -100,7 +84,7 @@ const ParticleBackground = () => {
       window.removeEventListener("resize", handleResize);
       mount.removeChild(renderer.domElement);
     };
-  }, [resolvedTheme, isDarkMode]);
+  }, []); // Dependencias vacías: solo se ejecuta una vez
 
   return (
     <div
