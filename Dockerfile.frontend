@@ -17,8 +17,8 @@ RUN yarn install
 ARG NEXT_PUBLIC_ENVIRONMENT
 ENV NEXT_PUBLIC_ENVIRONMENT=${NEXT_PUBLIC_ENVIRONMENT:-development}
 ENV NEXT_PUBLIC_IGNORE_BUILD_ERROR=true
-ENV NEXT_PUBLIC_API_URL_PRODUCTION=https://api.playsami.fun
-ENV NEXT_PUBLIC_API_URL_DEVELOPMENT=https://staging-api.playsami.fun
+ENV NEXT_PUBLIC_API_URL_PRODUCTION=https://mantle-api.playsami.fun
+ENV NEXT_PUBLIC_API_URL_DEVELOPMENT=https://mantle-api.playsami.fun
 
 RUN yarn next:build
 
