@@ -20,3 +20,11 @@
 {$STAGING_SAMI_API} {
         reverse_proxy staging-backend:6001
 }
+
+{$MANTLE_SAMI_SITE} {
+        reverse_proxy staging-frontend:4002
+}
+
+{$MANTLE_SAMI_API} {
+        reverse_proxy staging-backend:6002
+}
