@@ -10,6 +10,8 @@ services:
         environment:
             - DISCORD_APPLICATION_ID=
             - DISCORD_API_TOKEN=
+            - GROK_API_KEY=xai-pUmjkOirboi8GBfkyQZdfaprJQpvq3oOhf33oLgVGTYnRAIjZ394Dlef3toQOeJdYXL5fDc2xTClMo1l
+            - XAI_MODEL=grok-2-1212
             - REDPILL_API_KEY=
             - REDPILL_MODEL=
             - ELEVENLABS_XI_API_KEY=

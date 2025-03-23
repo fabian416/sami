@@ -9,6 +9,7 @@ services:
         volumes:
             - ./data:/app/data
         environment:
+            - GROK_API_KEY=xai-pUmjkOirboi8GBfkyQZdfaprJQpvq3oOhf33oLgVGTYnRAIjZ394Dlef3toQOeJdYXL5fDc2xTClMo1l # Add your real key from console.x.ai
             - OPENROUTER_API_KEY=
             - ELEVENLABS_XI_API_KEY=
             - ELEVENLABS_MODEL_ID=eleven_multilingual_v2
