@@ -11,8 +11,8 @@ const server = http.createServer(app);
 
 const allowedOrigins = [
   "https://playsami.fun",
-  "https://mantle-playsami.fun",
-  "https://*-playsami.fun",
+  "https://mantle.playsami.fun",
+  "https://*.playsami.fun",
   ...(ENVIRONMENT !== "production" ? ["https://staging.playsami.fun", "http://localhost:3001", "https://8lh8dmll-3001.brs.devtunnels.ms"] : [])
 ];
 
