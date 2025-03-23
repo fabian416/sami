@@ -1895,6 +1895,7 @@ __metadata:
     "@typescript-eslint/parser": ^8.22.0
     "@uniswap/sdk-core": ~5.8.2
     "@uniswap/v2-sdk": ~4.6.1
+    "@worldcoin/minikit-js": ^1.8.0
     abitype: 1.0.6
     autoprefixer: ~10.4.20
     blo: ~1.2.0
@@ -3494,6 +3495,30 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@worldcoin/idkit-core@npm:^2.0.2":
+  version: 2.0.2
+  resolution: "@worldcoin/idkit-core@npm:2.0.2"
+  dependencies:
+    browser-or-node: 3.0.0-pre.0
+    buffer: ^6.0.3
+    ox: ^0.1.0
+    zustand: ^4.5
+  checksum: f3602e0e7e0b5348bea96a89ea11ab96975f3a0620ee88e8ec7a349a05273db3fdbc94dec63af8d0cb9860b8a6f854c5e46431ede7ee11683bb5acf2ea51ba0d
+  languageName: node
+  linkType: hard
+
+"@worldcoin/minikit-js@npm:^1.8.0":
+  version: 1.8.0
+  resolution: "@worldcoin/minikit-js@npm:1.8.0"
+  dependencies:
+    "@worldcoin/idkit-core": ^2.0.2
+    abitype: ^1.0.6
+  peerDependencies:
+    viem: ^2.23.5
+  checksum: 3891eaeaf5db6637d30a3ffc50618af4907e78e7385c9d2cedb32eb687018cbd3728293af0bd5777b16075258b87e8d75ee8ed387971c4e64d94e73d271b59d2
+  languageName: node
+  linkType: hard
+
 "abbrev@npm:1":
   version: 1.1.1
   resolution: "abbrev@npm:1.1.1"
@@ -4208,6 +4233,13 @@ __metadata:
   version: 1.1.0
   resolution: "brorand@npm:1.1.0"
   checksum: 8a05c9f3c4b46572dec6ef71012b1946db6cae8c7bb60ccd4b7dd5a84655db49fe043ecc6272e7ef1f69dc53d6730b9e2a3a03a8310509a3d797a618cbee52be
+  languageName: node
+  linkType: hard
+
+"browser-or-node@npm:3.0.0-pre.0":
+  version: 3.0.0-pre.0
+  resolution: "browser-or-node@npm:3.0.0-pre.0"
+  checksum: 16610f655079cf116c1bd817dc4489023baf79fff57ce4f756dd176aab8853dbac2c6a791b673751021ca3a07da263ce3ecbd296a1438cb92110a36e65644a45
   languageName: node
   linkType: hard
 
@@ -9213,6 +9245,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ox@npm:^0.1.0":
+  version: 0.1.8
+  resolution: "ox@npm:0.1.8"
+  dependencies:
+    "@adraffy/ens-normalize": ^1.10.1
+    "@noble/curves": ^1.6.0
+    "@noble/hashes": ^1.5.0
+    "@scure/bip32": ^1.5.0
+    "@scure/bip39": ^1.4.0
+    abitype: ^1.0.6
+    eventemitter3: 5.0.1
+  peerDependencies:
+    typescript: ">=5.4.0"
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: e5e1c48d7f21fb760743bab54af02cc3d63984ffade3f2ae976e7f18586e0e0ba1747bae8ae90457ea960fb6e5980204ea84b2e19e01e3b820bddb08e2e46d18
+  languageName: node
+  linkType: hard
+
 "p-finally@npm:^2.0.0":
   version: 2.0.1
   resolution: "p-finally@npm:2.0.1"
@@ -12086,7 +12138,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"use-sync-external-store@npm:1.4.0":
+"use-sync-external-store@npm:1.4.0, use-sync-external-store@npm:^1.2.2":
   version: 1.4.0
   resolution: "use-sync-external-store@npm:1.4.0"
   peerDependencies:
@@ -12785,6 +12837,26 @@ __metadata:
     use-sync-external-store:
       optional: true
   checksum: dc7414de234f9d2c0afad472d6971e9ac32281292faa8ee0910521cad063f84eeeb6f792efab068d6750dab5854fb1a33ac6e9294b796925eb680a59fc1b42f9
+  languageName: node
+  linkType: hard
+
+"zustand@npm:^4.5":
+  version: 4.5.6
+  resolution: "zustand@npm:4.5.6"
+  dependencies:
+    use-sync-external-store: ^1.2.2
+  peerDependencies:
+    "@types/react": ">=16.8"
+    immer: ">=9.0.6"
+    react: ">=16.8"
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+    immer:
+      optional: true
+    react:
+      optional: true
+  checksum: c4e9c809c92195fa2f9e8e0cd6631b6830fc9676343c8584c20cf26d402f220c54ae0479a299dbcd5e1cdfc5977f116838f1b5f39d6a4997ff727c6cebe60d3f
   languageName: node
   linkType: hard
 
