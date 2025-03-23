@@ -51,6 +51,34 @@ services:
       - .env
     environment:
       - PORT=4001
+    
+  
+   mantle-backend:
+    image: ghcr.io/fabian416/sami/backend:mantle
+    ports:
+      - "6002:6002"
+    restart: always
+    networks:
+      - sami_network
+    env_file:
+      - .env
+    environment:
+      - HOST=0.0.0.0
+      - PORT=6002
+
+  mantle-frontend:
+    image: ghcr.io/fabian416/sami/frontend:mantle
+    ports:
+      - "4002:4002"
+    restart: always
+    networks:
+      - sami_network
+    depends_on:
+      - backend
+    env_file:
+      - .env
+    environment:
+      - PORT=4002
 
   ai-agent:
     image: ghcr.io/fabian416/sami/ai-agent:latest
