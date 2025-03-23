@@ -38,9 +38,7 @@ services:
       - sami_network
     env_file:
       - .env
-    environment:
-      - GROK_API_KEY=xai-pUmjkOirboi8GBfkyQZdfaprJQpvq3oOhf33oLgVGTYnRAIjZ394Dlef3toQOeJdYXL5fDc2xTClMo1l
-      - SERVER_PORT=3000 
+
 networks:
   sami_network:
     driver: bridge

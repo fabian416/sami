@@ -15,7 +15,7 @@ const AGENT_URL = process.env.AGENT_URL;
 export const SAMI_URI = AGENT_URL || "http://localhost:3000";
 
 const MIN_PLAYERS = 3;
-const CONVERTATION_PHASE_TIME = 90 * 1000;
+const CONVERTATION_PHASE_TIME = 60 * 1000;
 const VOTING_PHASE_TIME = 15 * 1000;
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
