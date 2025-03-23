@@ -52,3 +52,4 @@ docker compose up -d
 - AI in `packages/ai/sami`
 - Smart contracts in `packages/foundry/contracts`
 - Deployment scripts in `packages/foundry/script`
+.
