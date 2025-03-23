@@ -5,9 +5,9 @@
 import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
 const deployedContracts = {
-  5003: {
+  300: {
     USDC: {
-      address: "0x7913be3d248e8fc629f3f40a9e892a0d9ea04888",
+      address: "0x83dbCCc7728D3335EefC112912b24684F05CEE60",
       abi: [
         {
           type: "constructor",
@@ -2190,7 +2190,7 @@ const deployedContracts = {
       deploymentScript: "Deploy.s.sol",
     },
     USDCSimpleSAMI: {
-      address: "0xfc78a12839a54c83345fd4013a44ae122ce72375",
+      address: "0xE80696029Ccf96B77e64679676Ba104769EeA66a",
       abi: [
         {
           type: "constructor",

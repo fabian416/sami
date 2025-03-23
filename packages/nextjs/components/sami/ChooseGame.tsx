@@ -194,7 +194,7 @@ export const ChooseGame = ({ showGame }: any) => {
                 <br />
                 One is SAMI, an AI pretending to be human.
                 <br />
-                You have just 2 minutes to spot the fake.
+                You have just 90 seconds to spot the fake.
                 <br />
                 <span>
                   Vote at the end—<strong>who is SAMI?</strong>

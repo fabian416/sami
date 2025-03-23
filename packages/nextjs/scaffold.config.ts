@@ -11,12 +11,12 @@ console.log(chains);
 
 export const DEFAULT_ALCHEMY_API_KEY = "h7TutcRJnUmqRLTJ3uippv1ldumCYNmf";
 
-const ENVIRONMENT = process.env.NEXT_PUBLIC_ENVIRONMENT;
-const chain = ENVIRONMENT === "production" ? chains.mantle : chains.mantleSepoliaTestnet;
+// const ENVIRONMENT = process.env.NEXT_PUBLIC_ENVIRONMENT;
+// const chain = ENVIRONMENT === "production" ? chains.mantle : chains.mantleSepoliaTestnet;
 
 const scaffoldConfig = {
   // The networks on which your DApp is live
-  targetNetworks: [chain],
+  targetNetworks: [chains.zksyncSepoliaTestnet],
 
   // The interval at which your front-end polls the RPC servers for new data
   // it has no effect if you only target the local network (default is 4000)
