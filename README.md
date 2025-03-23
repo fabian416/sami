@@ -53,3 +53,4 @@ docker compose up -d
 - Smart contracts in `packages/foundry/contracts`
 - Deployment scripts in `packages/foundry/script`
 .
+.
