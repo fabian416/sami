@@ -4,7 +4,7 @@ env:
   IMAGE_TAG_FRONTEND: ghcr.io/fabian416/sami/frontend
   IMAGE_TAG_AI_AGENT: ghcr.io/fabian416/sami/ai-agent
 
-  IMAGE_VERSION: ${{ github.ref == 'refs/heads/main' && 'latest' || 'staging' }}
+  IMAGE_VERSION: ${{ github.ref == 'refs/heads/mantle' && 'mantle' || 'mantle_staging' }}
   NEXT_PUBLIC_ENVIRONMENT: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
 
 on:
@@ -12,6 +12,8 @@ on:
     branches:
       - main
       - staging
+      - mantle
+      - zksync
 
 jobs:
   build_backend:

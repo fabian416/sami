@@ -7,11 +7,12 @@ export type ScaffoldConfig = {
   walletConnectProjectId: string;
   onlyLocalBurnerWallet: boolean;
 };
+console.log(chains);
 
-export const DEFAULT_ALCHEMY_API_KEY = "oKxs-03sij-U_N0iOlrSsZFr29-IqbuF";
+export const DEFAULT_ALCHEMY_API_KEY = "h7TutcRJnUmqRLTJ3uippv1ldumCYNmf";
 
 const ENVIRONMENT = process.env.NEXT_PUBLIC_ENVIRONMENT;
-const chain = ENVIRONMENT === "production" ? chains.base : chains.baseSepolia;
+const chain = ENVIRONMENT === "production" ? chains.mantle : chains.mantleSepoliaTestnet;
 
 const scaffoldConfig = {
   // The networks on which your DApp is live

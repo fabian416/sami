@@ -9,16 +9,16 @@ const ENVIRONMENT = process.env.NEXT_PUBLIC_ENVIRONMENT || "development";
 
 // Set contract address based on environment
 const RPC_URL = ENVIRONMENT === "production"
-  ? process.env.RPC_URL_PRODUCTION
-  : process.env.RPC_URL_DEVELOPMENT;
+  ? process.env.MANTLE_RPC_URL_PRODUCTION
+  : process.env.MANTLE_RPC_URL_DEVELOPMENT;
 if (!RPC_URL) {
   throw new Error("Missing RPC URL in environment variables");
 }
 
 // Set contract address based on environment
 const CONTRACT_ADDRESS = ENVIRONMENT === "production"
-  ? process.env.BASE_MAINNET_SIMPLE_SAMI_ADDRESS
-  : process.env.BASE_SEPOLIA_SIMPLE_SAMI_ADDRESS;
+  ? process.env.MANTLE_MAINNET_SIMPLE_SAMI_ADDRESS
+  : process.env.MANTLE_SEPOLIA_SIMPLE_SAMI_ADDRESS;
 if (!CONTRACT_ADDRESS) {
   throw new Error("Missing contract addresses in environment variables");
 }
