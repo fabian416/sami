@@ -1,7 +1,7 @@
 import { SocketProvider } from "./socketContext";
 import "@rainbow-me/rainbowkit/styles.css";
-import { ScaffoldEthAppWithProviders } from "~~/components/ScaffoldEthAppWithProviders";
-import { ThemeProvider } from "~~/components/ThemeProvider";
+import { ScaffoldEthAppWithProviders } from "~~/components/common/ScaffoldEthAppWithProviders";
+import { ThemeProvider } from "~~/components/common/ThemeProvider";
 import "~~/styles/globals.css";
 import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
 

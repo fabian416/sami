@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { Socket, io } from "socket.io-client";
-import { useAccount } from "wagmi";
+import { useContracts } from "~~/components/common/ContractsContext";
 
 const ENVIRONMENT = process.env.NEXT_PUBLIC_ENVIRONMENT;
 const API_URL =
@@ -42,7 +42,17 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [playerIndex, setPlayerIndex] = useState<number | null>(null);
   const [roomId, setRoomId] = useState<string | null>(null);
   const [isPlayerEliminated, setIsPlayerEliminated] = useState<boolean | undefined>(false);
-  const { address } = useAccount();
+  const [connectedAddress, setConnectedAddress] = useState<any>(false);
+  const contractsCtx = useContracts();
+  if (!contractsCtx) {
+    throw new Error("ContractsContext not found. Did you forget to wrap in <ContractsProvider>?");
+  }
+  const { signer } = contractsCtx;
+
+  useEffect(() => {
+    const connected = signer(false);
+    setConnectedAddress(connected);
+  }, [signer]);
 
   useEffect(() => {
     console.log("Intentando conectar a:", SERVER_URL);
@@ -78,11 +88,11 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   // Register the wallet
   useEffect(() => {
-    if (socket && address) {
-      socket.emit("registerWallet", { walletAddress: address });
-      console.log(`Wallet registered: ${address}`);
+    if (socket && connectedAddress) {
+      socket.emit("registerWallet", { walletAddress: connectedAddress });
+      console.log(`Wallet registered: ${connectedAddress}`);
     }
-  }, [socket, address]); // 📌 Escucha cambios en `address`
+  }, [socket, connectedAddress]); // 📌 Escucha cambios en `address`
 
   return (
     <SocketContext.Provider

@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { useSocket } from "./socketContext";
 import type { NextPage } from "next";
 import { UserIcon } from "@heroicons/react/24/outline";
-import { ChooseGame } from "~~/components/sami/ChooseGame";
-import { PlayGame } from "~~/components/sami/PlayGame";
+import { ChooseGame } from "~~/components/views/ChooseGame";
+import { PlayGame } from "~~/components/views/PlayGame";
 
 const Home: NextPage = () => {
   const [choosingGame, setChoosingGame] = useState(true);
