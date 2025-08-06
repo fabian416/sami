@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { Socket, io } from "socket.io-client";
-import { useContracts } from "~~/components/common/ContractsContext";
+import { useContracts } from "~~/providers/ContractsContext";
 
 const ENVIRONMENT = process.env.NEXT_PUBLIC_ENVIRONMENT;
 const API_URL =

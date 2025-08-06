@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useSocket } from "~~/app/socketContext";
+import { useSocket } from "~~/providers/SocketContext";
 
 export const startCountdown = ({
   data,

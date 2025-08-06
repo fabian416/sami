@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { useContracts } from "../common/ContractsContext";
+import { useContracts } from "../../providers/ContractsContext";
+import { useEmbedded } from "../../providers/EmbeddedContext";
 import { ModalWaitingForPlayers } from "./ModalWaitingForPlayers";
 import { ModalWaitingForTransaction } from "./ModalWaitingForTransaction";
 import { v4 as uuidv4 } from "uuid";
-import { useAccount } from "wagmi";
-import { useSocket } from "~~/app/socketContext";
+import { useSocket } from "~~/providers/SocketContext";
 
 interface Player {
   id: string;
@@ -24,22 +24,19 @@ export const ChooseGame = ({ showGame }: any) => {
   const [isBetGame, setIsBetGame] = useState<boolean>(false);
   const [connectedAddress, setConnectedAddress] = useState<any>(false);
   const { socket, isConnected, playerId, setPlayerId, setPlayerIndex, setRoomId } = useSocket();
-  const contractsCtx = useContracts();
-  if (!contractsCtx) {
-    throw new Error("ContractsContext not found. Did you forget to wrap in <ContractsProvider>?");
-  }
-  const { contracts, signer } = contractsCtx;
+  const { contracts, signer } = useContracts();
+  const embedded = useEmbedded();
 
   const fetchAllowance = async () => {
     if (!signer) return;
-    const { usdc } = await contracts(connectedAddress, false);
-    const { samiAddress } = await contracts(connectedAddress, false);
-    const result = await usdc.allowance(signer, samiAddress);
+    const { usdc } = await contracts(connectedAddress, embedded);
+    const { samiAddress } = await contracts(connectedAddress, embedded);
+    const result = await usdc.allowance(await signer.getAddress(), samiAddress);
     setLocalAllowance(result);
   };
 
   useEffect(() => {
-    const connected = signer(false);
+    const connected = signer(embedded);
     setConnectedAddress(connected);
   }, [signer]);
 
@@ -78,7 +75,7 @@ export const ChooseGame = ({ showGame }: any) => {
 
     setLoadingApprove(true);
     try {
-      const { usdc, samiAddress } = await contracts(connectedAddress, false);
+      const { usdc, samiAddress } = await contracts(connectedAddress, embedded);
       const tx = await usdc.approve(samiAddress, BigInt(1 * DECIMALS));
       await tx.wait();
       setLocalAllowance(BigInt(1 * DECIMALS));
@@ -97,7 +94,7 @@ export const ChooseGame = ({ showGame }: any) => {
 
     setLoadingBet(true);
     try {
-      const { sami } = await contracts(connectedAddress, false);
+      const { sami } = await contracts(connectedAddress, embedded);
       const tx = await sami.enterGame();
       await tx.wait();
 

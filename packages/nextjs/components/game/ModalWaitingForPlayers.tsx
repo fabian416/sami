@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useSocket } from "~~/app/socketContext";
+import { useSocket } from "~~/providers/SocketContext";
 
 export const ModalWaitingForPlayers = ({ isBetGame }: { isBetGame: boolean }) => {
   const [amountOfPlayers, setAmountOfPlayers] = useState<number | null>(null);

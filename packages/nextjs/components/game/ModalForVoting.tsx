@@ -2,7 +2,7 @@ import { useState } from "react";
 import Image from "next/image";
 import CountdownClock from "../common/CountdownClock";
 import { AVATARS, COLORS, NAMES, Player } from "./PlayGame";
-import { useSocket } from "~~/app/socketContext";
+import { useSocket } from "~~/providers/SocketContext";
 
 export const ModalForVoting = ({
   players,

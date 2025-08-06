@@ -7,7 +7,7 @@ import _ from "lodash";
 import { useTheme } from "next-themes";
 import { isMobile } from "react-device-detect";
 import { PaperAirplaneIcon } from "@heroicons/react/24/solid";
-import { useSocket } from "~~/app/socketContext";
+import { useSocket } from "~~/providers/SocketContext";
 
 interface Message {
   playerId?: string;

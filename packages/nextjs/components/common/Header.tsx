@@ -4,7 +4,7 @@ import React, { useCallback, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { DECIMALS } from "../views/ChooseGame";
+import { DECIMALS } from "../game/ChooseGame";
 import { FaucetButton } from "./FaucetButton";
 import { useAccount } from "wagmi";
 import { Bars3Icon } from "@heroicons/react/20/solid";

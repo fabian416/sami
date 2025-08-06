@@ -31,17 +31,6 @@ const connectXO = async (): Promise<{
   };
 };
 
-const connectEmbedded = (): {
-  provider: XOConnectProvider;
-  disconnect: () => Promise<void>;
-} => {
-  const xoProvider = new XOConnectProvider();
-  return {
-    provider: xoProvider,
-    disconnect: async () => {},
-  };
-};
-
 export const ContractsProvider: React.FC<ContractsProviderProps> = ({ children }) => {
   const [values, setValues] = useState<any>(null);
   const settings = useSettings();
@@ -137,7 +126,7 @@ export const ContractsProvider: React.FC<ContractsProviderProps> = ({ children }
       const address = await signer.getAddress();
       const typedData = {
         domain: {
-          name: "Asami",
+          name: "Sami",
           version: "1",
           chainId: settings.base.chainId,
         },
@@ -190,4 +179,10 @@ export const ContractsProvider: React.FC<ContractsProviderProps> = ({ children }
   );
 };
 
-export const useContracts = () => useContext(ContractsContext);
+export const useContracts = () => {
+  const context = useContext(ContractsContext);
+  if (!context) {
+    throw new Error("useContracts must be used within a <ContractsProvider>");
+  }
+  return context;
+};
