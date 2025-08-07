@@ -1,4 +1,3 @@
-# Usa la imagen base de Node.js
 FROM node:23.3.0-slim AS builder
 LABEL com.centurylinklabs.watchtower.enable="true"
 

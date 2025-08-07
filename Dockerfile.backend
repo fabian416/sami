@@ -1,17 +1,14 @@
-# Etapa 1: Construcción
 FROM node:23.3.0-slim AS builder
 LABEL com.centurylinklabs.watchtower.enable="true"
 
 WORKDIR /app
 
-# Habilitar Corepack para usar Yarn 3+
 RUN corepack enable \
     && corepack prepare yarn@3.2.3 --activate \
     && yarn set version 3.2.3
 
 COPY . .
 
-# Instalar dependencias antes de copiar el código fuente para aprovechar la cache
 RUN yarn install
 
 
@@ -20,15 +17,19 @@ ENV NEXT_PUBLIC_ENVIRONMENT=${NEXT_PUBLIC_ENVIRONMENT:-development}
 
 RUN yarn backend:build
 
-# Etapa 2: Producción
+
 FROM node:23.3.0-slim
 
-# -- Add curl and any other needed utilities
 RUN apt-get update && apt-get install -y curl
 
 WORKDIR /app
 
-# Copia solo los archivos esenciales desde la etapa de construcción
+
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/yarn*.lock ./
+COPY --from=builder /app/.yarnrc.yml /app/
+COPY --from=builder /app/.yarn /app/.yarn
+COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/packages/backend/package*.json ./
 COPY --from=builder /app/packages/backend/tsconfig.build.json ./
 COPY --from=builder /app/packages/backend/tsconfig.json ./
@@ -38,8 +39,6 @@ COPY --from=builder /app/packages/backend/dist ./dist
 ARG NEXT_PUBLIC_ENVIRONMENT
 ENV NEXT_PUBLIC_ENVIRONMENT=${NEXT_PUBLIC_ENVIRONMENT:-development} 
 
-# Expone el puerto del backend
 EXPOSE 5001
 
-# Comando para ejecutar el backend
 CMD ["yarn", "backend:start"]
