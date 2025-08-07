@@ -1,13 +1,10 @@
 import { Router } from 'express';
 import dotenv from "dotenv";
+import { ENVIRONMENT } from '@src/utils/constants';
 dotenv.config();
 
 const router = Router();
 
-// Determiná el entorno
-const ENVIRONMENT = process.env.NODE_ENV || "development";
-
-// Obtené las variables correctas
 const simpleSamiContractAddress = ENVIRONMENT === "production"
   ? process.env.BASE_MAINNET_SIMPLE_SAMI_ADDRESS
   : process.env.BASE_SEPOLIA_SIMPLE_SAMI_ADDRESS;
