@@ -3,6 +3,7 @@
   "compilerOptions": {
     "baseUrl": "./src",
     "paths": {
+      "@src/*": ["*"],
       "@abi/*": ["abi/*"],
       "@config/*": ["config/*"],
       "@controllers/*": ["controllers/*"],

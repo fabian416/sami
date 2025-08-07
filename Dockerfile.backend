@@ -31,6 +31,7 @@ WORKDIR /app
 # Copia solo los archivos esenciales desde la etapa de construcción
 COPY --from=builder /app/packages/backend/package*.json ./
 COPY --from=builder /app/packages/backend/tsconfig.build.json ./
+COPY --from=builder /app/packages/backend/tsconfig.json ./
 COPY --from=builder /app/packages/backend/node_modules ./node_modules
 COPY --from=builder /app/packages/backend/dist ./dist
 
