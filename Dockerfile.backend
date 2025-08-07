@@ -41,4 +41,4 @@ ENV NEXT_PUBLIC_ENVIRONMENT=${NEXT_PUBLIC_ENVIRONMENT:-development}
 EXPOSE 5001
 
 # Comando para ejecutar el backend
-CMD ["node", "dist/server.js"]
+CMD ["yarn", "backend:start"]

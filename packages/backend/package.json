@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "node dist/server.js",
+    "start": "node -r tsconfig-paths/register dist/server.js",
     "dev": "NODE_OPTIONS='-r tsconfig-paths/register' ts-node src/server.ts",
     "build": "tsc -p tsconfig.build.json",
     "test": "ts-node src/test.ts",
