@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "NODE_OPTIONS='-r tsconfig-paths/register' node dist/server.js",
+    "start": "node dist/server.js",
     "dev": "NODE_OPTIONS='-r tsconfig-paths/register' ts-node src/server.ts",
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
     "test": "ts-node src/test.ts",
     "test1": "ts-node src/test1.ts",
     "test2": "ts-node src/test2.ts",
