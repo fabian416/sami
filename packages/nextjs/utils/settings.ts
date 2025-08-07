@@ -24,7 +24,7 @@ const development = {
 } as const;
 
 const staging = {
-  apiDomain: "https://staging.playsami.fun",
+  apiDomain: "https://staging-api.playsami.fun",
   environment: "staging",
   base: {
     chainId: 84532,
@@ -49,7 +49,7 @@ const staging = {
 } as const;
 
 const production = {
-  apiDomain: "https://playsami.fun",
+  apiDomain: "https://api.playsami.fun",
   environment: "production",
   base: {
     chainId: 8453,

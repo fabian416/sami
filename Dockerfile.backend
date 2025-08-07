@@ -30,7 +30,7 @@ WORKDIR /app
 
 # Copia solo los archivos esenciales desde la etapa de construcción
 COPY --from=builder /app/packages/backend/package*.json ./
-COPY --from=builder /app/packages/backend/tsconfig.json ./
+COPY --from=builder /app/packages/backend/tsconfig.build.json ./
 COPY --from=builder /app/packages/backend/node_modules ./node_modules
 COPY --from=builder /app/packages/backend/dist ./dist
 
@@ -41,4 +41,4 @@ ENV NEXT_PUBLIC_ENVIRONMENT=${NEXT_PUBLIC_ENVIRONMENT:-development}
 EXPOSE 5001
 
 # Comando para ejecutar el backend
-CMD ["node", "-r", "tsconfig-paths/register", "dist/server.js"]
+CMD ["node", "dist/server.js"]
