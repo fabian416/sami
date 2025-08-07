@@ -3,7 +3,6 @@ import { Server } from "socket.io";
 import app from "./app";
 import * as gameController from "@controllers/gameController";
 import * as playerController from "@controllers/playerController";
-import "@services/eventListener";
 import { allowedOrigins } from "./utils/constants";
 const HOST = process.env.HOST || "localhost";
 const PORT = parseInt(process.env.PORT || "5001", 10);

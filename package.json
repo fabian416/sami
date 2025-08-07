@@ -15,6 +15,7 @@
     "ai:rebuild": "cd packages/eliza && pnpm rebuild",
     "ai:dev": "cd packages/eliza && pnpm start",
     "backend:build": "yarn workspace backend run build",
+    "backend:start": "yarn workspace backend run start",
     "backend:dev": "yarn workspace backend run dev",
     "chain": "yarn foundry:chain",
     "compile": "yarn foundry:compile",

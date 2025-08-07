@@ -8,13 +8,13 @@
     "resolveJsonModule": true,
     "baseUrl": "./",
     "paths": {
-      "@src/*": ["src/*"],
-      "@abi/*": ["src/abi/*"],
-      "@config/*": ["src/config/*"],
-      "@controllers/*": ["src/controllers/*"],
-      "@models/*": ["src/models/*"],
-      "@routes/*": ["src/routes/*"],
-      "@services/*": ["src/services/*"]
+      "@src/*": ["./src/*", "./dist/*"],
+      "@abi/*": ["./src/abi/*", "./dist/abi/*"],
+      "@config/*": ["./src/config/*", "./dist/config/*"],
+      "@controllers/*": ["./src/controllers/*", "./dist/controllers/*"],
+      "@models/*": ["./src/models/*", "./dist/models/*"],
+      "@routes/*": ["./src/routes/*", "./dist/routes/*"],
+      "@services/*": ["./src/services/*", "./dist/services/*"],
     },
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
@@ -24,3 +24,4 @@
   "include": ["src"],
   "exclude": ["node_modules", "dist"]
 }
+
