@@ -30,11 +30,11 @@ COPY --from=builder /app/yarn*.lock ./
 COPY --from=builder /app/.yarnrc.yml /app/
 COPY --from=builder /app/.yarn /app/.yarn
 COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/packages/backend/package*.json ./
-COPY --from=builder /app/packages/backend/tsconfig.build.json ./
-COPY --from=builder /app/packages/backend/tsconfig.json ./
-COPY --from=builder /app/packages/backend/node_modules ./node_modules
-COPY --from=builder /app/packages/backend/dist ./dist
+COPY --from=builder /app/packages/backend/package*.json ./packages/backend/
+COPY --from=builder /app/packages/backend/tsconfig.build.json ./packages/backend/
+COPY --from=builder /app/packages/backend/tsconfig.json ./packages/backend/
+COPY --from=builder /app/packages/backend/node_modules ./packages/backend/node_modules
+COPY --from=builder /app/packages/backend/dist ./packages/backend/dist
 
 ARG NEXT_PUBLIC_ENVIRONMENT
 ENV NEXT_PUBLIC_ENVIRONMENT=${NEXT_PUBLIC_ENVIRONMENT:-development} 
