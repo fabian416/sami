@@ -1,26 +1,19 @@
 import { Player, createPlayer } from "./playerService";
 import { EventEmitter } from "events";
 import { v4 as uuidv4 } from "uuid";
-import { players } from "@src/server";
 import _ from "lodash";
 import { sendPrizesToWinners } from "@config/contractConfig";
 import supabase from "@config/supabaseClient";
 import axios from "axios";
+import {
+  MIN_PLAYERS, CONVERTATION_PHASE_TIME, VOTING_PHASE_TIME,
+  TELEGRAM_BOT_TOKEN, CHAT_ID, SAMI_URI, ENVIRONMENT
+ } from "@src/utils/constants";
 
 class GameServiceEmitter extends EventEmitter {}
 const gameServiceEmitter = new GameServiceEmitter();
 export default gameServiceEmitter;
 
-const AGENT_URL = process.env.AGENT_URL;
-export const SAMI_URI = AGENT_URL || "http://localhost:3000";
-
-const MIN_PLAYERS = 3;
-const CONVERTATION_PHASE_TIME = 60 * 1000;
-const VOTING_PHASE_TIME = 15 * 1000;
-
-const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const CHAT_ID = -1002404242449;
-const ENVIRONMENT = process.env.NEXT_PUBLIC_ENVIRONMENT;
 
 export interface Message {
   roomId: string;

@@ -8,11 +8,7 @@ export const metadata = getMetadata({
 });
 
 const AboutPage: NextPage = () => {
-  return (
-    <>
-      <About />
-    </>
-  );
+  return <About />;
 };
 
 export default AboutPage;

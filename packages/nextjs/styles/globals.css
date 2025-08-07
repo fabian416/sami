@@ -7,6 +7,10 @@
   background: oklch(var(--b2));
 }
 
+html, body {
+  height: 100%;
+}
+
 body {
   min-height: 100vh;
   font-family: "Exo 2", serif;
@@ -23,6 +27,10 @@ body {
   font-size: 2.5rem;
   line-height: 0.2;
 } */
+
+.gradient-bg {
+  background: linear-gradient(75deg, #3dcce1, #2c2171);
+}
 
 .sami-title {
   font-family: "Audiowide", serif;

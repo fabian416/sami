@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSocket } from "./socketContext";
+import { useSocket } from "../providers/SocketContext";
 import type { NextPage } from "next";
 import { UserIcon } from "@heroicons/react/24/outline";
-import { ChooseGame } from "~~/components/sami/ChooseGame";
-import { PlayGame } from "~~/components/sami/PlayGame";
+import { ChooseGame } from "~~/components/game/ChooseGame";
+import { PlayGame } from "~~/components/game/PlayGame";
 
 const Home: NextPage = () => {
   const [choosingGame, setChoosingGame] = useState(true);
@@ -28,17 +28,16 @@ const Home: NextPage = () => {
   }, [socket, connectedPlayers, setConnectedPlayers]);
 
   return (
-    <>
-      <div className="md:fixed self-start flex gap-2 items-center justify-center mt-4 mb-2 mx-8 md:mx-4 max-w-16 outline outline-1 outline-green-600 border border-green-600 rounded-lg px-2 py-1 text-sm text-green-600">
+    <div className="relative flex flex-col items-center justify-center w-full grow">
+      <div className="absolute top-4 left-4 flex gap-2 items-center justify-center max-w-16 outline outline-1 outline-green-600 border border-green-600 rounded-lg px-2 py-1 text-sm text-green-600">
         {connectedPlayers}
         <UserIcon className="w-4 h-4 fill-current text-green-600" />
       </div>
-      <div className="flex justify-center items-center flex-col flex-grow pb-1">
-        <div className="flex justify-center items-center flex-col flex-grow w-5/6 rounded-2xl border-slate-700 ">
-          {choosingGame ? <ChooseGame showGame={showGame} /> : <PlayGame />}
-        </div>
+
+      <div className="flex flex-col items-center justify-center w-5/6 p-4">
+        {choosingGame ? <ChooseGame showGame={showGame} /> : <PlayGame />}
       </div>
-    </>
+    </div>
   );
 };
 

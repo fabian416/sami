@@ -31,23 +31,6 @@ export const About = () => {
         </div>
       </div>
 
-      {/* Section 2: Game Theory Call-to-Action */}
-      {/* <div className="w-full bg-[#DAFB08]">
-        <div className="flex flex-col p-6 justify-center items-center bg-[#DAFB08] text-black">
-          <h1 className="text-4xl font-mono text-center">Curious about our game theory?</h1>
-          <div>
-            <Link href="/SAMIpaper.pdf" target="_blank">
-              <button
-                className="btn btn-primary bg-black hover:bg-gray-800 border-0 text-[#DAFB08]"
-                aria-label="Read the SAMI paper"
-              >
-                Read our SAMIPaper!
-              </button>
-            </Link>
-          </div>
-        </div>
-      </div> */}
-
       {/* Section 3: Who is SAMI? */}
       <div className="hero bg-base-200 opacity-80">
         <div className="hero-content flex-col lg:flex-row-reverse lg:px-14">
@@ -120,10 +103,22 @@ export const About = () => {
           </div>
         </div>
       </div>
-      <div className="flex flex-row sami-title text-center mt-4 mb-4 text-lg opacity-80 bg-[#2672BE] glow-blue text-white p-2 rounded-lg">
-        <Link className="link" href="https://x.com/sami_ai_agent" target="_blank" passHref>
-          <span className="sami-title text-xl text-black dark:text-white">Follow SAMI on X!</span>
-        </Link>
+      <div className="bg-transparent flex flex-row gap-3">
+        <div className="flex flex-row sami-title text-center mt-4 mb-4 text-lg opacity-80 bg-[#2672BE] glow-blue text-white p-2 rounded-lg">
+          <Link className="link" href="https://x.com/sami_ai_game" target="_blank" passHref>
+            <span className="sami-title text-xl text-black dark:text-white">Follow SAMI on X!</span>
+          </Link>
+        </div>
+        <div className="flex flex-row sami-title text-center mt-4 mb-4 text-lg opacity-80 bg-[#2c2171] glow-purple text-white p-2 rounded-lg">
+          <Link
+            className="link"
+            href="https://lulox.notion.site/SAMI-s-Data-Room-1ac13362a5748053a513c9736b569f13?pvs=74"
+            target="_blank"
+            passHref
+          >
+            <span className="sami-title text-xl text-black dark:text-white">SAMI&apos;s Data Room</span>
+          </Link>
+        </div>
       </div>
     </div>
   );

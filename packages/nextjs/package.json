@@ -25,6 +25,7 @@
     "burner-connector": "0.0.9",
     "csstype": "^3.1.3",
     "daisyui": "4.12.10",
+    "ethers": "^6.7.1",
     "next": "~14.2.11",
     "next-nprogress-bar": "~2.3.13",
     "next-themes": "~0.3.0",
@@ -42,6 +43,7 @@
     "uuid": "^11.0.5",
     "viem": "2.21.54",
     "wagmi": "^2.14.9",
+    "xo-connect": "^2.0.0",
     "zustand": "~5.0.0"
   },
   "devDependencies": {

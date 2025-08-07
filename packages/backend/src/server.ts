@@ -4,15 +4,11 @@ import app from "./app";
 import * as gameController from "@controllers/gameController";
 import * as playerController from "@controllers/playerController";
 import "@services/eventListener";
+import { allowedOrigins } from "./utils/constants";
 const HOST = process.env.HOST || "localhost";
 const PORT = parseInt(process.env.PORT || "5001", 10);
-const ENVIRONMENT = process.env.NEXT_PUBLIC_ENVIRONMENT;
 const server = http.createServer(app);
 
-const allowedOrigins = [
-  "https://playsami.fun",
-  ...(ENVIRONMENT !== "production" ? ["https://staging.playsami.fun", "http://localhost:3001", "https://8lh8dmll-3001.brs.devtunnels.ms"] : [])
-];
 
 
 // Socket configuration.IO for the server
