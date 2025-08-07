@@ -31,23 +31,6 @@ export const About = () => {
         </div>
       </div>
 
-      {/* Section 2: Game Theory Call-to-Action */}
-      {/* <div className="w-full bg-[#DAFB08]">
-        <div className="flex flex-col p-6 justify-center items-center bg-[#DAFB08] text-black">
-          <h1 className="text-4xl font-mono text-center">Curious about our game theory?</h1>
-          <div>
-            <Link href="/SAMIpaper.pdf" target="_blank">
-              <button
-                className="btn btn-primary bg-black hover:bg-gray-800 border-0 text-[#DAFB08]"
-                aria-label="Read the SAMI paper"
-              >
-                Read our SAMIPaper!
-              </button>
-            </Link>
-          </div>
-        </div>
-      </div> */}
-
       {/* Section 3: Who is SAMI? */}
       <div className="hero bg-base-200 opacity-80">
         <div className="hero-content flex-col lg:flex-row-reverse lg:px-14">

@@ -7,6 +7,10 @@
   background: oklch(var(--b2));
 }
 
+html, body {
+  height: 100%;
+}
+
 body {
   min-height: 100vh;
   font-family: "Exo 2", serif;

@@ -275,7 +275,7 @@ const deployedContracts = {
   },
   84532: {
     USDC: {
-      address: "0x7950010ef0c9583ca3a73893975dc71f747f7c35",
+      address: "0x22f89Cb7c95C38035BA59542D2F5EF2D8D47fF58",
       abi: [
         {
           type: "constructor",
@@ -824,7 +824,7 @@ const deployedContracts = {
       deploymentScript: "Deploy.s.sol",
     },
     USDCSimpleSAMI: {
-      address: "0xfc78a12839a54c83345fd4013a44ae122ce72375",
+      address: "0x418E319e50465F7d4bd5dDF3D3AD1dDCD86C7378",
       abi: [
         {
           type: "constructor",

@@ -1,12 +1,24 @@
 import express from 'express';
-import gameRoutes from './routes/gameRoutes';
+import configRoutes from './routes/configRoutes';
+import { allowedOrigins } from "./utils/constants";
+import cors from 'cors';
 
 const app = express();
 
-// Middleware to manage JSON
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+}));
+
+
 app.use(express.json());
 
-// Main routes
-app.use('/api/games', gameRoutes);
+app.use('/api/config', configRoutes);
 
-export default app;
+export default app; 

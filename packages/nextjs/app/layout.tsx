@@ -1,7 +1,7 @@
-import { SocketProvider } from "./socketContext";
+import { SocketProvider } from "../providers/SocketContext";
 import "@rainbow-me/rainbowkit/styles.css";
-import { ScaffoldEthAppWithProviders } from "~~/components/ScaffoldEthAppWithProviders";
-import { ThemeProvider } from "~~/components/ThemeProvider";
+import { EthAppWithProviders } from "~~/providers/EthAppWithProviders";
+import { ThemeProvider } from "~~/providers/ThemeProvider";
 import "~~/styles/globals.css";
 import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
 
@@ -11,7 +11,7 @@ export const metadata = getMetadata({
   imageRelativePath: "/thumbnail.jpg",
 });
 
-const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
+const App = ({ children }: { children: React.ReactNode }) => {
   return (
     <html suppressHydrationWarning>
       <head>
@@ -28,15 +28,13 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
           rel="stylesheet"
         />
       </head>
-      <body>
+      <body className="min-h-screen">
         <ThemeProvider enableSystem>
-          <ScaffoldEthAppWithProviders>
-            <SocketProvider>{children}</SocketProvider>
-          </ScaffoldEthAppWithProviders>
+          <EthAppWithProviders>{children}</EthAppWithProviders>
         </ThemeProvider>
       </body>
     </html>
   );
 };
 
-export default ScaffoldEthApp;
+export default App;
