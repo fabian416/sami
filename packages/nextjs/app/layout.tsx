@@ -1,7 +1,7 @@
 import { SocketProvider } from "../providers/SocketContext";
 import "@rainbow-me/rainbowkit/styles.css";
-import { ThemeProvider } from "~~/components/game/ThemeProvider";
 import { EthAppWithProviders } from "~~/providers/EthAppWithProviders";
+import { ThemeProvider } from "~~/providers/ThemeProvider";
 import "~~/styles/globals.css";
 import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
 
@@ -28,7 +28,7 @@ const App = ({ children }: { children: React.ReactNode }) => {
           rel="stylesheet"
         />
       </head>
-      <body>
+      <body className="min-h-screen">
         <ThemeProvider enableSystem>
           <EthAppWithProviders>{children}</EthAppWithProviders>
         </ThemeProvider>

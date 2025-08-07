@@ -1,3 +1,28 @@
+const development = {
+  apiDomain: "http://localhost:5001",
+  environment: "development",
+  base: {
+    chainId: 84532,
+    rpcUrls: {
+      84532: "https://sepolia.base.org",
+    },
+    supportedChains: [
+      {
+        chainId: "0x14a74",
+        chainName: "Base Sepolia",
+        nativeCurrency: {
+          name: "Sepolia ETH",
+          symbol: "ETH",
+          decimals: 18,
+        },
+        rpcUrls: ["https://sepolia.base.org"],
+        blockExplorerUrls: ["https://sepolia.basescan.org"],
+        iconUrls: ["https://cryptologos.cc/logos/ethereum-eth-logo.png?v=032"],
+      },
+    ],
+  },
+} as const;
+
 const staging = {
   apiDomain: "https://staging.playsami.fun",
   environment: "staging",
@@ -26,31 +51,6 @@ const staging = {
 const production = {
   apiDomain: "https://playsami.fun",
   environment: "production",
-  base: {
-    chainId: 8453,
-    rpcUrls: {
-      8453: "https://mainnet.base.org",
-    },
-    supportedChains: [
-      {
-        chainId: "0x2105",
-        chainName: "Base",
-        nativeCurrency: {
-          name: "Ether",
-          symbol: "ETH",
-          decimals: 18,
-        },
-        rpcUrls: ["https://mainnet.base.org"],
-        blockExplorerUrls: ["https://basescan.org"],
-        iconUrls: ["https://cryptologos.cc/logos/ethereum-eth-logo.png?v=032"],
-      },
-    ],
-  },
-} as const;
-
-const development = {
-  apiDomain: "http://localhost:5001",
-  environment: "development",
   base: {
     chainId: 8453,
     rpcUrls: {
@@ -104,4 +104,9 @@ export const allSettings: Record<string, SettingsType> = {
   "https://staging.playsami.fun": staging,
   "https://playsami.fun": production,
   default: development,
+};
+
+export const getSettings = () => {
+  const origin = typeof window !== "undefined" ? window.origin : "default";
+  return allSettings[origin] || allSettings.default;
 };

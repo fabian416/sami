@@ -1,10 +1,16 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import { useContracts } from "../../providers/ContractsContext";
 import { useEmbedded } from "../../providers/EmbeddedContext";
+import { RainbowKitCustomConnectButton } from "../common/ConnectButton";
 import { ModalWaitingForPlayers } from "./ModalWaitingForPlayers";
 import { ModalWaitingForTransaction } from "./ModalWaitingForTransaction";
 import { v4 as uuidv4 } from "uuid";
+import { useAccount } from "wagmi";
 import { useSocket } from "~~/providers/SocketContext";
+import { DECIMALS } from "~~/utils/constants";
+import { notification } from "~~/utils/scaffold-eth";
 
 interface Player {
   id: string;
@@ -14,37 +20,28 @@ interface Player {
   isEliminated: boolean;
 }
 
-export const DECIMALS = 1e6;
-
 export const ChooseGame = ({ showGame }: any) => {
   const [loading, setLoading] = useState(false);
   const [loadingApprove, setLoadingApprove] = useState(false);
   const [loadingBet, setLoadingBet] = useState(false);
   const [localAllowance, setLocalAllowance] = useState<bigint | null>(null);
   const [isBetGame, setIsBetGame] = useState<boolean>(false);
-  const [connectedAddress, setConnectedAddress] = useState<any>(false);
   const { socket, isConnected, playerId, setPlayerId, setPlayerIndex, setRoomId } = useSocket();
-  const { contracts, signer } = useContracts();
+  const { address: connectedAddress, isConnected: isWalletConnected } = useAccount();
+  const { contracts } = useContracts();
   const embedded = useEmbedded();
 
-  const fetchAllowance = async () => {
-    if (!signer) return;
-    const { usdc } = await contracts(connectedAddress, embedded);
-    const { samiAddress } = await contracts(connectedAddress, embedded);
-    const result = await usdc.allowance(await signer.getAddress(), samiAddress);
-    setLocalAllowance(result);
-  };
-
   useEffect(() => {
-    const connected = signer(embedded);
-    setConnectedAddress(connected);
-  }, [signer]);
+    const fetchAllowance = async () => {
+      const { usdc, samiAddress, connectedAddress: address } = await contracts(embedded);
+      const result = await usdc.allowance(address, samiAddress);
+      setLocalAllowance(result);
+    };
 
-  useEffect(() => {
     if (connectedAddress) {
       fetchAllowance();
     }
-  }, [connectedAddress]);
+  }, [contracts, connectedAddress]);
 
   useEffect(() => {
     if (!socket) return;
@@ -68,14 +65,9 @@ export const ChooseGame = ({ showGame }: any) => {
   }, [socket, showGame, setRoomId, playerId, setPlayerIndex]);
 
   const handleApprove = async () => {
-    if (!connectedAddress) {
-      throw new Error("Please connect your wallet");
-      return;
-    }
-
     setLoadingApprove(true);
     try {
-      const { usdc, samiAddress } = await contracts(connectedAddress, embedded);
+      const { usdc, samiAddress } = await contracts(embedded);
       const tx = await usdc.approve(samiAddress, BigInt(1 * DECIMALS));
       await tx.wait();
       setLocalAllowance(BigInt(1 * DECIMALS));
@@ -87,14 +79,19 @@ export const ChooseGame = ({ showGame }: any) => {
   };
 
   const handleBetAndPlay = async () => {
-    if (!connectedAddress || !socket) {
-      throw new Error("Please connect your wallet");
+    if (!socket) {
+      notification.error("You are not connected to the socket");
       return;
     }
 
     setLoadingBet(true);
     try {
-      const { sami } = await contracts(connectedAddress, embedded);
+      const { sami, connectedAddress } = await contracts(embedded);
+      if (!connectedAddress) {
+        notification.error("Please connect your wallet");
+        return;
+      }
+
       const tx = await sami.enterGame();
       await tx.wait();
 
@@ -103,25 +100,25 @@ export const ChooseGame = ({ showGame }: any) => {
       setIsBetGame(true);
       setLoading(true);
 
-      socket.emit("createOrJoinGame", { playerId: randomPlayerId, isBetGame: true }, (response: any) => {
+      socket!.emit("createOrJoinGame", { playerId: randomPlayerId, isBetGame: true }, (response: any) => {
         setLoading(false);
         if (response.success && response.roomId) {
           setRoomId(response.roomId);
         } else {
           console.error("Failed to join game:", response);
-          alert("Error joining the game. Please try again.");
+          notification.error("Error joining the game. Please try again.");
         }
       });
     } catch (error) {
       console.error("Error entering game:", error);
-      throw new Error("Entering game failed, please try again.");
+      notification.error("Entering game failed, please try again.");
     }
     setLoadingBet(false);
   };
 
   const handleEnterGame = () => {
-    if (!isConnected || !socket) {
-      alert("Unable to connect to the game server. Please try again.");
+    if (!socket) {
+      notification.error("Unable to connect to the game server. Please try again.");
       return;
     }
 
@@ -139,7 +136,7 @@ export const ChooseGame = ({ showGame }: any) => {
           setRoomId(response.roomId); // Almacena el roomId en el contexto tras unirse
         } else {
           console.error("Failed to join game:", response.message);
-          alert("Error joining the game. Please try again.");
+          notification.error("Error joining the game. Please try again.");
         }
       },
     );
@@ -149,7 +146,7 @@ export const ChooseGame = ({ showGame }: any) => {
     <>
       {loading && <ModalWaitingForPlayers isBetGame={isBetGame} />}
       {!loading && (loadingApprove || loadingBet) && <ModalWaitingForTransaction />}
-      <div className="flex flex-col items-center w-full">
+      <div className="flex flex-col items-center justify-center w-full">
         <div className="flex md:flex-row flex-col justify-center items-center w-full md:w-1/2 gap-10 md:gap-20">
           <div className="card gradient-bg opacity-80 text-white glow-cyan w-full shadow-xl mx-4 ">
             <div className="card-body text-center">
@@ -185,7 +182,7 @@ export const ChooseGame = ({ showGame }: any) => {
                 </div>
                 <div className="w-full flex flex-col items-center">
                   {isBetGame ? (
-                    connectedAddress ? (
+                    connectedAddress && !embedded ? (
                       localAllowance && localAllowance >= BigInt(1 * DECIMALS) ? (
                         <button
                           onClick={handleBetAndPlay}
@@ -202,7 +199,7 @@ export const ChooseGame = ({ showGame }: any) => {
                         </button>
                       )
                     ) : (
-                      <></>
+                      <RainbowKitCustomConnectButton />
                     )
                   ) : (
                     <button

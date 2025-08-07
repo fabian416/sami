@@ -1,11 +1,7 @@
 import { ethers, JsonRpcProvider } from "ethers";
 import dotenv from "dotenv";
 import simpleSami from "@abi/SimpleSAMI.json";
-
-dotenv.config();
-
-// Detect environment
-const ENVIRONMENT = process.env.NEXT_PUBLIC_ENVIRONMENT || "development";
+import { ENVIRONMENT } from "@src/utils/constants";
 
 // Set contract address based on environment
 const RPC_URL = ENVIRONMENT === "production"

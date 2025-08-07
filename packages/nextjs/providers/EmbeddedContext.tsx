@@ -1,9 +1,14 @@
-import { createContext, useContext } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 const EmbeddedContext = createContext(true);
 
 export const EmbeddedProvider = ({ children }) => {
-  const isEmbedded = localStorage.getItem("embedded") === "true";
+  const [isEmbedded, setIsEmbedded] = useState(false);
+
+  useEffect(() => {
+    const embedded = localStorage.getItem("embedded") === "true";
+    setIsEmbedded(embedded);
+  }, []);
 
   return <EmbeddedContext.Provider value={isEmbedded}>{children}</EmbeddedContext.Provider>;
 };

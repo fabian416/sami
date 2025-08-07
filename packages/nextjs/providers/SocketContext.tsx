@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { useEmbedded } from "./EmbeddedContext";
 import { Socket, io } from "socket.io-client";
 import { useContracts } from "~~/providers/ContractsContext";
 
@@ -43,16 +44,16 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [roomId, setRoomId] = useState<string | null>(null);
   const [isPlayerEliminated, setIsPlayerEliminated] = useState<boolean | undefined>(false);
   const [connectedAddress, setConnectedAddress] = useState<any>(false);
-  const contractsCtx = useContracts();
-  if (!contractsCtx) {
-    throw new Error("ContractsContext not found. Did you forget to wrap in <ContractsProvider>?");
-  }
-  const { signer } = contractsCtx;
+  const { contracts } = useContracts();
+  const embedded = useEmbedded();
 
   useEffect(() => {
-    const connected = signer(false);
-    setConnectedAddress(connected);
-  }, [signer]);
+    const setConnected = async () => {
+      const { connectedAddress: address } = await contracts(embedded);
+      setConnectedAddress(address);
+    };
+    setConnected();
+  }, [contracts]);
 
   useEffect(() => {
     console.log("Intentando conectar a:", SERVER_URL);

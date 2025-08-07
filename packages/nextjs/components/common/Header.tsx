@@ -1,14 +1,18 @@
 "use client";
 
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { DECIMALS } from "../game/ChooseGame";
-import { FaucetButton } from "./FaucetButton";
+import RainbowKitCustomConnectButtonOpaque from "./ConnectButtonOpaque";
+import { ModalInstructions } from "./ModalInstructions";
 import { useAccount } from "wagmi";
 import { Bars3Icon } from "@heroicons/react/20/solid";
-import { RainbowKitCustomConnectButtonOpaque } from "~~/components/scaffold-eth";
+import { useOutsideClick } from "~~/hooks/useOutsideClick";
+import { useContracts } from "~~/providers/ContractsContext";
+import { useEmbedded } from "~~/providers/EmbeddedContext";
+import { DECIMALS } from "~~/utils/constants";
+import { notification } from "~~/utils/scaffold-eth";
 
 const ENVIRONMENT = process.env.NEXT_PUBLIC_ENVIRONMENT;
 
@@ -74,45 +78,52 @@ export const HeaderMenuLinks = () => {
  */
 export const Header = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [balance, setBalance] = useState<bigint | undefined | null>(undefined);
+  const [connectedAddress, setConnectedAddress] = useState(null);
 
-  /*
+  const embedded = useEmbedded();
+  const { contracts } = useContracts();
+
   const burgerMenuRef = useRef<HTMLDivElement>(null);
   useOutsideClick(
     burgerMenuRef,
     useCallback(() => setIsDrawerOpen(false), []),
   );
-  const { address: connectedAddress, isConnected } = useAccount();
 
-  const { writeContractAsync: MODEwriteContractAsync } = useScaffoldWriteContract({ contractName: "USDC" });
+  useEffect(() => {
+    const fetchBalance = async () => {
+      try {
+        const { usdc, connectedAddress: address } = await contracts(embedded);
+        if (!address) return;
+        setConnectedAddress(address);
+        const result = await usdc.balanceOf(address);
+        setBalance(result);
+      } catch (err) {
+        console.error("Error fetching USDC balance:", err);
+        setBalance(BigInt(0));
+      }
+    };
 
-  const { data: balance } = useScaffoldReadContract({
-    contractName: "USDC",
-    functionName: "balanceOf",
-    args: [connectedAddress],
-    watch: true,
-  });
+    fetchBalance();
+  }, [contracts, embedded]);
 
   const handleMint = async () => {
-    if (!connectedAddress) {
-      notification.error("Please connect your wallet");
-      return;
-    }
-
     try {
-      const contractResponse = await MODEwriteContractAsync({
-        functionName: "mint",
-        args: [connectedAddress, BigInt(3 * DECIMALS)],
-      });
-
-      if (contractResponse) {
-        notification.success("Tokens minted successfully!");
+      const { usdc, connectedAddress: address } = await contracts(embedded);
+      if (!address) {
+        notification.error("Please connect your wallet");
+        return;
       }
+
+      const tx = await usdc.mint(address, BigInt(3 * DECIMALS));
+      await tx.wait();
+      notification.success("Tokens minted successfully!");
     } catch (error) {
       console.error("Error minting tokens:", error);
       notification.error("Minting tokens failed, please try again.");
     }
   };
-*/
+
   return (
     <div className="sticky lg:static top-0 navbar bg-base-100 min-h-0 flex-shrink-0 justify-between z-20 shadow-md shadow-secondary px-0 sm:px-2">
       <div className="navbar-start w-auto lg:w-1/2">
@@ -155,9 +166,9 @@ export const Header = () => {
       </div>
       <div className="navbar-center hidden lg:flex flex-grow justify-center"></div>
       <div className="navbar-end flex-grow mr-4">
-        {/*
-        {isConnected &&
+        {connectedAddress &&
           typeof balance !== "undefined" &&
+          typeof balance === "bigint" &&
           (ENVIRONMENT === "production" ? (
             <span className="flex flex-row bg-[#2672BE] text-white glow-blue px-3 py-1 rounded-lg items-center justify-center gap-1 ml-4 mr-2 text-lg font-bold">
               <TokenLogo className="" />
@@ -177,20 +188,9 @@ export const Header = () => {
               <span className="ml-1">{(Number(balance) / DECIMALS).toFixed(2)}</span>
             </span>
           ))}
-            */}
-        {
-          //<RainbowKitCustomConnectButtonOpaque />
-        }
-        <FaucetButton />
-      </div>
-      {/* <button
-        className="btn btn-primary bg-[#1CA297] hover:bg-[#33B3A8] mr-2 text-white border-0 glow-cyan btn-sm text-xl"
-        onClick={openModal}
-      >
-        ?
-      </button> */}
 
-      {/* {isModalOpen && <ModalInstructions closeModal={closeModal} />} */}
+        {!embedded && <RainbowKitCustomConnectButtonOpaque />}
+      </div>
     </div>
   );
 };

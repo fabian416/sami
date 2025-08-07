@@ -1,8 +1,11 @@
+"use client";
+
 import { useState } from "react";
 import Image from "next/image";
 import CountdownClock from "../common/CountdownClock";
-import { AVATARS, COLORS, NAMES, Player } from "./PlayGame";
+import { Player } from "./PlayGame";
 import { useSocket } from "~~/providers/SocketContext";
+import { AVATARS, COLORS, NAMES } from "~~/utils/constants";
 
 export const ModalForVoting = ({
   players,
