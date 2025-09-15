@@ -5,9 +5,9 @@
 import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
 const deployedContracts = {
-  8453: {
+  137: {
     USDCSimpleSAMI: {
-      address: "0x1339b2b8ae888b879760cbdf96ce883acc355812",
+      address: "0x1339b2B8ae888B879760CBdF96CE883ACc355812",
       abi: [
         {
           type: "constructor",
