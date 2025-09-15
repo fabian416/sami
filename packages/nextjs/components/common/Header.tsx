@@ -5,8 +5,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import RainbowKitCustomConnectButtonOpaque from "./ConnectButtonOpaque";
-import { ModalInstructions } from "./ModalInstructions";
-import { useAccount } from "wagmi";
 import { Bars3Icon } from "@heroicons/react/20/solid";
 import { useOutsideClick } from "~~/hooks/useOutsideClick";
 import { useContracts } from "~~/providers/ContractsContext";
@@ -81,7 +79,7 @@ export const Header = () => {
   const [balance, setBalance] = useState<bigint | undefined | null>(undefined);
   const [connectedAddress, setConnectedAddress] = useState(null);
 
-  const embedded = useEmbedded();
+  const { isEmbedded } = useEmbedded();
   const { contracts } = useContracts();
 
   const burgerMenuRef = useRef<HTMLDivElement>(null);
@@ -105,7 +103,7 @@ export const Header = () => {
     };
 
     fetchBalance();
-  }, [contracts, embedded]);
+  }, [contracts, isEmbedded]);
 
   const handleMint = async () => {
     try {
@@ -189,7 +187,7 @@ export const Header = () => {
             </span>
           ))}
 
-        {!embedded && <RainbowKitCustomConnectButtonOpaque />}
+        {!isEmbedded && <RainbowKitCustomConnectButtonOpaque />}
       </div>
     </div>
   );

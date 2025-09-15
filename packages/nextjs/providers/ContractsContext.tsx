@@ -31,7 +31,7 @@ export const ContractsProvider: React.FC<ContractsProviderProps> = ({ children }
   const settings = getSettings();
   const { data: walletClient } = useWalletClient();
   const { disconnect: wagmiDisconnect } = useDisconnect();
-  const isEmbedded = useEmbedded();
+  const { isEmbedded } = useEmbedded();
 
   const contracts = async () => {
     if (values) {

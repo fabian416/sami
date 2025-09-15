@@ -1,7 +1,6 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { useEmbedded } from "./EmbeddedContext";
 import { Socket, io } from "socket.io-client";
 import { useContracts } from "~~/providers/ContractsContext";
 
@@ -45,7 +44,6 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [isPlayerEliminated, setIsPlayerEliminated] = useState<boolean | undefined>(false);
   const [connectedAddress, setConnectedAddress] = useState<any>(false);
   const { contracts } = useContracts();
-  const embedded = useEmbedded();
 
   useEffect(() => {
     const setConnected = async () => {
