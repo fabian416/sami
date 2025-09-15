@@ -1,17 +1,30 @@
-import { createContext, useContext, useEffect, useState } from "react";
+"use client";
+
+import React, { createContext, useContext, useEffect, useState } from "react";
+
+type EmbeddedContextValue = string;
 
 interface EmbeddedProviderProps {
   children: React.ReactNode;
 }
 
-const EmbeddedContext = createContext<string | boolean | null | undefined>(true);
+const EmbeddedContext = createContext<EmbeddedContextValue | null>(null);
 
 export const EmbeddedProvider: React.FC<EmbeddedProviderProps> = ({ children }) => {
-  const isEmbedded = localStorage.getItem("embedded");
+  const [isEmbedded, setIsEmbedded] = useState<EmbeddedContextValue | null>(() => {
+    if (typeof window === "undefined") return null;
+    return localStorage.getItem("embedded");
+  });
+
+  useEffect(() => {
+    const embedded = localStorage.getItem("embedded");
+    setIsEmbedded(embedded);
+  }, []);
+
   return <EmbeddedContext.Provider value={isEmbedded}>{children}</EmbeddedContext.Provider>;
 };
 
-export const useEmbedded = () => {
+export const useEmbedded = (): EmbeddedContextValue => {
   const context = useContext(EmbeddedContext);
   if (context === null) {
     throw new Error("useEmbedded must be used within an <EmbeddedProvider>");
