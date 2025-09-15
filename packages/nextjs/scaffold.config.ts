@@ -11,7 +11,7 @@ export type ScaffoldConfig = {
 export const DEFAULT_ALCHEMY_API_KEY = "oKxs-03sij-U_N0iOlrSsZFr29-IqbuF";
 
 const ENVIRONMENT = process.env.NEXT_PUBLIC_ENVIRONMENT;
-const chain = ENVIRONMENT === "production" ? chains.base : chains.baseSepolia;
+const chain = ENVIRONMENT === "production" ? chains.polygon : chains.polygonAmoy;
 
 const scaffoldConfig = {
   // The networks on which your DApp is live
