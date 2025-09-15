@@ -7,12 +7,13 @@ import { useAccount, useDisconnect, useWalletClient } from "wagmi";
 import { Client, XOConnectProvider } from "xo-connect";
 import deployedContracts from "~~/contracts/deployedContracts";
 import externalContracts from "~~/contracts/externalContracts";
+import { useEmbedded } from "~~/providers/EmbeddedContext";
 import { getSettings } from "~~/utils/settings";
 
 // Define types for context value and provider props
 interface ContractsContextType {
-  contracts: (isEmbedded: boolean) => Promise<any>;
-  signLoginMessage: (isEmbedded: boolean, message?: string, expectedSigner?: string | null) => Promise<any>;
+  contracts: () => Promise<any>;
+  signLoginMessage: (message?: string, expectedSigner?: string | null) => Promise<any>;
 }
 
 interface ContractsProviderProps {
@@ -30,8 +31,9 @@ export const ContractsProvider: React.FC<ContractsProviderProps> = ({ children }
   const settings = getSettings();
   const { data: walletClient } = useWalletClient();
   const { disconnect: wagmiDisconnect } = useDisconnect();
+  const isEmbedded = useEmbedded();
 
-  const contracts = async (isEmbedded: boolean) => {
+  const contracts = async () => {
     if (values) {
       return values;
     }
@@ -104,9 +106,9 @@ export const ContractsProvider: React.FC<ContractsProviderProps> = ({ children }
     return newVals;
   };
 
-  const signLoginMessage = async (isEmbedded: boolean, message = "Login to Sami") => {
+  const signLoginMessage = async (message = "Login to Sami") => {
     try {
-      const { signer, provider } = await contracts(isEmbedded);
+      const { signer, provider } = await contracts();
       const address = await signer.getAddress();
       const typedData = {
         domain: {
