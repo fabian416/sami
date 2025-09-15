@@ -1,15 +1,13 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
-const EmbeddedContext = createContext(true);
+interface EmbeddedProviderProps {
+  children: React.ReactNode;
+}
 
-export const EmbeddedProvider = ({ children }) => {
-  const [isEmbedded, setIsEmbedded] = useState(false);
+const EmbeddedContext = createContext<string | boolean | null | undefined>(true);
 
-  useEffect(() => {
-    const embedded = localStorage.getItem("embedded") === "true";
-    setIsEmbedded(embedded);
-  }, []);
-
+export const EmbeddedProvider: React.FC<EmbeddedProviderProps> = ({ children }) => {
+  const isEmbedded = localStorage.getItem("embedded");
   return <EmbeddedContext.Provider value={isEmbedded}>{children}</EmbeddedContext.Provider>;
 };
 
