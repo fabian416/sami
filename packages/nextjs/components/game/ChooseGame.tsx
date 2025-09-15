@@ -33,7 +33,7 @@ export const ChooseGame = ({ showGame }: any) => {
 
   useEffect(() => {
     const fetchAllowance = async () => {
-      const { usdc, samiAddress, connectedAddress: address } = await contracts(embedded);
+      const { usdc, samiAddress, connectedAddress: address } = await contracts();
       const result = await usdc.allowance(address, samiAddress);
       setLocalAllowance(result);
     };
@@ -67,7 +67,7 @@ export const ChooseGame = ({ showGame }: any) => {
   const handleApprove = async () => {
     setLoadingApprove(true);
     try {
-      const { usdc, samiAddress } = await contracts(embedded);
+      const { usdc, samiAddress } = await contracts();
       const tx = await usdc.approve(samiAddress, BigInt(1 * DECIMALS));
       await tx.wait();
       setLocalAllowance(BigInt(1 * DECIMALS));
@@ -86,7 +86,7 @@ export const ChooseGame = ({ showGame }: any) => {
 
     setLoadingBet(true);
     try {
-      const { sami, connectedAddress } = await contracts(embedded);
+      const { sami, connectedAddress } = await contracts();
       if (!connectedAddress) {
         notification.error("Please connect your wallet");
         return;
@@ -182,7 +182,7 @@ export const ChooseGame = ({ showGame }: any) => {
                 </div>
                 <div className="w-full flex flex-col items-center">
                   {isBetGame ? (
-                    connectedAddress && !embedded ? (
+                    connectedAddress || embedded ? (
                       localAllowance && localAllowance >= BigInt(1 * DECIMALS) ? (
                         <button
                           onClick={handleBetAndPlay}
