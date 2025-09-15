@@ -49,7 +49,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   useEffect(() => {
     const setConnected = async () => {
-      const { connectedAddress: address } = await contracts(embedded);
+      const { connectedAddress: address } = await contracts();
       setConnectedAddress(address);
     };
     setConnected();
