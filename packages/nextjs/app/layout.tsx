@@ -1,4 +1,3 @@
-import { SocketProvider } from "../providers/SocketContext";
 import "@rainbow-me/rainbowkit/styles.css";
 import { EthAppWithProviders } from "~~/providers/EthAppWithProviders";
 import { ThemeProvider } from "~~/providers/ThemeProvider";

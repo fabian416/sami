@@ -29,7 +29,7 @@ export const ChooseGame = ({ showGame }: any) => {
   const { socket, isConnected, playerId, setPlayerId, setPlayerIndex, setRoomId } = useSocket();
   const { address: connectedAddress, isConnected: isWalletConnected } = useAccount();
   const { contracts } = useContracts();
-  const embedded = useEmbedded();
+  const { isEmbedded } = useEmbedded();
 
   useEffect(() => {
     const fetchAllowance = async () => {
@@ -182,7 +182,7 @@ export const ChooseGame = ({ showGame }: any) => {
                 </div>
                 <div className="w-full flex flex-col items-center">
                   {isBetGame ? (
-                    connectedAddress || embedded ? (
+                    connectedAddress || isEmbedded ? (
                       localAllowance && localAllowance >= BigInt(1 * DECIMALS) ? (
                         <button
                           onClick={handleBetAndPlay}
