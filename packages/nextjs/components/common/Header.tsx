@@ -93,7 +93,7 @@ export const Header = () => {
   useEffect(() => {
     const fetchBalance = async () => {
       try {
-        const { usdc, connectedAddress: address } = await contracts(embedded);
+        const { usdc, connectedAddress: address } = await contracts();
         if (!address) return;
         setConnectedAddress(address);
         const result = await usdc.balanceOf(address);
@@ -109,7 +109,7 @@ export const Header = () => {
 
   const handleMint = async () => {
     try {
-      const { usdc, connectedAddress: address } = await contracts(embedded);
+      const { usdc, connectedAddress: address } = await contracts();
       if (!address) {
         notification.error("Please connect your wallet");
         return;
