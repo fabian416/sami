@@ -16,7 +16,7 @@ ENV VITE_PUBLIC_ENVIRONMENT=${VITE_PUBLIC_ENVIRONMENT:-development}
 ENV VITE_PUBLIC_API_URL_PRODUCTION=https://api.playsami.fun
 ENV VITE_PUBLIC_API_URL_DEVELOPMENT=https://staging-api.playsami.fun
 
-RUN yarn next:build
+RUN yarn vite:build
 
 FROM node:23.3.0-slim
 
@@ -42,4 +42,4 @@ COPY --from=builder /app/packages/frontend/vite.config.ts ./packages/frontend/vi
 
 EXPOSE 3001
 
-CMD ["yarn", "preview", "--host", "0.0.0.0", "--port", "3000"]
+CMD ["yarn", "vite:preview", "--host", "0.0.0.0", "--port", "3000"]
