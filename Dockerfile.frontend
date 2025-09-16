@@ -38,7 +38,7 @@ COPY --from=builder /app/packages/frontend/tsconfig.json ./packages/frontend/
 COPY --from=builder /app/packages/frontend/node_modules ./packages/frontend/node_modules
 COPY --from=builder /app/packages/frontend/public ./packages/frontend/public
 COPY --from=builder /app/packages/frontend/.dist ./packages/frontend/.dist
-COPY --from=builder /app/vite.config.ts ./
+COPY --from=builder /app/packages/frontend/vite.config.ts ./packages/frontend/vite.config.ts
 
 EXPOSE 3001
 
