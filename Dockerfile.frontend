@@ -42,4 +42,4 @@ COPY --from=builder /app/packages/frontend/vite.config.ts ./packages/frontend/vi
 
 EXPOSE 3001
 
-CMD ["yarn", "vite:server", "--host", "0.0.0.0", "--port", "3001"]
+CMD ["yarn", "vite:preview", "--host", "0.0.0.0", "--port", "3001"]
