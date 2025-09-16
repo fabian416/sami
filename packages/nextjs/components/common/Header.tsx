@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import RainbowKitCustomConnectButtonOpaque from "./ConnectButtonOpaque";
+import { WalletConnectTrigger } from "./XOConnectTrigger";
 import { Bars3Icon } from "@heroicons/react/20/solid";
 import { useOutsideClick } from "~~/hooks/useOutsideClick";
 import { useContracts } from "~~/providers/ContractsContext";
@@ -187,7 +188,7 @@ export const Header = () => {
             </span>
           ))}
 
-        {!isEmbedded && <RainbowKitCustomConnectButtonOpaque />}
+        {!isEmbedded ? <RainbowKitCustomConnectButtonOpaque /> : !connectedAddress && <WalletConnectTrigger />}
       </div>
     </div>
   );
