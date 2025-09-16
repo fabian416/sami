@@ -1,17 +1,17 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
 interface ContextType {
-  isEmbedded: string | null;
+  isEmbedded: string | boolean | null;
 }
 
 const EmbeddedContext = createContext<ContextType | null>(null);
 
 export const EmbeddedProvider = ({ children }) => {
-  const [isEmbedded, setIsEmbedded] = useState<string | null>(null);
+  const [isEmbedded, setIsEmbedded] = useState<string | boolean | null>(true);
 
   useEffect(() => {
     const embedded = localStorage.getItem("embedded");
-    setIsEmbedded(embedded);
+    setIsEmbedded(true);
   }, []);
 
   return <EmbeddedContext.Provider value={{ isEmbedded }}>{children}</EmbeddedContext.Provider>;
