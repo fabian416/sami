@@ -11,11 +11,10 @@ COPY . .
 
 RUN yarn install
 
-ARG NEXT_PUBLIC_ENVIRONMENT
-ENV NEXT_PUBLIC_ENVIRONMENT=${NEXT_PUBLIC_ENVIRONMENT:-development}
-ENV NEXT_PUBLIC_IGNORE_BUILD_ERROR=true
-ENV NEXT_PUBLIC_API_URL_PRODUCTION=https://api.playsami.fun
-ENV NEXT_PUBLIC_API_URL_DEVELOPMENT=https://staging-api.playsami.fun
+ARG VITE_PUBLIC_ENVIRONMENT
+ENV VITE_PUBLIC_ENVIRONMENT=${VITE_PUBLIC_ENVIRONMENT:-development}
+ENV VITE_PUBLIC_API_URL_PRODUCTION=https://api.playsami.fun
+ENV VITE_PUBLIC_API_URL_DEVELOPMENT=https://staging-api.playsami.fun
 
 RUN yarn next:build
 
@@ -34,13 +33,13 @@ COPY --from=builder /app/yarn*.lock ./
 COPY --from=builder /app/.yarnrc.yml /app/
 COPY --from=builder /app/.yarn /app/.yarn
 COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/packages/nextjs/package*.json ./packages/nextjs/
-COPY --from=builder /app/packages/nextjs/tsconfig.json ./packages/nextjs/
-COPY --from=builder /app/packages/nextjs/node_modules ./packages/nextjs/node_modules
-COPY --from=builder /app/packages/nextjs/public ./packages/nextjs/public
-COPY --from=builder /app/packages/nextjs/.next ./packages/nextjs/.next
-COPY --from=builder /app/packages/nextjs/next.config.js ./packages/nextjs/next.config.js
+COPY --from=builder /app/packages/frontend/package*.json ./packages/frontend/
+COPY --from=builder /app/packages/frontend/tsconfig.json ./packages/frontend/
+COPY --from=builder /app/packages/frontend/node_modules ./packages/frontend/node_modules
+COPY --from=builder /app/packages/frontend/public ./packages/frontend/public
+COPY --from=builder /app/packages/frontend/.dist ./packages/frontend/.dist
+COPY --from=builder /app/vite.config.ts ./
 
 EXPOSE 3001
 
-CMD ["yarn", "next:serve"]
+CMD ["yarn", "preview", "--host", "0.0.0.0", "--port", "3000"]

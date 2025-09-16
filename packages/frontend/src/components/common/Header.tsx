@@ -164,29 +164,28 @@ export const Header = () => {
       </div>
       <div className="navbar-center hidden lg:flex flex-grow justify-center"></div>
       <div className="navbar-end flex-grow mr-4">
-        {connectedAddress ||
-          (isEmbedded &&
-            typeof balance !== "undefined" &&
-            typeof balance === "bigint" &&
-            (ENVIRONMENT === "production" ? (
-              <span className="flex flex-row bg-[#2672BE] text-white glow-blue px-3 py-1 rounded-lg items-center justify-center gap-1 ml-4 mr-2 text-lg font-bold">
-                <TokenLogo className="" />
-                <span className="ml-1">{(Number(balance) / DECIMALS).toFixed(2)}</span>
-              </span>
-            ) : balance < BigInt(1 * DECIMALS) ? (
-              <button
-                className="flex flex-row btn btn-primary bg-[#2672BE] hover:bg-[#2672BE] glow-blue mr-2 text-white border-0 shadow-[0_0_10px_#A1CA00] btn-sm text-xl"
-                onClick={handleMint}
-              >
-                <div className="text-sm">Get $USDC</div>
-                <TokenLogo className="" />
-              </button>
-            ) : (
-              <span className="flex flex-row bg-[#2672BE] text-white glow-blue px-3 py-1 rounded-lg items-center justify-center gap-1 ml-4 mr-2 text-lg font-bold">
-                <TokenLogo className="" />
-                <span className="ml-1">{(Number(balance) / DECIMALS).toFixed(2)}</span>
-              </span>
-            )))}
+        {connectedAddress || isEmbedded &&
+          typeof balance !== "undefined" &&
+          typeof balance === "bigint" &&
+          (ENVIRONMENT === "production" ? (
+            <span className="flex flex-row bg-[#2672BE] text-white glow-blue px-3 py-1 rounded-lg items-center justify-center gap-1 ml-4 mr-2 text-lg font-bold">
+              <TokenLogo className="" />
+              <span className="ml-1">{(Number(balance) / DECIMALS).toFixed(2)}</span>
+            </span>
+          ) : balance < BigInt(1 * DECIMALS) ? (
+            <button
+              className="flex flex-row btn btn-primary bg-[#2672BE] hover:bg-[#2672BE] glow-blue mr-2 text-white border-0 shadow-[0_0_10px_#A1CA00] btn-sm text-xl"
+              onClick={handleMint}
+            >
+              <div className="text-sm">Get $USDC</div>
+              <TokenLogo className="" />
+            </button>
+          ) : (
+            <span className="flex flex-row bg-[#2672BE] text-white glow-blue px-3 py-1 rounded-lg items-center justify-center gap-1 ml-4 mr-2 text-lg font-bold">
+              <TokenLogo className="" />
+              <span className="ml-1">{(Number(balance) / DECIMALS).toFixed(2)}</span>
+            </span>
+          ))}
 
         {!isEmbedded && <RainbowKitCustomConnectButtonOpaque />}
       </div>
