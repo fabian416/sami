@@ -4,11 +4,11 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { Socket, io } from "socket.io-client";
 import { useContracts } from "~~/providers/ContractsContext";
 
-const ENVIRONMENT = process.env.NEXT_PUBLIC_ENVIRONMENT;
+const ENVIRONMENT = import.meta.env.VITE_PUBLIC_ENVIRONMENT;
 const API_URL =
   ENVIRONMENT === "production"
-    ? process.env.NEXT_PUBLIC_API_URL_PRODUCTION
-    : process.env.NEXT_PUBLIC_API_URL_DEVELOPMENT;
+    ? import.meta.env.VITE_PUBLIC_API_URL_PRODUCTION
+    : import.meta.env.VITE_PUBLIC_API_URL_DEVELOPMENT;
 
 // Define el tipo del contexto
 interface SocketContextType {

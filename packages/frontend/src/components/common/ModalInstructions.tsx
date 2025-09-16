@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import { ClockIcon } from "@heroicons/react/24/outline";
 
@@ -27,7 +26,7 @@ export const ModalInstructions = ({ closeModal }: any) => {
         <div className="flex justify-between items-between md:gap-12 gap-4 flex-col sm:flex-row pb-2 mx-4 overflow-scroll md:px-8 md:pb-8 md:pt-4">
           <div className="flex flex-col bg-[#2c2171]  p-4 text-center items-center max-w-xs rounded-3xl md:ml-4">
             {/* <BugAntIcon className="h-20 w-20 fill-secondary" /> */}
-            <Image src="/logo.png" alt="SAMI Logo" width="100" height="100" />
+            <img src="/logo.png" alt="SAMI Logo" width="100" height="100" />
             <p className="text-md md:text-xl">
               <span className="text-white">Chat with strangers and figure out </span>
               <span className="text-[#3DCCE1]">who is SAMI, the AI agent.</span>

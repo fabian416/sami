@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { TokenLogo } from "../common/Header";
 
 export const ModalFinished = ({ winner, isBetGame, amountOfWinners }: any) => {
@@ -21,7 +20,7 @@ export const ModalFinished = ({ winner, isBetGame, amountOfWinners }: any) => {
                 </div>
               )}
               <div className="flex relative w-48 h-48">
-                <Image alt="You Win Image" className="cursor-pointer" fill src="/humans-won.webp" />
+                <img alt="You Win Image" className="cursor-pointer" src="/humans-won.webp" />
               </div>
             </div>
           ) : (
@@ -35,7 +34,7 @@ export const ModalFinished = ({ winner, isBetGame, amountOfWinners }: any) => {
                 </div>
               )}
               <div className="flex relative w-48 h-48">
-                <Image alt="SAMI Wins Image" className="cursor-pointer" fill src="/sami-won.webp" />
+                <img alt="SAMI Wins Image" className="cursor-pointer" src="/sami-won.webp" />
               </div>
             </div>
           )}

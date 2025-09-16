@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import CountdownClock, { startCountdown } from "../common/CountdownClock";
 import { ModalFinished } from "./ModalFinished";
 import { ModalForVoting } from "./ModalForVoting";
@@ -185,7 +184,7 @@ export const PlayGame = () => {
                         <div className="chat-image avatar flex flex-col">
                           <strong className={`text-xs ${color}`}>{name}</strong>{" "}
                           <div className="w-8 rounded-full">
-                            <Image alt="Player avatar" src={AVATARS[Number(msg.playerIndex)]} width={50} height={50} />
+                            <img alt="Player avatar" src={AVATARS[Number(msg.playerIndex)]} width={50} height={50} />
                           </div>
                         </div>
                         <div className="chat-bubble max-w-fit w-auto bg-gray-700 dark:bg-gray-200 border-0">
@@ -241,7 +240,7 @@ export const PlayGame = () => {
 
         {!isMobile && (
           <div className="hidden md:flex items-center justify-center glow-cyan overflow-hidden rounded-2xl">
-            <Image
+            <img
               src="/sami-team.webp"
               className="object-cover h-auto w-auto"
               alt="Game Banner"
