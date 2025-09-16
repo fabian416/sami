@@ -1,0 +1,23 @@
+<!-- index.html (en la raíz del proyecto Vite) -->
+<!doctype html>
+<html lang="en" class="antialiased">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/thumbnail.jpg" />
+    <link rel="icon" type="image/jpg" href="/thumbnail.jpg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>SAMI - Play against AI</title>
+    <meta
+      name="description"
+      content="Bet on who do you think is the AI and earn a profit."
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx">
+      import { Buffer } from 'buffer';
+      window.Buffer = Buffer;
+    </script>
+  </body>
+</html>
