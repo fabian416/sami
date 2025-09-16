@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import CountdownClock from "../common/CountdownClock";
 import { Player } from "./PlayGame";
 import { useSocket } from "~~/providers/SocketContext";
@@ -90,7 +89,7 @@ const VoteModal = ({
             <div className="flex flex-col items-center justify-center gap-2" key={player.index}>
               <div className="avatar">
                 <div className="w-10 rounded-full">
-                  <Image alt="SAMI player avatar" src={AVATARS[Number(player.index)]} width={50} height={50} />
+                  <img alt="SAMI player avatar" src={AVATARS[Number(player.index)]} width={50} height={50} />
                 </div>
               </div>
               <button
