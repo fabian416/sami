@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useContracts } from "../../providers/ContractsContext";
 import { useEmbedded } from "../../providers/EmbeddedContext";
 import { RainbowKitCustomConnectButton } from "../common/ConnectButton";
-import { WalletConnectTrigger } from "../common/XOConnectTrigger";
 import { ModalWaitingForPlayers } from "./ModalWaitingForPlayers";
 import { ModalWaitingForTransaction } from "./ModalWaitingForTransaction";
 import { v4 as uuidv4 } from "uuid";
@@ -199,10 +198,8 @@ export const ChooseGame = ({ showGame }: any) => {
                           <div className="">Approve</div>&nbsp;<>1</>&nbsp;$USDC&nbsp;
                         </button>
                       )
-                    ) : isEmbedded ? (
-                      <WalletConnectTrigger />
                     ) : (
-                      <RainbowKitCustomConnectButton />
+                      !isEmbedded && <RainbowKitCustomConnectButton />
                     )
                   ) : (
                     <button
