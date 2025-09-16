@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
+import { Link } from "react-router-dom";
 import { usePathname } from "next/navigation";
 import RainbowKitCustomConnectButtonOpaque from "./ConnectButtonOpaque";
 import { Bars3Icon } from "@heroicons/react/20/solid";
@@ -45,8 +44,7 @@ export const HeaderMenuLinks = () => {
         return (
           <li key={href}>
             <Link
-              href={href}
-              passHref
+              to={href}
               className={`${
                 isActive ? "bg-secondary shadow-md" : ""
               } hover:bg-secondary hover:shadow-md focus:!bg-secondary active:!text-neutral py-1.5 px-3 text-sm rounded-full gap-2 grid grid-flow-col`}
@@ -59,8 +57,7 @@ export const HeaderMenuLinks = () => {
       })}
       <li>
         <Link
-          href="https://forms.gle/F9daougSAVgFrzWG8"
-          passHref
+          to="https://forms.gle/F9daougSAVgFrzWG8"
           className="bg-pink-600 hover:bg-pink-700 !text-white focus:bg-success py-1.5 px-3 text-sm rounded-full gap-2 grid grid-flow-col"
           target="_blank"
         >
@@ -150,9 +147,9 @@ export const Header = () => {
             </ul>
           )}
         </div>
-        <Link href="/" passHref className="hidden lg:flex items-center gap-2 ml-2 mr-6 shrink-0">
+        <Link to="/" className="hidden lg:flex items-center gap-2 ml-2 mr-6 shrink-0">
           <div className="flex relative w-8 h-8">
-            <Image alt="SE2 logo" className="w-auto h-auto cursor-pointer" fill src="/logo.png" />
+            <img alt="SE2 logo" className="w-auto h-auto cursor-pointer" src="/logo.png" />
           </div>
           <div className="flex flex-col">
             <span className="text-2xl font-bold leading-tight">SAMI</span>
@@ -203,5 +200,5 @@ export const TokenLogo = ({
   height?: number;
   className?: string;
 }) => {
-  return <Image src="/usdc-logo.png" alt="USDC Logo" width={width} height={height} className={className} />;
+  return <img src="/usdc-logo.png" alt="USDC Logo" width={width} height={height} className={className} />;
 };

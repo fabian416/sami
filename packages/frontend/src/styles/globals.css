@@ -1,6 +1,6 @@
-@import "tailwindcss/base";
-@import "tailwindcss/components";
-@import "tailwindcss/utilities";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root,
 [data-theme] {
@@ -20,7 +20,7 @@ body {
 /* .sami-title {
   font-family: "Exo 2", serif;
   font-optical-sizing: auto;
-  font-weight: 900;
+  font-weight: 900; 
   font-style: normal;
   margin: 0;
   padding: 0;
