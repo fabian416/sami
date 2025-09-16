@@ -1,23 +1,31 @@
-import React, { ReactNode, createContext, useContext, useState } from "react";
-import { ethers } from "ethers";
-import { BrowserProvider } from "ethers";
+"use client";
+
+import React, { ReactNode, createContext, useContext, useEffect, useState } from "react";
+import { BrowserProvider, ethers } from "ethers";
 import type { Eip1193Provider } from "ethers";
 import type { WalletClient } from "viem";
-import { useAccount, useDisconnect, useWalletClient } from "wagmi";
-import { Client, XOConnectProvider } from "xo-connect";
+import { useDisconnect, useWalletClient } from "wagmi";
+import { XOConnectProvider } from "xo-connect";
 import deployedContracts from "~~/contracts/deployedContracts";
 import externalContracts from "~~/contracts/externalContracts";
 import { useEmbedded } from "~~/providers/EmbeddedContext";
 import { getSettings } from "~~/utils/settings";
 
-// Define types for context value and provider props
+const SESSION_KEY = "sami_session_address";
+
 interface ContractsContextType {
+  /** Asegura conexión y devuelve la address (sin firmar) */
+  forceLogin: () => Promise<string>;
+  /** Exponer signer/contratos si querés usarlos luego */
   contracts: () => Promise<any>;
-  signLoginMessage: (message?: string, expectedSigner?: string | null) => Promise<any>;
+  /** Estado de “sesión” en cliente */
+  address: string | null;
+  isConnected: boolean;
+  logout: () => void;
 }
 
 interface ContractsProviderProps {
-  children: ReactNode; // Define children prop type
+  children: ReactNode;
 }
 
 const ContractsContext = createContext<ContractsContextType | null>(null);
@@ -28,51 +36,76 @@ function walletClientToEip1193Provider(walletClient: WalletClient): Eip1193Provi
 
 export const ContractsProvider: React.FC<ContractsProviderProps> = ({ children }) => {
   const [values, setValues] = useState<any>(null);
+  const [sessionAddress, setSessionAddress] = useState<string | null>(null);
+
   const settings = getSettings();
   const { data: walletClient } = useWalletClient();
   const { disconnect: wagmiDisconnect } = useDisconnect();
+
   const { isEmbedded } = useEmbedded();
 
-  const contracts = async () => {
-    if (values) {
-      return values;
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const a = localStorage.getItem(SESSION_KEY);
+      if (a) setSessionAddress(a);
     }
+  }, []);
+
+  const ensureAccounts = async (provider: any): Promise<string[]> => {
+    if (!provider?.request) throw new Error("Provider no implementa EIP-1193");
+    let accounts: string[] = await provider.request({ method: "eth_accounts" });
+    if (!accounts?.length) {
+      // dispara el modal de conexión
+      accounts = await provider.request({ method: "eth_requestAccounts" });
+    }
+    if (!accounts?.length) throw new Error("NoAccountsError");
+    return accounts;
+  };
+
+  const connectEmbedded = async () => {
+    const provider = new XOConnectProvider(); // se asume EIP-1193
+    await ensureAccounts(provider);
+    return { provider, disconnect: async () => {} };
+  };
+
+  const connectNormal = () => {
+    if (!walletClient) throw new Error("Wallet client not found");
+    const provider = walletClientToEip1193Provider(walletClient);
+    const disconnect = async () => {
+      wagmiDisconnect();
+      setValues(null);
+    };
+    return { provider, disconnect };
+  };
+
+  const contracts = async () => {
+    if (values) return values;
 
     const config = await (await fetch(`${settings.apiDomain}/api/config`)).json();
+    const { provider, disconnect } = isEmbedded ? await connectEmbedded() : connectNormal();
 
-    const connectEmbedded = (): { provider: XOConnectProvider; disconnect: () => Promise<void> } => {
-      return {
-        provider: new XOConnectProvider(),
-        disconnect: async () => {},
-      };
-    };
-
-    const connectNormal = (): { provider: Eip1193Provider; disconnect: () => Promise<void> } => {
-      if (!walletClient) throw new Error("Wallet client not found");
-
-      const provider = walletClientToEip1193Provider(walletClient);
-      const disconnect = async () => {
-        wagmiDisconnect();
-        setValues(null);
-      };
-
-      return { provider, disconnect };
-    };
-
-    const { provider, disconnect } = isEmbedded ? connectEmbedded() : connectNormal();
-
+    // listeners
     if ("on" in provider && typeof provider.on === "function") {
       provider.on("accountsChanged", async () => {
         await disconnect();
         setValues(null);
+        setSessionAddress(null);
+        if (typeof window !== "undefined") localStorage.removeItem(SESSION_KEY);
       });
       provider.on("disconnect", () => {
         setValues(null);
+        setSessionAddress(null);
+        if (typeof window !== "undefined") localStorage.removeItem(SESSION_KEY);
       });
     }
 
-    const ethersProvider = new BrowserProvider(provider);
+    await ensureAccounts(provider);
+
+    const ethersProvider = new BrowserProvider(provider as any);
     const signer = await ethersProvider.getSigner(0);
+
+    // (Opcional) fuerza red de trabajo:
+    // await ensureChain(provider, settings.base.chainId, settings.base.rpcUrl, settings.base.name);
 
     const samiAddress = config.simpleSamiContractAddress;
     const usdcAddress = config.usdcContractAddress;
@@ -84,13 +117,11 @@ export const ContractsProvider: React.FC<ContractsProviderProps> = ({ children }
       config.environment === "production"
         ? externalContracts[chainIdE].USDC.abi
         : (deployedContracts[chainIdD] as any)?.USDC?.abi;
-    if (!usdcABI) {
-      throw new Error(`USDC ABI not found for chain ${chainIdD}`);
-    }
+    if (!usdcABI) throw new Error(`USDC ABI not found for chain ${chainIdD}`);
 
     const sami = new ethers.Contract(samiAddress, samiABI, signer);
     const usdc = new ethers.Contract(usdcAddress, usdcABI, signer);
-    const connectedAddress = await signer.getAddress();
+    const connectedAddress = (await signer.getAddress()).toLowerCase();
 
     const newVals = {
       sami,
@@ -101,72 +132,46 @@ export const ContractsProvider: React.FC<ContractsProviderProps> = ({ children }
       connectedAddress,
       provider,
       disconnect,
+      isEmbedded,
     };
     setValues(newVals);
     return newVals;
   };
 
-  const signLoginMessage = async (message = "Login to Sami") => {
-    try {
-      const { signer, provider } = await contracts();
-      const address = await signer.getAddress();
-      const typedData = {
-        domain: {
-          name: "Sami",
-          version: "1",
-          chainId: settings.base.chainId,
-        },
-        message: {
-          content: message,
-        },
-        primaryType: "Acceptance",
-        types: {
-          EIP712Domain: [
-            { name: "name", type: "string" },
-            { name: "version", type: "string" },
-            { name: "chainId", type: "uint256" },
-          ],
-          Acceptance: [{ name: "content", type: "string" }],
-        },
-      };
+  // “Forzar login”: asegura conexión y persiste la address en cliente
+  const forceLogin = async (): Promise<string> => {
+    const { signer, provider } = await contracts();
+    await ensureAccounts(provider);
+    const address = (await signer.getAddress()).toLowerCase();
 
-      if (provider.isWalletConnect) {
-        const sessions = provider.signer.client.session.getAll();
-        const session = sessions[sessions.length - 1];
-        return await provider.signer.client.request({
-          topic: session.topic,
-          chainId: `eip155:${settings.base.chainId}`,
-          request: {
-            method: "eth_signTypedData_v4",
-            params: [address, JSON.stringify(typedData)],
-          },
-        });
-      } else {
-        return await provider.request({
-          method: "eth_signTypedData_v4",
-          params: [address, JSON.stringify(typedData)],
-          from: address,
-        });
-      }
-    } catch (e: any) {
-      throw {
-        name: "UnauthorizedError",
-        message: "Unauthorized",
-        status: 401,
-        details: {
-          message: e.toString(),
-        },
-      };
-    }
+    if (typeof window !== "undefined") localStorage.setItem(SESSION_KEY, address);
+    setSessionAddress(address);
+
+    return address;
   };
 
-  return <ContractsContext.Provider value={{ contracts, signLoginMessage }}>{children}</ContractsContext.Provider>;
+  const logout = () => {
+    setSessionAddress(null);
+    if (typeof window !== "undefined") localStorage.removeItem(SESSION_KEY);
+  };
+
+  return (
+    <ContractsContext.Provider
+      value={{
+        forceLogin,
+        contracts,
+        address: sessionAddress,
+        isConnected: !!sessionAddress,
+        logout,
+      }}
+    >
+      {children}
+    </ContractsContext.Provider>
+  );
 };
 
 export const useContracts = () => {
-  const context = useContext(ContractsContext);
-  if (!context) {
-    throw new Error("useContracts must be used within a <ContractsProvider>");
-  }
-  return context;
+  const ctx = useContext(ContractsContext);
+  if (!ctx) throw new Error("useContracts must be used within a <ContractsProvider>");
+  return ctx;
 };

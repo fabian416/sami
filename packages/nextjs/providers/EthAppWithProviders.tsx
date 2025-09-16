@@ -6,6 +6,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AppProgressBar as ProgressBar } from "next-nprogress-bar";
 import { useTheme } from "next-themes";
 import { Toaster } from "react-hot-toast";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { WagmiProvider } from "wagmi";
 import { BlockieAvatar } from "~~/components/common/BlockieAvatar";
 import { Footer } from "~~/components/common/Footer";
@@ -52,6 +54,7 @@ export const EthAppWithProviders = ({ children }: { children: React.ReactNode })
           <ContractsProvider>
             <SocketProvider>
               <ProgressBar height="3px" color="#2299dd" />
+              <ToastContainer position="top-right" />
               <RainbowKitProvider
                 avatar={BlockieAvatar}
                 theme={mounted ? (isLightMode ? lightTheme() : darkTheme()) : darkTheme()}
