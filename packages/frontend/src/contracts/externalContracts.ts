@@ -14,7 +14,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const externalContracts = {
   137: {
     USDC: {
-      address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      address: "0x3c499C542cEF5E3811E1192Ce70d8cC03d5c3359",
       abi: [
         {
           anonymous: false,
