@@ -1,7 +1,7 @@
 const development = {
   apiDomain: "http://localhost:5001",
   environment: "development",
-  base: {
+  polygon: {
     chainId: 80002,
     rpcUrls: {
       80002: "https://rpc-amoy.polygon.technology",
@@ -26,7 +26,7 @@ const development = {
 const staging = {
   apiDomain: "https://staging-api.playsami.fun",
   environment: "staging",
-  base: {
+  polygon: {
     chainId: 80002,
     rpcUrls: {
       80002: "https://rpc-amoy.polygon.technology",
@@ -51,7 +51,7 @@ const staging = {
 const production = {
   apiDomain: "https://api.playsami.fun",
   environment: "production",
-  base: {
+  polygon: {
     chainId: 137,
     rpcUrls: {
       137: "https://polygon-rpc.com",
@@ -93,7 +93,7 @@ type ChainConfig = {
 export type SettingsType = {
   apiDomain: string;
   environment: "development" | "staging" | "production";
-  base: ChainConfig;
+  polygon: ChainConfig;
 };
 
 export const allSettings: Record<string, SettingsType> = {
