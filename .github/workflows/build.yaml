@@ -5,7 +5,7 @@ env:
   IMAGE_TAG_AI_AGENT: ghcr.io/fabian416/sami/ai-agent
 
   IMAGE_VERSION: ${{ github.ref == 'refs/heads/main' && 'latest' || 'staging' }}
-  NEXT_PUBLIC_ENVIRONMENT: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
+  VITE_PUBLIC_ENVIRONMENT: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
 
 on:
   push:
@@ -42,8 +42,6 @@ jobs:
           tags: ${{env.IMAGE_TAG_BACKEND}}:${{env.IMAGE_VERSION}}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          build-args:
-            NEXT_PUBLIC_ENVIRONMENT=${{ env.NEXT_PUBLIC_ENVIRONMENT }}
 
   build_frontend:
     runs-on: ubuntu-latest
