@@ -43,8 +43,8 @@ export const ContractsProvider: React.FC<ContractsProviderProps> = ({ children }
       disconnect: () => Promise<void>;
     } => {
       const provider = new XOConnectProvider({
-        rpcs: { "0x89": "https://polygon-rpc.com" },
-        defaultChainId: "0x89",
+        rpcs: { [config.chainId]: config.rpcUrl },
+        defaultChainId: config.chainId,
       });
 
       return {

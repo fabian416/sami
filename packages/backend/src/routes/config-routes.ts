@@ -13,10 +13,14 @@ const router = Router();
  * DO NOT expose secrets here (no private keys, no service keys).
  */
 router.get("/", (_req, res) => {
+  const CHAIN_ID_HEX = env.APP_ENV === "production" ? "0x89" : "0x13882";
+
   res.json({
     environment: env.APP_ENV,                 // "development" | "staging" | "production"
     simpleSamiContractAddress: env.SIMPLE_SAMI_ADDRESS,
     usdcContractAddress: env.USDC_ADDRESS,
+    chainId: CHAIN_ID_HEX,
+    rpcUrl: env.RPC_URL
   });
 });
 

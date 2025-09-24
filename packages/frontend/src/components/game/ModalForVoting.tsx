@@ -102,7 +102,11 @@ const VoteModal = ({
             </div>
           ))}
         </div>
-        <CountdownClock maybeTimeLeft={timeLeft} maybeMaxTime={maxTime} maybeEndTime={endTime} />
+        <CountdownClock
+          initialTimeLeft={typeof timeLeft === "number" ? timeLeft : undefined}
+          initialMaxTime={typeof maxTime === "number" ? maxTime : undefined}
+          initialEndTime={typeof endTime === "number" ? endTime : undefined}
+        />
       </div>
     </div>
   );
