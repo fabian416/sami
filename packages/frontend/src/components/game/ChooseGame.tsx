@@ -53,7 +53,7 @@ export const ChooseGame = ({ showGame }: any) => {
       timeBeforeEnds: number;
       serverTime: number;
     }) => {
-      setRoomId(data.roomId); // Almacena el roomId en el contexto
+      setRoomId(data.roomId);
       showGame({ timeBeforeEnds: data.timeBeforeEnds, serverTime: data.serverTime });
     };
 
@@ -129,12 +129,12 @@ export const ChooseGame = ({ showGame }: any) => {
     setLoading(true);
     socket.emit(
       "createOrJoinGame",
-      { playerId: randomPlayerId, isBet: false },
+      { playerId: randomPlayerId, isBetGame: false },
       (response: { message(arg0: string, message: any): unknown; success: boolean; roomId: string }) => {
-        setLoading(false);
         if (response.success && response.roomId) {
-          setRoomId(response.roomId); // Almacena el roomId en el contexto tras unirse
+          setRoomId(response.roomId);
         } else {
+        setLoading(false);
           console.error("Failed to join game:", response.message);
           notification.error("Error joining the game. Please try again.");
         }
@@ -155,7 +155,7 @@ export const ChooseGame = ({ showGame }: any) => {
                 <br />
                 One is SAMI, an AI pretending to be human.
                 <br />
-                You have just 2 minutes to spot the fake.
+                You have just 1 minute to spot the fake.
                 <br />
                 <span>
                   Vote at the end—<strong>who is SAMI?</strong>

@@ -23,15 +23,7 @@ export const menuLinks: HeaderMenuLink[] = [
   {
     label: "Home",
     href: "/",
-  } /*
-  {
-    label: "Leaderboard",
-    href: "/leaderboard",
-  },*/,
-  {
-    label: "About",
-    href: "/about",
-  },
+  }
 ];
 
 export const HeaderMenuLinks = () => {
@@ -161,7 +153,8 @@ export const Header = () => {
       </div>
       <div className="navbar-center hidden lg:flex flex-grow justify-center"></div>
       <div className="navbar-end flex-grow mr-4">
-        {connectedAddress || isEmbedded &&
+
+        {(!!connectedAddress || isEmbedded) &&
           typeof balance !== "undefined" &&
           typeof balance === "bigint" &&
           (ENVIRONMENT === "production" ? (
@@ -194,7 +187,7 @@ export const TokenLogo = ({
   width = 25,
   height = 25,
   className = "inline-block align-bottom",
-}: // Add this to align the image with the text
+}:
 {
   width?: number;
   height?: number;

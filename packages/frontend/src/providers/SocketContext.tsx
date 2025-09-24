@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { Socket, io } from "socket.io-client";
 import { useContracts } from "~~/providers/ContractsContext";
+import { notification } from "~~/utils/scaffold-eth";
 
 const ENVIRONMENT = import.meta.env.VITE_PUBLIC_ENVIRONMENT;
 const API_URL =
@@ -55,43 +56,39 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   useEffect(() => {
     console.log("Intentando conectar a:", SERVER_URL);
-    // Inicializar el socket
+    
     const socketInstance = io(SERVER_URL, {
       transports: ["websocket", "polling"],
     });
 
-    // Eventos de conexión y desconexión
     socketInstance.on("connect", () => {
       console.log("Connected to WebSocket server");
       setIsConnected(true);
     });
 
     socketInstance.on("disconnect", () => {
-      console.log("Disconnected from WebSocket server");
+      console.log("Disconnected from WebSocket server.");
+      notification.error("Disconnected from WebSocket server. Please reload the page.");
       setIsConnected(false);
     });
 
-    // Manejar errores de conexión
     socketInstance.on("connect_error", err => {
       console.error("WebSocket connection error:", err);
     });
 
-    // Configurar el socket en el estado
     setSocket(socketInstance);
 
-    // Limpiar el socket al desmontar el componente
     return () => {
       socketInstance.disconnect();
     };
   }, []);
 
-  // Register the wallet
   useEffect(() => {
     if (socket && connectedAddress) {
       socket.emit("registerWallet", { walletAddress: connectedAddress });
       console.log(`Wallet registered: ${connectedAddress}`);
     }
-  }, [socket, connectedAddress]); // 📌 Escucha cambios en `address`
+  }, [socket, connectedAddress]);
 
   return (
     <SocketContext.Provider
@@ -113,7 +110,6 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   );
 };
 
-// Hook para usar el contexto fácilmente
 export const useSocket = (): SocketContextType => {
   const context = useContext(SocketContext);
   if (!context) {

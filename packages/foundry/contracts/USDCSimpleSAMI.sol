@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity 0.8.30;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -49,7 +49,7 @@ contract USDCSimpleSAMI is Ownable {
     //////////////////////////////////////////////////////////////*/
 
     /// @notice Each player must have approved `betAmount` beforehand
-    function startGame(address[] calldata _players) external {
+    function startGame(address[] calldata _players) external onlyOwner {
         uint256 n = _players.length;
         if (n == 0) revert NoPlayers();
 

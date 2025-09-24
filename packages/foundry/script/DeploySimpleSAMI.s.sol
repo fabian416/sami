@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.30;
 
 import "./DeployHelpers.s.sol";
-import { USDCSimpleSAMI } from "../contracts/USDCSimpleSAMI.sol";
+import {USDCSimpleSAMI} from "../contracts/USDCSimpleSAMI.sol";
 
 /**
  * @notice Deploy script for YourContract contract
@@ -16,19 +16,34 @@ import { USDCSimpleSAMI } from "../contracts/USDCSimpleSAMI.sol";
  */
 contract DeploySimpleSAMI is ScaffoldETHDeploy {
     /**
-     * @dev Deployer setup based on `ETH_KEYSTORE_ACCOUNT` in `.env`:
-     *      - "scaffold-eth-default": Uses Anvil's account #9 (0xa0Ee7A142d267C1f36714E4a8F75612F20a79720), no password prompt
-     *      - "scaffold-eth-custom": requires password used while creating keystore
-     *
-     * Note: Must use ScaffoldEthDeployerRunner modifier to:
-     *      - Setup correct `deployer` account and fund it
-     *      - Export contract addresses & ABIs to `nextjs` packages
+     * @dev Opción A: corre sin args y toma la address del USDC de env var `USDC`
+     * Requiere: export USDC=0x... (o USDC en .env + source)
+     */
+    function run() external ScaffoldEthDeployerRunner returns (address) {
+        address usdc = vm.envAddress("USDC");
+        return _deploy(usdc);
+    }
+
+    /**
+     * @dev Opción B: corre con parámetro explícito
+     * forge script ... --sig "run(address)" 0xUSDC...
      */
     function run(address usdcAddress) external ScaffoldEthDeployerRunner returns (address) {
-        USDCSimpleSAMI simpleSAMI = new USDCSimpleSAMI(usdcAddress);
-        console.logString(string.concat("SimpleSAMI deployed at: ", vm.toString(address(simpleSAMI))));
+        return _deploy(usdcAddress);
+    }
 
-        simpleSAMI.setBetAmount(1 * 1e6);
+    function _deploy(address usdc) internal returns (address) {
+        USDCSimpleSAMI simpleSAMI = new USDCSimpleSAMI(usdc);
+
+        console.logString(
+            string.concat("SimpleSAMI deployed at: ", vm.toString(address(simpleSAMI)))
+        );
+
+        // Config inicial (ajustá si corresponde)
+        simpleSAMI.setBetAmount(1 * 1e6); // 1 USDC con 6 decimales
+
+        // Registrar para export a deployments/<chainId>.json
+        _registerDeployment("USDCSimpleSAMI", address(simpleSAMI));
 
         return address(simpleSAMI);
     }
