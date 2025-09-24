@@ -151,7 +151,7 @@ export const PlayGame = () => {
       <div
         className="
           flex-grow grid grid-cols-1 md:grid-cols-2
-          gap-2 sm:gap-3 md:gap-6
+          gap-0 sm:gap-2 md:gap-6
           m-0 md:m-4 px-2 md:px-0
           rounded-none md:rounded-2xl backdrop-brightness-95
           h-[calc(100vh-6.5rem)] md:h-[calc(100vh-9rem)]
@@ -162,7 +162,7 @@ export const PlayGame = () => {
           className={`
             col-span-1 flex flex-col items-stretch
             p-1.5 sm:p-2 md:p-4
-            rounded-none sm:rounded-xl md:rounded-2xl
+            rounded-xl md:rounded-2xl
             shadow-sm md:shadow-lg overflow-hidden
             w-full max-w-full md:max-w-screen-sm
             ${isDarkMode ? "bg-[#2c2171] opacity-80 glow-purple" : "bg-white glow-purple"}
