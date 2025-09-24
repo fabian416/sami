@@ -5,17 +5,15 @@ import { useContracts } from "~~/providers/ContractsContext";
 import { useEmbedded } from "~~/providers/EmbeddedContext";
 import { MaxUint256, formatUnits } from "ethers";
 
-// Token decimals (USDC: 6). Change if needed.
 const TOKEN_DECIMALS = 6;
 
 type UserOnchainContextType = {
   address: string | null;
-  balance: bigint | null;        // raw bigint
-  balancePretty: string;         // formatted
-  allowance: bigint | null;      // raw bigint
-  isBootstrapping: boolean;      // only true on first load
-  isRefreshing: boolean;         // background refresh, keep old values
-  // Controls
+  balance: bigint | null;
+  balancePretty: string | null;
+  allowance: bigint | null;
+  isBootstrapping: boolean;
+  isRefreshing: boolean;
   refreshAll: (withSpinner?: boolean) => Promise<void>;
   refreshBalance: () => Promise<void>;
   refreshAllowance: () => Promise<void>;
@@ -30,26 +28,23 @@ export const UserOnchainProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const { isEmbedded } = useEmbedded();
 
   const [address, setAddress] = useState<string | null>(null);
-  const [spender, setSpender] = useState<string | null>(null); // default -> sami
+  const [spender, setSpender] = useState<string | null>(null);
   const [balance, setBalance] = useState<bigint | null>(null);
   const [allowance, setAllowance] = useState<bigint | null>(null);
 
-  // Loading states split: bootstrap vs silent refresh
   const [isBootstrapping, setIsBootstrapping] = useState<boolean>(true);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 
   const lastBalanceRef = useRef<bigint | null>(null);
   const lastAllowanceRef = useRef<bigint | null>(null);
 
-  // Unsub & interval refs
   const unsubRef = useRef<(() => void) | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Avoid overlapping refreshes
   const inflightRef = useRef<number>(0);
 
   const balancePretty = useMemo(() => {
-    if (typeof balance !== "bigint") return "";
+    if (typeof balance !== "bigint") return null;
     return parseFloat(formatUnits(balance, TOKEN_DECIMALS)).toFixed(2);
   }, [balance]);
 
@@ -77,6 +72,7 @@ export const UserOnchainProvider: React.FC<{ children: React.ReactNode }> = ({ c
       const { usdc, samiAddress, connectedAddress } = await getCtx();
       if (!connectedAddress || !usdc) return;
       const sp = spender ?? samiAddress;
+      if (!sp) return;
       const a: bigint = await usdc.allowance(connectedAddress, sp);
       if (lastAllowanceRef.current !== a) {
         lastAllowanceRef.current = a;
@@ -87,15 +83,14 @@ export const UserOnchainProvider: React.FC<{ children: React.ReactNode }> = ({ c
     }
   };
 
-  // Main refresh entry. withSpinner=true only for first/explicit loads.
   const refreshAll = async (withSpinner: boolean = false) => {
-    // Do not start a second refresh if one is in-flight
+    // Avoid overlapping refreshes
     if (inflightRef.current > 0) return;
     inflightRef.current++;
 
     try {
       if (withSpinner) {
-        setIsBootstrapping(false); // ensure only first paint uses bootstrapping
+        setIsBootstrapping(false);
         setIsRefreshing(false);
       } else {
         setIsRefreshing(true);
@@ -109,11 +104,9 @@ export const UserOnchainProvider: React.FC<{ children: React.ReactNode }> = ({ c
     } finally {
       inflightRef.current--;
       if (withSpinner) {
-        // End of an explicit/first load
         setIsBootstrapping(false);
         setIsRefreshing(false);
       } else {
-        // End of silent background refresh
         setIsRefreshing(false);
       }
     }
@@ -129,7 +122,7 @@ export const UserOnchainProvider: React.FC<{ children: React.ReactNode }> = ({ c
     await refreshAllowance();
   };
 
-  // Init + subscriptions
+  // Bootstrap + (re)subscribe to token events
   useEffect(() => {
     let mounted = true;
 
@@ -138,10 +131,9 @@ export const UserOnchainProvider: React.FC<{ children: React.ReactNode }> = ({ c
       if (unsubRef.current) { try { unsubRef.current(); } catch {} unsubRef.current = null; }
       if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null; }
 
-      // First load with spinner
       await refreshAll(true);
 
-      // Subscribe to events
+      // Subscribe to token events for CURRENT address
       try {
         const { usdc, samiAddress, connectedAddress } = await getCtx();
         if (!usdc || !connectedAddress) return;
@@ -152,11 +144,11 @@ export const UserOnchainProvider: React.FC<{ children: React.ReactNode }> = ({ c
         const outFilter = usdc.filters.Transfer(connectedAddress, null);
         const approvalFilter = usdc.filters.Approval(connectedAddress, null);
 
-        const onTransfer = () => refreshBalance(); // silent (doesn't toggle spinner)
+        const onTransfer = () => { /* silent balance refresh */ void refreshBalance(); };
         const onApproval = async (_owner: string, toSpender: string) => {
-          const current = spender ?? samiAddress;
+          const current = (spender ?? samiAddress) ?? null;
           if (current && toSpender.toLowerCase() === current.toLowerCase()) {
-            await refreshAllowance(); // silent
+            await refreshAllowance();
           }
         };
 
@@ -164,6 +156,7 @@ export const UserOnchainProvider: React.FC<{ children: React.ReactNode }> = ({ c
         usdc.on(outFilter, onTransfer);
         usdc.on(approvalFilter, onApproval);
 
+        // Proper cleanup must return void
         unsubRef.current = () => {
           try {
             usdc.off(inFilter, onTransfer);
@@ -175,14 +168,14 @@ export const UserOnchainProvider: React.FC<{ children: React.ReactNode }> = ({ c
         console.warn("UserOnchainProvider: event subscription failed:", e);
       }
 
-      // Silent polling fallback every 5s
+      // Silent polling as a safety net
       intervalRef.current = setInterval(() => {
-        refreshAll(false);
+        void refreshAll(false);
       }, 4000);
 
-      // Revalidate when tab becomes visible (silent)
+      // Revalidate on tab visible
       const onVisibility = () => {
-        if (document.visibilityState === "visible") refreshAll(false);
+        if (document.visibilityState === "visible") void refreshAll(false);
       };
       document.addEventListener("visibilitychange", onVisibility);
 
@@ -192,28 +185,58 @@ export const UserOnchainProvider: React.FC<{ children: React.ReactNode }> = ({ c
       };
     };
 
-    setup();
+    void setup();
 
     return () => {
       mounted = false;
       if (unsubRef.current) { try { unsubRef.current(); } catch {} unsubRef.current = null; }
       if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null; }
     };
-  }, [contracts, isEmbedded, spender]);
+    // 🔑 if `address` changes, we teardown and resubscribe with the new address
+  }, [contracts, isEmbedded, address, spender]);
 
-  const value = useMemo<UserOnchainContextType>(() => ({
-    address,
-    balance,
-    balancePretty,
-    allowance,
-    isBootstrapping,
-    isRefreshing,
-    refreshAll,
-    refreshBalance,
-    refreshAllowance,
-    approve,
-    setSpender: (addr: string) => setSpender(addr),
-  }), [address, balance, balancePretty, allowance, isBootstrapping, isRefreshing]);
+  // 🔄 When the connected wallet address changes, clear caches and force a fresh read
+  useEffect(() => {
+    // If address becomes null (disconnected), clear state
+    if (!address) {
+      lastBalanceRef.current = null;
+      lastAllowanceRef.current = null;
+      setBalance(null);
+      setAllowance(null);
+      return;
+    }
+    // New address: reset caches and fetch fresh values with spinner
+    lastBalanceRef.current = null;
+    lastAllowanceRef.current = null;
+    setBalance(null);
+    setAllowance(null);
+    void refreshAll(true);
+  }, [address]);
+
+  // 🔄 If spender changes, re-check allowance for the current address
+  useEffect(() => {
+    if (!address) return;
+    lastAllowanceRef.current = null;
+    setAllowance(null);
+    void refreshAllowance();
+  }, [spender, address]);
+
+  const value = useMemo<UserOnchainContextType>(
+    () => ({
+      address,
+      balance,
+      balancePretty,
+      allowance,
+      isBootstrapping,
+      isRefreshing,
+      refreshAll,
+      refreshBalance,
+      refreshAllowance,
+      approve,
+      setSpender: (addr: string) => setSpender(addr),
+    }),
+    [address, balance, balancePretty, allowance, isBootstrapping, isRefreshing]
+  );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 };

@@ -42,6 +42,8 @@ jobs:
           tags: ${{env.IMAGE_TAG_BACKEND}}:${{env.IMAGE_VERSION}}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args:
+            VITE_PUBLIC_ENVIRONMENT=${{ env.VITE_PUBLIC_ENVIRONMENT }}
 
   build_frontend:
     runs-on: ubuntu-latest

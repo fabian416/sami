@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { usePathname } from "next/navigation";
 import { Bars3Icon } from "@heroicons/react/20/solid";
@@ -12,10 +12,10 @@ import { BET_AMOUNT, MINT_AMOUNT } from "~~/utils/constants";
 import { notification } from "~~/utils/scaffold-eth";
 import { useUserOnchain } from "~~/providers/UserOnChainContext";
 
-const ENVIRONMENT = process.env.NEXT_PUBLIC_ENVIRONMENT as
-  | "production"
-  | "development"
-  | undefined;
+const ENVIRONMENT =
+  (typeof import.meta !== "undefined"
+    ? import.meta.env.VITE_PUBLIC_ENVIRONMENT
+    : process.env.VITE_PUBLIC_ENVIRONMENT) as "production" | "staging" | "development" | undefined;
 
 type HeaderMenuLink = {
   label: string;
@@ -59,10 +59,11 @@ export const HeaderMenuLinks = () => {
 };
 
 /**
- * Header with live-updating USDC balance using UserOnchainProvider.
- * - "…" ONLY before the first successful fetch.
- * - No extra dot/indicator during background refreshes.
- * - In dev: shows Mint when balance is loaded and < BET_AMOUNT.
+ * Header with live-updating USDC balance.
+ * - Always renders the balance chip.
+ * - Shows "…" ONLY on the very first fetch (bootstrapping).
+ * - During background refreshes, keeps showing the last known good value (no extra dot).
+ * - In non-production: shows Mint button in addition to the chip if balance < BET_AMOUNT.
  */
 export const Header = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -70,21 +71,30 @@ export const Header = () => {
 
   const { isEmbedded } = useEmbedded();
   const { contracts } = useContracts();
-  const {
-    address,
-    balance,
-    balancePretty,
-    isBootstrapping,      // first load only
-    refreshBalance,
-  } = useUserOnchain();
+  const { address, balance, balancePretty, isBootstrapping, refreshBalance } = useUserOnchain();
 
   useOutsideClick(burgerMenuRef, useCallback(() => setIsDrawerOpen(false), []));
 
   const isProd = ENVIRONMENT === "production";
   const canShowWalletUI = Boolean(address || isEmbedded);
-  const hasBalance = typeof balance === "bigint";
-  // Show "…" only before the first data arrives
-  const showDots = !hasBalance && isBootstrapping;
+  const isLoaded = typeof balance === "bigint";
+  const showDots = !isLoaded && isBootstrapping;
+
+  // Cache last non-empty pretty balance to avoid flicker/dot during background refreshes
+  const lastPrettyRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (isLoaded) {
+      // Ensure "0" is shown if balancePretty is falsy for zero
+      lastPrettyRef.current = balancePretty ?? "0";
+    }
+  }, [isLoaded, balancePretty]);
+
+  // Decide what to display inside the chip
+  const displayPretty = showDots
+    ? "…"
+    : isLoaded
+    ? balancePretty ?? "0"
+    : lastPrettyRef.current ?? "…";
 
   const handleMint = async () => {
     try {
@@ -96,18 +106,18 @@ export const Header = () => {
       const tx = await usdc.mint(connectedAddress, MINT_AMOUNT);
       await tx.wait();
       notification.success("Tokens minted successfully!");
-      await refreshBalance(); // ensure immediate UI sync
+      await refreshBalance();
     } catch (error) {
       console.error("Error minting tokens:", error);
       notification.error("Minting tokens failed, please try again.");
     }
   };
 
-  // Balance chip with no extra indicators
+  // Balance chip (always visible when wallet UI is allowed)
   const BalanceChip = () => (
     <span className="flex flex-row bg-[#2672BE] text-white glow-blue px-3 py-1 rounded-lg items-center justify-center gap-1 ml-4 mr-2 text-lg font-bold">
       <TokenLogo />
-      <span className="ml-1">{showDots ? "…" : balancePretty}</span>
+      <span className="ml-1">{displayPretty}</span>
     </span>
   );
 
@@ -152,27 +162,22 @@ export const Header = () => {
       <div className="navbar-end flex-grow mr-4">
         {/* Wallet / balance area */}
         {canShowWalletUI && (
-          isProd ? (
-            // Prod: always show the chip
+          <>
+            {/* Always show the chip */}
             <BalanceChip />
-          ) : hasBalance ? (
-            // Dev: if already loaded, decide between Mint or Chip
-            balance! < BET_AMOUNT ? (
+
+            {/* In non-production, if loaded AND balance < BET_AMOUNT, show Mint button alongside the chip */}
+            {!isProd && isLoaded && balance! < BET_AMOUNT && (
               <button
                 className="flex flex-row btn btn-primary bg-[#2672BE] hover:bg-[#2672BE] glow-blue mr-2 text-white border-0 shadow-[0_0_10px_#A1CA00] btn-sm text-xl"
                 onClick={handleMint}
-                disabled={showDots} // disabled while bootstrapping
+                disabled={showDots}
               >
                 <div className="text-sm">Get $USDC</div>
                 <TokenLogo />
               </button>
-            ) : (
-              <BalanceChip />
-            )
-          ) : (
-            // Not loaded yet → chip with "…"
-            <BalanceChip />
-          )
+            )}
+          </>
         )}
 
         {/* Connect button (hidden in embedded mode) */}
