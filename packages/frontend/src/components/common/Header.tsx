@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { usePathname } from "next/navigation";
 import { Bars3Icon } from "@heroicons/react/20/solid";
@@ -10,13 +10,12 @@ import { useContracts } from "~~/providers/ContractsContext";
 import { useEmbedded } from "~~/providers/EmbeddedContext";
 import { BET_AMOUNT, MINT_AMOUNT } from "~~/utils/constants";
 import { notification } from "~~/utils/scaffold-eth";
-// If you want to format precisely, prefer formatUnits over Number(...):
-import { formatUnits } from "ethers";
+import { useUserOnchain } from "~~/providers/UserOnChainContext";
 
-const ENVIRONMENT = process.env.NEXT_PUBLIC_ENVIRONMENT;
-
-// USDC has 6 decimals; change if your token differs.
-const TOKEN_DECIMALS = 6;
+const ENVIRONMENT = process.env.NEXT_PUBLIC_ENVIRONMENT as
+  | "production"
+  | "development"
+  | undefined;
 
 type HeaderMenuLink = {
   label: string;
@@ -24,21 +23,21 @@ type HeaderMenuLink = {
   icon?: React.ReactNode;
 };
 
-export const menuLinks: HeaderMenuLink[] = [
-  { label: "Home", href: "/" },
-];
+export const menuLinks: HeaderMenuLink[] = [{ label: "Home", href: "/" }];
 
 export const HeaderMenuLinks = () => {
   const pathname = usePathname();
   return (
     <>
-      {menuLinks?.map(({ label, href, icon }) => {
+      {menuLinks.map(({ label, href, icon }) => {
         const isActive = pathname === href;
         return (
           <li key={href}>
             <Link
               to={href}
-              className={`${isActive ? "bg-secondary shadow-md" : ""} hover:bg-secondary hover:shadow-md focus:!bg-secondary active:!text-neutral py-1.5 px-3 text-sm rounded-full gap-2 grid grid-flow-col`}
+              className={`${
+                isActive ? "bg-secondary shadow-md" : ""
+              } hover:bg-secondary hover:shadow-md focus:!bg-secondary active:!text-neutral py-1.5 px-3 text-sm rounded-full gap-2 grid grid-flow-col`}
             >
               {icon}
               <span>{label}</span>
@@ -60,129 +59,57 @@ export const HeaderMenuLinks = () => {
 };
 
 /**
- * Site header with live-updating USDC balance
- * Strategy:
- *  - Immediate refresh on ERC20 Transfer events (in/out)
- *  - Polling every 5s as a fallback
- *  - Refresh when tab becomes visible again
- *  - Cleanup listeners on unmount
+ * Header with live-updating USDC balance using UserOnchainProvider.
+ * - "…" ONLY before the first successful fetch.
+ * - No extra dot/indicator during background refreshes.
+ * - In dev: shows Mint when balance is loaded and < BET_AMOUNT.
  */
 export const Header = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [balance, setBalance] = useState<bigint | null | undefined>(undefined);
-  const [connectedAddress, setConnectedAddress] = useState<string | null>(null);
-
-  const lastBalanceRef = useRef<bigint | null>(null);
   const burgerMenuRef = useRef<HTMLDivElement>(null);
 
   const { isEmbedded } = useEmbedded();
   const { contracts } = useContracts();
+  const {
+    address,
+    balance,
+    balancePretty,
+    isBootstrapping,      // first load only
+    refreshBalance,
+  } = useUserOnchain();
 
-  useOutsideClick(
-    burgerMenuRef,
-    useCallback(() => setIsDrawerOpen(false), []),
-  );
+  useOutsideClick(burgerMenuRef, useCallback(() => setIsDrawerOpen(false), []));
 
-  useEffect(() => {
-    let intervalId: ReturnType<typeof setInterval> | null = null;
-    let unsubTransfers: (() => void) | null = null;
-
-    // --- Core balance fetcher
-    const fetchBalance = async () => {
-      try {
-        const { usdc, connectedAddress: address } = await contracts();
-        if (!address || !usdc) return;
-
-        setConnectedAddress(address);
-        const result: bigint = await usdc.balanceOf(address);
-
-        // Avoid unnecessary re-renders if balance didn't change
-        if (lastBalanceRef.current !== result) {
-          lastBalanceRef.current = result;
-          setBalance(result);
-        }
-      } catch (err) {
-        console.error("Error fetching USDC balance:", err);
-        setBalance(BigInt(0));
-      }
-    };
-
-    // --- Subscribe to ERC20 Transfer events to refresh instantly
-    const setupEventListeners = async () => {
-      try {
-        const { usdc, connectedAddress: address } = await contracts();
-        if (!usdc || !address) return;
-
-        // Ethers v6: build Transfer filters for "to=address" and "from=address"
-        const inFilter = usdc.filters.Transfer(null, address);
-        const outFilter = usdc.filters.Transfer(address, null);
-
-        const onTransfer = () => {
-          // Refresh immediately on any incoming/outgoing transfer
-          fetchBalance();
-        };
-
-        usdc.on(inFilter, onTransfer);
-        usdc.on(outFilter, onTransfer);
-
-        unsubTransfers = () => {
-          try {
-            usdc.off(inFilter, onTransfer);
-            usdc.off(outFilter, onTransfer);
-          } catch {
-            /* no-op */
-          }
-        };
-      } catch (e) {
-        console.warn("Could not subscribe to Transfer events:", e);
-      }
-    };
-
-    // --- Refresh when tab becomes visible (user returns to the tab)
-    const onVisibility = () => {
-      if (document.visibilityState === "visible") {
-        fetchBalance();
-      }
-    };
-
-    // 1) Initial load
-    fetchBalance();
-    // 2) Event listeners
-    setupEventListeners();
-    // 3) Polling every 5 seconds as a fallback
-    intervalId = setInterval(fetchBalance, 5000);
-    // 4) Visibility change listener
-    document.addEventListener("visibilitychange", onVisibility);
-
-    return () => {
-      if (intervalId) clearInterval(intervalId);
-      if (unsubTransfers) unsubTransfers();
-      document.removeEventListener("visibilitychange", onVisibility);
-    };
-  }, [contracts, isEmbedded]);
+  const isProd = ENVIRONMENT === "production";
+  const canShowWalletUI = Boolean(address || isEmbedded);
+  const hasBalance = typeof balance === "bigint";
+  // Show "…" only before the first data arrives
+  const showDots = !hasBalance && isBootstrapping;
 
   const handleMint = async () => {
     try {
-      const { usdc, connectedAddress: address } = await contracts();
-      if (!address) {
+      const { usdc, connectedAddress } = await contracts();
+      if (!connectedAddress) {
         notification.error("Please connect your wallet");
         return;
       }
-      const tx = await usdc.mint(address, MINT_AMOUNT);
+      const tx = await usdc.mint(connectedAddress, MINT_AMOUNT);
       await tx.wait();
       notification.success("Tokens minted successfully!");
-      // Force refresh after mint completes
-      // (balance will also refresh via Transfer event if mint emits one)
+      await refreshBalance(); // ensure immediate UI sync
     } catch (error) {
       console.error("Error minting tokens:", error);
       notification.error("Minting tokens failed, please try again.");
     }
   };
 
-  const prettyBalance =
-    typeof balance === "bigint"
-      ? parseFloat(formatUnits(balance, TOKEN_DECIMALS)).toFixed(2)
-      : undefined;
+  // Balance chip with no extra indicators
+  const BalanceChip = () => (
+    <span className="flex flex-row bg-[#2672BE] text-white glow-blue px-3 py-1 rounded-lg items-center justify-center gap-1 ml-4 mr-2 text-lg font-bold">
+      <TokenLogo />
+      <span className="ml-1">{showDots ? "…" : balancePretty}</span>
+    </span>
+  );
 
   return (
     <div className="sticky lg:static top-0 navbar bg-base-100 min-h-0 flex-shrink-0 justify-between z-20 shadow-md shadow-secondary px-0 sm:px-2">
@@ -223,29 +150,32 @@ export const Header = () => {
       <div className="navbar-center hidden lg:flex flex-grow justify-center" />
 
       <div className="navbar-end flex-grow mr-4">
-        {(!!connectedAddress || isEmbedded) &&
-          typeof balance !== "undefined" &&
-          typeof balance === "bigint" &&
-          (ENVIRONMENT === "production" ? (
-            <span className="flex flex-row bg-[#2672BE] text-white glow-blue px-3 py-1 rounded-lg items-center justify-center gap-1 ml-4 mr-2 text-lg font-bold">
-              <TokenLogo />
-              <span className="ml-1">{prettyBalance}</span>
-            </span>
-          ) : balance < BET_AMOUNT ? (
-            <button
-              className="flex flex-row btn btn-primary bg-[#2672BE] hover:bg-[#2672BE] glow-blue mr-2 text-white border-0 shadow-[0_0_10px_#A1CA00] btn-sm text-xl"
-              onClick={handleMint}
-            >
-              <div className="text-sm">Get $USDC</div>
-              <TokenLogo />
-            </button>
+        {/* Wallet / balance area */}
+        {canShowWalletUI && (
+          isProd ? (
+            // Prod: always show the chip
+            <BalanceChip />
+          ) : hasBalance ? (
+            // Dev: if already loaded, decide between Mint or Chip
+            balance! < BET_AMOUNT ? (
+              <button
+                className="flex flex-row btn btn-primary bg-[#2672BE] hover:bg-[#2672BE] glow-blue mr-2 text-white border-0 shadow-[0_0_10px_#A1CA00] btn-sm text-xl"
+                onClick={handleMint}
+                disabled={showDots} // disabled while bootstrapping
+              >
+                <div className="text-sm">Get $USDC</div>
+                <TokenLogo />
+              </button>
+            ) : (
+              <BalanceChip />
+            )
           ) : (
-            <span className="flex flex-row bg-[#2672BE] text-white glow-blue px-3 py-1 rounded-lg items-center justify-center gap-1 ml-4 mr-2 text-lg font-bold">
-              <TokenLogo />
-              <span className="ml-1">{prettyBalance}</span>
-            </span>
-          ))}
+            // Not loaded yet → chip with "…"
+            <BalanceChip />
+          )
+        )}
 
+        {/* Connect button (hidden in embedded mode) */}
         {!isEmbedded && <RainbowKitCustomConnectButtonOpaque />}
       </div>
     </div>

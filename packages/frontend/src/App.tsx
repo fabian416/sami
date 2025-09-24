@@ -17,6 +17,7 @@ import { ThemeProvider } from "~~/providers/ThemeProvider";
 import { ContractsProvider } from "~~/providers/ContractsContext";
 import { EmbeddedProvider } from "~~/providers/EmbeddedContext";
 import { SocketProvider } from "~~/providers/SocketContext";
+import { UserOnchainProvider } from "./providers/UserOnChainContext";
 import { wagmiConfig } from "~~/providers/WagmiConfig";
 import { Routes, Route } from 'react-router-dom'
 import Home from "./views/Home";
@@ -63,14 +64,16 @@ export const EthAppWithProviders = () => {
           <EmbeddedProvider>
             <ContractsProvider>
               <SocketProvider>
-                <ProgressBar height="3px" color="#2299dd" />
-                <ToastContainer position="top-right" />
-                <RainbowKitProvider
-                  avatar={BlockieAvatar}
-                  theme={mounted ? (isLightMode ? lightTheme() : darkTheme()) : darkTheme()}
-                >
-                  <EthApp/>
-                </RainbowKitProvider>
+                <UserOnchainProvider>
+                  <ProgressBar height="3px" color="#2299dd" />
+                  <ToastContainer position="top-right" />
+                  <RainbowKitProvider
+                    avatar={BlockieAvatar}
+                    theme={mounted ? (isLightMode ? lightTheme() : darkTheme()) : darkTheme()}
+                  >
+                    <EthApp/>
+                  </RainbowKitProvider>
+                </UserOnchainProvider>
               </SocketProvider>
             </ContractsProvider>
           </EmbeddedProvider>

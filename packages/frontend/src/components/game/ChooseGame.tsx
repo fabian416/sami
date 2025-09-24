@@ -1,16 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useContracts } from "../../providers/ContractsContext";
-import { useEmbedded } from "../../providers/EmbeddedContext";
 import { RainbowKitCustomConnectButton } from "../common/ConnectButton";
 import { ModalWaitingForPlayers } from "./ModalWaitingForPlayers";
 import { ModalWaitingForTransaction } from "./ModalWaitingForTransaction";
 import { v4 as uuidv4 } from "uuid";
-import { useAccount } from "wagmi";
 import { useSocket } from "~~/providers/SocketContext";
-import { DECIMALS, BET_AMOUNT, APPROVE_AMOUNT } from "~~/utils/constants";
+import { BET_AMOUNT, APPROVE_AMOUNT } from "~~/utils/constants";
 import { notification } from "~~/utils/scaffold-eth";
+import { useEmbedded } from "~~/providers/EmbeddedContext";
+import { useUserOnchain } from "~~/providers/UserOnChainContext";
 
 interface Player {
   id: string;
@@ -20,32 +19,19 @@ interface Player {
   isEliminated: boolean;
 }
 
-export const ChooseGame = ({ showGame }: any) => {
+export const ChooseGame = ({ showGame }: { showGame: (p: { timeBeforeEnds: number; serverTime: number }) => void }) => {
   const [loading, setLoading] = useState(false);
   const [loadingBet, setLoadingBet] = useState(false);
-  const [localBalance, setLocalBalance] = useState<bigint | null>(null);
   const [isBetGame, setIsBetGame] = useState<boolean>(false);
+
   const { socket, isConnected, playerId, setPlayerId, setPlayerIndex, setRoomId, roomId, walletRegistered } = useSocket();
-  const { address: connectedAddress } = useAccount();
-  const { contracts } = useContracts();
   const { isEmbedded } = useEmbedded();
 
-  useEffect(() => {
-    const fetchBalance = async () => {
-      const { usdc, connectedAddress: address } = await contracts();
-      if (!address) return;
-      const result = await usdc.balanceOf(address);
-      setLocalBalance(result);
-    };
+  const {address, balance, allowance, approve, isBootstrapping} = useUserOnchain();
 
-    if (connectedAddress) {
-      fetchBalance();
-    }
-  }, [contracts, connectedAddress]);
-
+  // --- Socket: handle successful game start
   useEffect(() => {
-    if (!socket) return;
-    if (!playerId) return;
+    if (!socket || !playerId) return;
 
     const handleGameStarted = (data: {
       roomId: string;
@@ -58,18 +44,17 @@ export const ChooseGame = ({ showGame }: any) => {
     };
 
     socket.on("gameStarted", handleGameStarted);
-
     return () => {
       socket.off("gameStarted", handleGameStarted);
     };
-  }, [socket, showGame, setRoomId, playerId, setPlayerIndex]);
+  }, [socket, playerId, setRoomId, setPlayerIndex, showGame]);
 
+  // --- Socket: handle failures (startFailed / betApprovalFailed) scoped to current room & wallet
   useEffect(() => {
     if (!socket) return;
 
     const onStartFailed = (p: { roomId: string; reason: string }) => {
       if (roomId && p.roomId !== roomId) return;
-
       setLoading(false);
       setLoadingBet(false);
       notification.error(
@@ -79,15 +64,14 @@ export const ChooseGame = ({ showGame }: any) => {
       );
     };
 
-    const onBetApprovalFailed = async (p: { roomId: string; failedWallets: string[] }) => {
+    const onBetApprovalFailed = (p: { roomId: string; failedWallets: string[] }) => {
       if (roomId && p.roomId !== roomId) return;
-      const { connectedAddress } = await contracts();
-      if (!connectedAddress) return;
+      if (!address) return;
 
-      const mine = connectedAddress.toLowerCase();
+      const mine = address.toLowerCase();
       const failedSet = new Set(p.failedWallets.map(w => w.toLowerCase()));
       const iAmFailed = failedSet.has(mine);
-      if (!iAmFailed) { return; }
+      if (!iAmFailed) return;
 
       setLoading(false);
       setLoadingBet(false);
@@ -96,41 +80,41 @@ export const ChooseGame = ({ showGame }: any) => {
 
     socket.on("game:startFailed", onStartFailed);
     socket.on("betApprovalFailed", onBetApprovalFailed);
-
     return () => {
       socket.off("game:startFailed", onStartFailed);
       socket.off("betApprovalFailed", onBetApprovalFailed);
     };
-  }, [socket, roomId]);
+  }, [socket, roomId, address]);
 
+  // --- Enter bet game: ensure balance/allowance, approve if needed, then join
   const handleBetAndPlay = async () => {
     if (!socket) {
       notification.error("You are not connected to the socket");
       return;
     }
-
-    const { usdc, samiAddress, connectedAddress: address } = await contracts();
-    let balance = await usdc.balanceOf(address);
-    if (balance < BET_AMOUNT) {
-        notification.error("USDC Balance not enough");
-        return;
+    if (!address) {
+      notification.error("Please connect your wallet");
+      return;
     }
 
-    let allowance = await usdc.allowance(address, samiAddress);
+    if (isBootstrapping) {
+      notification.info("Please wait, syncing wallet state…");
+      return;
+    }
+    if (!balance || balance < BET_AMOUNT) {
+      notification.error("USDC Balance not enough");
+      return;
+    }
+
     setLoadingBet(true);
-    if (allowance < APPROVE_AMOUNT) {
-      try {
-        const { usdc, samiAddress } = await contracts();
-        const tx = await usdc.approve(samiAddress, APPROVE_AMOUNT);
-        await tx.wait();
-      } catch (err) {
-        setLoadingBet(false);
-        notification.error("Error approving USDC");
-        throw new Error("Approval failed.");
-      }
-    }
-    
     try {
+      // Approve if necessary (spender is set in the provider; default is SAMI)
+      if (!allowance || allowance < APPROVE_AMOUNT) {
+        const tx = await approve(APPROVE_AMOUNT);
+        // approve() already waits and refreshes allowance inside the provider
+      }
+
+      // After approval, proceed to create/join the game
       const randomPlayerId = uuidv4();
       setPlayerId(randomPlayerId);
       setIsBetGame(true);
@@ -141,50 +125,53 @@ export const ChooseGame = ({ showGame }: any) => {
           setRoomId(response.roomId);
           setLoadingBet(false);
         } else {
-          setLoading(false); 
+          setLoading(false);
           setLoadingBet(false);
           console.error("Failed to join game:", response);
           notification.error("Error joining the game. Please try again.");
         }
       });
-    } catch (error) {
+    } catch (err) {
+      console.error("Error approving or entering game:", err);
       setLoadingBet(false);
-      console.error("Error entering game:", error);
-      notification.error("Entering game failed, please try again.");
+      setLoading(false);
+      notification.error("Approval or entering game failed, please try again.");
     }
-    setLoadingBet(false);
   };
 
+  // --- Enter free game (no on-chain ops)
   const handleEnterGame = () => {
     if (!socket) {
       notification.error("Unable to connect to the game server. Please try again.");
       return;
     }
-
     const randomPlayerId = uuidv4();
     setPlayerId(randomPlayerId);
     setIsBetGame(false);
-
     setLoading(true);
+
     socket.emit(
       "createOrJoinGame",
       { playerId: randomPlayerId, isBetGame: false },
-      (response: { message(arg0: string, message: any): unknown; success: boolean; roomId: string }) => {
+      (response: { success: boolean; roomId: string; message?: string }) => {
         if (response.success && response.roomId) {
           setRoomId(response.roomId);
         } else {
           setLoading(false);
-          console.error("Failed to join game:", response.message);
+          console.error("Failed to join game:", response?.message);
           notification.error("Error joining the game. Please try again.");
         }
       },
     );
   };
 
+  const canPlayBet = Boolean(address || isEmbedded);
+
   return (
     <>
       {loading && <ModalWaitingForPlayers isBetGame={isBetGame} />}
       {!loading && loadingBet && <ModalWaitingForTransaction />}
+
       <div className="flex flex-col items-center justify-center w-full">
         <div className="flex md:flex-row flex-col justify-center items-center w-full md:w-1/2 gap-10 md:gap-20">
           <div className="card gradient-bg opacity-80 text-white glow-cyan w-full shadow-xl mx-4 ">
@@ -200,12 +187,14 @@ export const ChooseGame = ({ showGame }: any) => {
                   Vote at the end—<strong>who is SAMI?</strong>
                 </span>
               </p>
-              <p className="text-xl  flex flex-col justify-center items-center">
+
+              <p className="text-xl flex flex-col justify-center items-center">
                 <span>
                   <strong>Betting mode: </strong>Win and split the pot. <br />
                   If everyone loses, SAMI wins!
                 </span>
               </p>
+
               <div className="card-actions justify-center items-center">
                 <div className="form-control">
                   <label className="cursor-pointer label">
@@ -214,17 +203,19 @@ export const ChooseGame = ({ showGame }: any) => {
                       type="checkbox"
                       className="toggle toggle-success"
                       checked={isBetGame}
-                      onChange={() => setIsBetGame(!isBetGame)}
+                      onChange={() => setIsBetGame(prev => !prev)}
                     />
                     <span className="ml-2 text-xl label-text text-white">Bet 1 $USDC</span>
                   </label>
                 </div>
+
                 <div className="w-full flex flex-col items-center">
                   {isBetGame ? (
-                    connectedAddress || isEmbedded ? (
+                    canPlayBet ? (
                       <button
                         onClick={handleBetAndPlay}
                         className="cool-button !flex !flex-row !justify-center !items-center mb-2"
+                        disabled={loading || loadingBet || isBootstrapping}
                       >
                         <div className="text-[#2c2171]">Bet</div>&nbsp;<>1</>&nbsp;$USDC&nbsp;
                       </button>
@@ -245,7 +236,7 @@ export const ChooseGame = ({ showGame }: any) => {
             </div>
           </div>
         </div>
-      </div>
+      </div> 
     </>
   );
 };
