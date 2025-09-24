@@ -46,24 +46,23 @@ export const PlayGame = () => {
 
   const { socket, playerIndex, playerId, setPlayerIndex, roomId } = useSocket();
   const { resolvedTheme } = useTheme();
-
   const isDarkMode = resolvedTheme === "dark";
 
+  // Start countdown on phase changes
   useEffect(() => {
     if (!socket) return;
-
-    const handleStartCountdown = (data: { timeBeforeEnds: number; serverTime: number }) => {
+    const handleStartCountdown = (data: { timeBeforeEnds: number; serverTime: number }) =>
       startCountdown({ data, setMaxTime, setTimeLeft, setEndTime });
-    };
+
     socket.on("startConversationPhase", handleStartCountdown);
     socket.on("startVotePhase", handleStartCountdown);
-
     return () => {
       socket.off("startConversationPhase", handleStartCountdown);
       socket.off("startVotePhase", handleStartCountdown);
     };
   }, [socket]);
 
+  // Autofocus input on mount / after send
   useEffect(() => {
     if (focusInput) {
       inputRef.current?.focus();
@@ -71,72 +70,63 @@ export const PlayGame = () => {
     }
   }, [focusInput]);
 
+  // Get player index once connected
   useEffect(() => {
     if (!socket) return;
-    if (!playerIndex && playerId && roomId) {
-      socket.emit("player:getIndex", { roomId, playerId });
-    }
-    socket.on("playerIndex", (data: { playerId: string; playerIndex: number }) => {
-      playerId === data.playerId && setPlayerIndex(data.playerIndex);
-    });
+    if (!playerIndex && playerId && roomId) socket.emit("player:getIndex", { roomId, playerId });
+
+    const onPlayerIndex = (data: { playerId: string; playerIndex: number }) => {
+      if (playerId === data.playerId) setPlayerIndex(data.playerIndex);
+    };
+
+    socket.on("playerIndex", onPlayerIndex);
+    return () => { socket.off("playerIndex", onPlayerIndex); };
   }, [playerIndex, socket, playerId, roomId, setPlayerIndex]);
 
+  // Always scroll to last message
   useEffect(() => {
-    // Cuando los mensajes cambian, desplazamos al fondo
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Core socket listeners
   useEffect(() => {
     if (!socket) return;
 
-    socket.on("newMessage", (data: Message) => {
-      setMessages(prev => [...prev, data]);
-    });
-
-    socket.on("startConversationPhase", () => {
+    const onNewMessage = (data: Message) => setMessages(prev => [...prev, data]);
+    const onStartConversation = () => {
       setCurrentPhase("conversation");
-      audioRef.current?.play(); // Play the sound when the conversation phase starts
-    });
+      audioRef.current?.play();
+    };
+    const onStartVotePhase = (data: { players: Player[] }) => {
+      setCurrentPhase("voting");
+      setPlayers(data.players);
+    };
+    const onGameOver = (data: { isBetGame: boolean; results: { playerId: string; won: boolean }[] }) => {
+      setIsBetGame(data.isBetGame);
+      const me = data.results.find(r => r.playerId === playerId);
+      if (me) {
+        setAmountOfWinners(_.filter(data.results, { won: true }).length);
+        setWinner(me.won ? "You win" : "sami");
+      }
+      setCurrentPhase("finished");
+    };
 
-    socket.on(
-      "startVotePhase",
-      (data: { players: Player[]; message: string; timeBeforeEnds: number; serverTime: number }) => {
-        setCurrentPhase("voting");
-        setPlayers(data.players);
-      },
-    );
-
-    socket.on(
-      "gameOver",
-      (data: { message: string; isBetGame: boolean; results: { playerId: string; won: boolean }[] }) => {
-        const { results, isBetGame } = data;
-        setIsBetGame(isBetGame);
-
-        // Obtener el resultado del jugador actual
-        const playerResult = results.find(r => r.playerId === playerId);
-        if (playerResult) {
-          const amountOfWinners = _.filter(results, { won: true }).length;
-          setAmountOfWinners(amountOfWinners);
-          setWinner(playerResult.won ? "You win" : "sami");
-        }
-
-        setCurrentPhase("finished");
-      },
-    );
+    socket.on("newMessage", onNewMessage);
+    socket.on("startConversationPhase", onStartConversation);
+    socket.on("startVotePhase", onStartVotePhase);
+    socket.on("gameOver", onGameOver);
 
     return () => {
-      socket.off("newMessage");
-      socket.off("startConversationPhase");
-      socket.off("startVotePhase");
-      socket.off("gameOver");
+      socket.off("newMessage", onNewMessage);
+      socket.off("startConversationPhase", onStartConversation);
+      socket.off("startVotePhase", onStartVotePhase);
+      socket.off("gameOver", onGameOver);
     };
   }, [socket, playerId]);
 
+  // Send message with a tiny cooldown to avoid spam
   const sendMessage = (message: string) => {
-    if (!socket || !roomId || !playerId) {
-      return console.error("Missing socket, roomId, or playerId.");
-    }
-
+    if (!socket || !roomId || !playerId) return console.error("Missing socket, roomId, or playerId.");
     setChatDisabled(true);
     socket.emit("message", { roomId, playerId, playerIndex, message });
     setTimeout(() => {
@@ -149,52 +139,59 @@ export const PlayGame = () => {
     <>
       {/* Voting modal */}
       {currentPhase === "voting" && (
-        <ModalForVoting
-          players={players}
-          setMessages={undefined}
-          timeLeft={timeLeft}
-          maxTime={maxTime}
-          endTime={endTime}
-        />
+        <ModalForVoting players={players} setMessages={undefined} timeLeft={timeLeft} maxTime={maxTime} endTime={endTime} />
       )}
 
-      {/* Modal Finished  */}
+      {/* Finished modal */}
       {currentPhase === "finished" && (
         <ModalFinished winner={winner} isBetGame={isBetGame} amountOfWinners={amountOfWinners} />
       )}
 
-      <div className="flex-grow grid grid-cols-2 gap-9 m-4 rounded-2xl backdrop-brightness-95 flex-col h-[calc(100vh-12rem)] md:h-[calc(100vh-9rem)]">
+      {/* Full-bleed on mobile, tighter gaps/margins */}
+      <div
+        className="
+          flex-grow grid grid-cols-1 md:grid-cols-2
+          gap-2 sm:gap-3 md:gap-6
+          m-0 md:m-4 px-2 md:px-0
+          rounded-none md:rounded-2xl backdrop-brightness-95
+          h-[calc(100vh-6.5rem)] md:h-[calc(100vh-9rem)]
+        "
+      >
+        {/* Chat card (compact on mobile) */}
         <div
-          className={`col-span-2 md:col-span-1 flex flex-col items-center justify-between p-4 rounded-2xl shadow-lg overflow-y-scroll max-w-screen-sm
-          ${isDarkMode ? "bg-[#2c2171] opacity-80 glow-purple" : "bg-white glow-purple"}`}
+          className={`
+            col-span-1 flex flex-col items-stretch
+            p-1.5 sm:p-2 md:p-4
+            rounded-none sm:rounded-xl md:rounded-2xl
+            shadow-sm md:shadow-lg overflow-hidden
+            w-full max-w-full md:max-w-screen-sm
+            ${isDarkMode ? "bg-[#2c2171] opacity-80 glow-purple" : "bg-white glow-purple"}
+          `}
         >
-          <span className="w-full text-center">Chat and find out who is SAMI, the impostor AI</span>
-          {/* Chat messages */}
-          <div className="flex-1 w-full overflow-y-scroll">
-            <div className={`mt-2 ${isDarkMode ? "text-white" : "text-black"}`}>
+          {/* Title hidden on very small screens to save space */}
+          <span className="w-full text-center text-xs md:text-sm text-white/80 hidden sm:block">
+            Chat and find out who is SAMI, the impostor AI
+          </span>
+
+          {/* Messages list */}
+          <div className="flex-1 w-full overflow-y-auto mt-1 md:mt-2">
+            <div className={`${isDarkMode ? "text-white" : "text-black"}`}>
               {messages.map((msg, index) => {
                 const color = COLORS[Number(msg.playerIndex)];
                 const name = NAMES[Number(msg.playerIndex)];
+                const isSelf = playerIndex === Number(msg.playerIndex);
                 return (
                   <div key={index} className={`text-left ${color}`}>
-                    <div
-                      className={`flex flex-row items-end ${playerIndex === Number(msg.playerIndex) ? "justify-end" : "justify-start"}`}
-                    >
-                      <div className={`chat ${playerIndex === Number(msg.playerIndex) ? "chat-end" : "chat-start"}`}>
+                    <div className={`flex flex-row items-end ${isSelf ? "justify-end" : "justify-start"}`}>
+                      <div className={`chat ${isSelf ? "chat-end" : "chat-start"}`}>
                         <div className="chat-image avatar flex flex-col">
-                          <strong className={`text-xs ${color}`}>{name}</strong>{" "}
-                          <div className="w-8 rounded-full">
-                            <img alt="Player avatar" src={AVATARS[Number(msg.playerIndex)]} width={50} height={50} />
+                          <strong className={`text-[10px] ${color}`}>{name}</strong>
+                          <div className="w-6 h-6 md:w-8 md:h-8 rounded-full overflow-hidden">
+                            <img alt="Player avatar" src={AVATARS[Number(msg.playerIndex)]} width={32} height={32} />
                           </div>
                         </div>
-                        <div className="chat-bubble max-w-fit w-auto bg-gray-700 dark:bg-gray-200 border-0">
-                          {msg.playerId ? (
-                            <>
-                              <span className={`${color} px-1`}>{msg.message}</span>
-                            </>
-                          ) : (
-                            <strong>{msg.message}</strong>
-                          )}
+                        <div className="chat-bubble max-w-[80%] w-auto px-2 py-1 text-sm md:text-base leading-snug bg-gray-700 dark:bg-gray-200 border-0">
+                          {msg.playerId ? <span className={`${color}`}>{msg.message}</span> : <strong>{msg.message}</strong>}
                         </div>
                       </div>
                     </div>
@@ -205,39 +202,44 @@ export const PlayGame = () => {
             </div>
           </div>
 
-          {/* Input messages */}
-          <div className={`flex w-full mt-4 ${isDarkMode ? "text-white" : "text-black"}`}>
-            <input
-              ref={inputRef}
-              type="text"
-              disabled={currentPhase === "voting" || chatDisabled}
-              className={`flex-1 p-2 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 border-gray-300`}
-              placeholder="Type your message..."
-              onKeyDown={e => {
-                if (e.key === "Enter" && inputRef.current?.value.trim()) {
-                  sendMessage(inputRef.current.value.trim());
-                  inputRef.current.value = "";
-                }
-              }}
-            />
-            <button
-              disabled={currentPhase === "voting" || chatDisabled}
-              className="ml-2 p-2 text-white glow-cyan focus:outline-none focus:ring-2 rounded-lg bg-[#1CA297] hover:bg-[#33B3A8] focus:ring-[#1CA297]"
-              onClick={() => {
-                if (inputRef.current?.value.trim()) {
-                  sendMessage(inputRef.current.value.trim());
-                  inputRef.current.value = "";
-                }
-              }}
-            >
-              <PaperAirplaneIcon className="h-5 w-5" />
-            </button>
+          {/* Sticky input bar (edge-to-edge on mobile) */}
+          <div className={`sticky bottom-0 left-0 right-0 pt-1 ${isDarkMode ? "text-white" : "text-black"}`}>
+            <div className="flex w-full">
+              <input
+                ref={inputRef}
+                type="text"
+                disabled={currentPhase === "voting" || chatDisabled}
+                className="flex-1 h-9 md:h-10 text-sm p-2 border rounded-none sm:rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 border-gray-300"
+                placeholder="Type your message..."
+                onKeyDown={e => {
+                  if (e.key === "Enter" && inputRef.current?.value.trim()) {
+                    sendMessage(inputRef.current.value.trim());
+                    inputRef.current.value = "";
+                  }
+                }}
+              />
+              <button
+                disabled={currentPhase === "voting" || chatDisabled}
+                className="ml-1 md:ml-2 h-9 w-9 md:h-10 md:w-10 flex items-center justify-center text-white glow-cyan focus:outline-none focus:ring-2 rounded-md md:rounded-lg bg-[#1CA297] hover:bg-[#33B3A8] focus:ring-[#1CA297]"
+                onClick={() => {
+                  if (inputRef.current?.value.trim()) {
+                    sendMessage(inputRef.current.value.trim());
+                    inputRef.current.value = "";
+                  }
+                }}
+              >
+                <PaperAirplaneIcon className="h-5 w-5" />
+              </button>
+            </div>
+            {/* iOS safe-area padding */}
+            <div className="h-[env(safe-area-inset-bottom)]" />
           </div>
 
-          {/* Clock */}
+          {/* Clock during conversation only */}
           {currentPhase === "conversation" && <CountdownClock />}
         </div>
 
+        {/* Right panel: only on md+ */}
         {!isMobile && (
           <div className="hidden md:flex items-center justify-center glow-cyan overflow-hidden rounded-2xl">
             <img
@@ -251,7 +253,7 @@ export const PlayGame = () => {
         )}
       </div>
 
-      {/* Audio element */}
+      {/* Audio cue */}
       <audio ref={audioRef} src="/start-conversation.mp3" preload="auto" />
     </>
   );
