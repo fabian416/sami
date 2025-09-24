@@ -6,8 +6,8 @@ export const Events = {
   CONNECTED_PLAYERS: "connectedPlayers",
 
   // Player
-  PLAYER_REGISTER_WALLET: "registerWallet",
-  PLAYER_GET_INDEX: "getPlayerIndex",
+  PLAYER_REGISTER_WALLET: "player:registerWallet",
+  PLAYER_GET_INDEX: "player:getIndex",
   PLAYER_GET_ROOM: "getPlayerRoomId",
 
   // Game

@@ -3,7 +3,7 @@
  * Reads ONLY from @config/env (single source of truth).
  */
 import { Router } from "express";
-import { env } from "@config/env";
+import { env, isProd } from "@config/env";
 
 const router = Router();
 
@@ -13,7 +13,7 @@ const router = Router();
  * DO NOT expose secrets here (no private keys, no service keys).
  */
 router.get("/", (_req, res) => {
-  const CHAIN_ID_HEX = env.APP_ENV === "production" ? "0x89" : "0x13882";
+  const CHAIN_ID_HEX = isProd ? "0x89" : "0x13882";
 
   res.json({
     environment: env.APP_ENV,                 // "development" | "staging" | "production"

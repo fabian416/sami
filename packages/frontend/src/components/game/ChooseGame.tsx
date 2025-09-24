@@ -9,7 +9,7 @@ import { ModalWaitingForTransaction } from "./ModalWaitingForTransaction";
 import { v4 as uuidv4 } from "uuid";
 import { useAccount } from "wagmi";
 import { useSocket } from "~~/providers/SocketContext";
-import { DECIMALS } from "~~/utils/constants";
+import { DECIMALS, BET_AMOUNT, APPROVE_AMOUNT } from "~~/utils/constants";
 import { notification } from "~~/utils/scaffold-eth";
 
 interface Player {
@@ -22,24 +22,24 @@ interface Player {
 
 export const ChooseGame = ({ showGame }: any) => {
   const [loading, setLoading] = useState(false);
-  const [loadingApprove, setLoadingApprove] = useState(false);
   const [loadingBet, setLoadingBet] = useState(false);
-  const [localAllowance, setLocalAllowance] = useState<bigint | null>(null);
+  const [localBalance, setLocalBalance] = useState<bigint | null>(null);
   const [isBetGame, setIsBetGame] = useState<boolean>(false);
-  const { socket, isConnected, playerId, setPlayerId, setPlayerIndex, setRoomId } = useSocket();
+  const { socket, isConnected, playerId, setPlayerId, setPlayerIndex, setRoomId, roomId, walletRegistered } = useSocket();
   const { address: connectedAddress } = useAccount();
   const { contracts } = useContracts();
   const { isEmbedded } = useEmbedded();
 
   useEffect(() => {
-    const fetchAllowance = async () => {
-      const { usdc, samiAddress, connectedAddress: address } = await contracts();
-      const result = await usdc.allowance(address, samiAddress);
-      setLocalAllowance(result);
+    const fetchBalance = async () => {
+      const { usdc, connectedAddress: address } = await contracts();
+      if (!address) return;
+      const result = await usdc.balanceOf(address);
+      setLocalBalance(result);
     };
 
     if (connectedAddress) {
-      fetchAllowance();
+      fetchBalance();
     }
   }, [contracts, connectedAddress]);
 
@@ -64,19 +64,44 @@ export const ChooseGame = ({ showGame }: any) => {
     };
   }, [socket, showGame, setRoomId, playerId, setPlayerIndex]);
 
-  const handleApprove = async () => {
-    setLoadingApprove(true);
-    try {
-      const { usdc, samiAddress } = await contracts();
-      const tx = await usdc.approve(samiAddress, BigInt(1 * DECIMALS));
-      await tx.wait();
-      setLocalAllowance(BigInt(1 * DECIMALS));
-    } catch (err) {
-      console.error("Error approving USDC:", err);
-      throw new Error("Approval failed.");
-    }
-    setLoadingApprove(false);
-  };
+  useEffect(() => {
+    if (!socket) return;
+
+    const onStartFailed = (p: { roomId: string; reason: string }) => {
+      if (roomId && p.roomId !== roomId) return;
+
+      setLoading(false);
+      setLoadingBet(false);
+      notification.error(
+        p.reason?.includes("ONLY_OWNER")
+          ? "Only the contract owner can start bet games. Please try again later."
+          : `Could not start the on-chain game: ${p.reason || "Unknown error"}`
+      );
+    };
+
+    const onBetApprovalFailed = async (p: { roomId: string; failedWallets: string[] }) => {
+      if (roomId && p.roomId !== roomId) return;
+      const { connectedAddress } = await contracts();
+      if (!connectedAddress) return;
+
+      const mine = connectedAddress.toLowerCase();
+      const failedSet = new Set(p.failedWallets.map(w => w.toLowerCase()));
+      const iAmFailed = failedSet.has(mine);
+      if (!iAmFailed) { return; }
+
+      setLoading(false);
+      setLoadingBet(false);
+      notification.error("USDC approval/transfer failed for your wallet");
+    };
+
+    socket.on("game:startFailed", onStartFailed);
+    socket.on("betApprovalFailed", onBetApprovalFailed);
+
+    return () => {
+      socket.off("game:startFailed", onStartFailed);
+      socket.off("betApprovalFailed", onBetApprovalFailed);
+    };
+  }, [socket, roomId]);
 
   const handleBetAndPlay = async () => {
     if (!socket) {
@@ -84,32 +109,46 @@ export const ChooseGame = ({ showGame }: any) => {
       return;
     }
 
-    setLoadingBet(true);
-    try {
-      const { sami, connectedAddress } = await contracts();
-      if (!connectedAddress) {
-        notification.error("Please connect your wallet");
+    const { usdc, samiAddress, connectedAddress: address } = await contracts();
+    let balance = await usdc.balanceOf(address);
+    if (balance < BET_AMOUNT) {
+        notification.error("USDC Balance not enough");
         return;
+    }
+
+    let allowance = await usdc.allowance(address, samiAddress);
+    setLoadingBet(true);
+    if (allowance < APPROVE_AMOUNT) {
+      try {
+        const { usdc, samiAddress } = await contracts();
+        const tx = await usdc.approve(samiAddress, APPROVE_AMOUNT);
+        await tx.wait();
+      } catch (err) {
+        setLoadingBet(false);
+        notification.error("Error approving USDC");
+        throw new Error("Approval failed.");
       }
-
-      const tx = await sami.enterGame();
-      await tx.wait();
-
+    }
+    
+    try {
       const randomPlayerId = uuidv4();
       setPlayerId(randomPlayerId);
       setIsBetGame(true);
       setLoading(true);
 
-      socket!.emit("createOrJoinGame", { playerId: randomPlayerId, isBetGame: true }, (response: any) => {
-        setLoading(false);
+      socket.emit("createOrJoinGame", { playerId: randomPlayerId, isBetGame: true }, (response: any) => {
         if (response.success && response.roomId) {
           setRoomId(response.roomId);
+          setLoadingBet(false);
         } else {
+          setLoading(false); 
+          setLoadingBet(false);
           console.error("Failed to join game:", response);
           notification.error("Error joining the game. Please try again.");
         }
       });
     } catch (error) {
+      setLoadingBet(false);
       console.error("Error entering game:", error);
       notification.error("Entering game failed, please try again.");
     }
@@ -134,7 +173,7 @@ export const ChooseGame = ({ showGame }: any) => {
         if (response.success && response.roomId) {
           setRoomId(response.roomId);
         } else {
-        setLoading(false);
+          setLoading(false);
           console.error("Failed to join game:", response.message);
           notification.error("Error joining the game. Please try again.");
         }
@@ -145,7 +184,7 @@ export const ChooseGame = ({ showGame }: any) => {
   return (
     <>
       {loading && <ModalWaitingForPlayers isBetGame={isBetGame} />}
-      {!loading && (loadingApprove || loadingBet) && <ModalWaitingForTransaction />}
+      {!loading && loadingBet && <ModalWaitingForTransaction />}
       <div className="flex flex-col items-center justify-center w-full">
         <div className="flex md:flex-row flex-col justify-center items-center w-full md:w-1/2 gap-10 md:gap-20">
           <div className="card gradient-bg opacity-80 text-white glow-cyan w-full shadow-xl mx-4 ">
@@ -183,21 +222,12 @@ export const ChooseGame = ({ showGame }: any) => {
                 <div className="w-full flex flex-col items-center">
                   {isBetGame ? (
                     connectedAddress || isEmbedded ? (
-                      localAllowance && localAllowance >= BigInt(1 * DECIMALS) ? (
-                        <button
-                          onClick={handleBetAndPlay}
-                          className="cool-button !flex !flex-row !justify-center !items-center mb-2"
-                        >
-                          <div className="text-[#2c2171]">Bet</div>&nbsp;<>1</>&nbsp;$USDC&nbsp;
-                        </button>
-                      ) : (
-                        <button
-                          onClick={handleApprove}
-                          className="cool-button !flex !flex-row !justify-center !items-center mb-2"
-                        >
-                          <div className="">Approve</div>&nbsp;<>1</>&nbsp;$USDC&nbsp;
-                        </button>
-                      )
+                      <button
+                        onClick={handleBetAndPlay}
+                        className="cool-button !flex !flex-row !justify-center !items-center mb-2"
+                      >
+                        <div className="text-[#2c2171]">Bet</div>&nbsp;<>1</>&nbsp;$USDC&nbsp;
+                      </button>
                     ) : (
                       !isEmbedded && <RainbowKitCustomConnectButton />
                     )
@@ -205,7 +235,7 @@ export const ChooseGame = ({ showGame }: any) => {
                     <button
                       className="btn btn-primary rounded-lg text-2xl bg-white text-[#1CA297] hover:text-[#1CA297] hover:bg-white border-0 mt-1"
                       onClick={handleEnterGame}
-                      disabled={loading || !isConnected}
+                      disabled={loading || !isConnected || !walletRegistered || loadingBet}
                     >
                       {loading ? "Enter" : "Enter"}
                     </button>

@@ -6,8 +6,8 @@ import { corsOptions } from "@config/cors";
 import { attachSocketServer } from "@sockets/index";
 import { env } from "@config/env";
 import logger from "@core/logger";
-import { wireGameRelays } from "@sockets/game.relay";
-import { wirePlayerRelays } from "@sockets/player.relay";
+import { wireGameRelays } from "@src/sockets/relayers/game.relay";
+import { wirePlayerRelays } from "@src/sockets/relayers/player.relay";
 
 const server = http.createServer(app);
 

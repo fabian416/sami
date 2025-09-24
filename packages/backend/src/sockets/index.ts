@@ -1,7 +1,7 @@
 import type { Server, Socket } from "socket.io";
 import { Events } from "./events";
-import * as gameHandlers from "./game.handlers";
-import * as playerHandlers from "./player.handlers";
+import * as gameHandlers from "./handlers/game.handlers";
+import * as playerHandlers from "./handlers/player.handlers";
 import logger from "@core/logger";
 import { sessions } from "./session-store";
 

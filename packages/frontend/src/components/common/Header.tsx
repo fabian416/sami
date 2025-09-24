@@ -8,7 +8,7 @@ import { Bars3Icon } from "@heroicons/react/20/solid";
 import { useOutsideClick } from "~~/hooks/useOutsideClick";
 import { useContracts } from "~~/providers/ContractsContext";
 import { useEmbedded } from "~~/providers/EmbeddedContext";
-import { DECIMALS } from "~~/utils/constants";
+import { BET_AMOUNT, DECIMALS, MINT_AMOUNT } from "~~/utils/constants";
 import { notification } from "~~/utils/scaffold-eth";
 
 const ENVIRONMENT = process.env.NEXT_PUBLIC_ENVIRONMENT;
@@ -102,7 +102,7 @@ export const Header = () => {
         return;
       }
 
-      const tx = await usdc.mint(address, BigInt(3 * DECIMALS));
+      const tx = await usdc.mint(address, MINT_AMOUNT);
       await tx.wait();
       notification.success("Tokens minted successfully!");
     } catch (error) {
@@ -162,7 +162,7 @@ export const Header = () => {
               <TokenLogo className="" />
               <span className="ml-1">{(Number(balance) / DECIMALS).toFixed(2)}</span>
             </span>
-          ) : balance < BigInt(1 * DECIMALS) ? (
+          ) : balance < BET_AMOUNT ? (
             <button
               className="flex flex-row btn btn-primary bg-[#2672BE] hover:bg-[#2672BE] glow-blue mr-2 text-white border-0 shadow-[0_0_10px_#A1CA00] btn-sm text-xl"
               onClick={handleMint}

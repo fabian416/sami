@@ -1,5 +1,5 @@
 import type { Server, Socket } from "socket.io";
-import { Events } from "./events";
+import { Events } from "../events";
 import { withLogger } from "@core/logger";
 import gameServiceEmitter, {
   createOrJoin,
@@ -130,7 +130,6 @@ export function register(io: Server, socket: Socket) {
         return;
       }
 
-      // resolver index en el backend si no vino del front
       const resolvedIndex =
         data.playerIndex ??
         game.players.find(p => p.id === data.playerId)?.index;
@@ -153,7 +152,6 @@ export function register(io: Server, socket: Socket) {
       cachedRoomsMessages[data.roomId].push(fullMsg);
       roomsMessages[data.roomId].push(fullMsg);
 
-      // Importante: emitimos SOLO al bus; el relay global reenvía una sola vez
       gameServiceEmitter.emit("newMessage", fullMsg);
     } catch {
       socket.emit("error", { message: "Invalid payload" });

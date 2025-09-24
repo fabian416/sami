@@ -8,7 +8,7 @@ import { createPlayer, type Player } from "@services/player.service";
 import { EventEmitter } from "events";
 import { v4 as uuidv4 } from "uuid";
 import _ from "lodash";
-import { sendPrizesToWinners } from "@src/config/contract-config";
+import { preflightUSDC, sendPrizesToWinners, startGameOnChain } from "@src/config/contract-config";
 import supabase from "@src/config/supabase-client";
 import axios from "axios";
 import {
@@ -19,6 +19,7 @@ import {
   CHAT_ID,
   SAMI_URI,
 } from "@utils/constants";
+import { getAddress, isAddress } from "ethers";
 
 class GameServiceEmitter extends EventEmitter {}
 const gameServiceEmitter = new GameServiceEmitter();
@@ -62,31 +63,35 @@ export const findFreeGame = (): Game | null =>
 /** Creates or joins a room of the requested type. */
 export const createOrJoin = (
   playerId: string,
-  isBetGame: boolean = false,
+  isBetGame = false,
   socketId: string,
 ): { roomId: string; success: boolean } => {
-  let game = isBetGame ? findBetGame() : findFreeGame();
 
-  if (!game) {
-    const newRoomId = `room-${Object.keys(rooms).length + 1}`;
-    game = createNewGame(newRoomId, isBetGame);
+  const nextRoomId = () => `room-${Object.keys(rooms).length + 1}`;
+
+  const getWaitingRoom = (isBetGame: boolean) =>
+    (isBetGame ? findBetGame() : findFreeGame());
+
+  // 1) First attempt: prefer an existing waiting room; otherwise create one
+  const first = getWaitingRoom(isBetGame) ?? createNewGame(nextRoomId(), isBetGame);
+  if (!first) return { roomId: "", success: false };
+
+  if (joinGame(first.roomId, playerId, isBetGame, socketId)) {
+    console.log(`Player ${playerId} joined ${first.roomId} (bet=${isBetGame})`);
+    return { roomId: first.roomId, success: true };
   }
 
-  if (!game) {
-    console.error(`Error creating the match for ${playerId} (isBetGame: ${isBetGame})`);
-    return { roomId: "", success: false };
+  // 2) Likely race (room filled between selection and join) → create a fresh room and try once
+  const fresh = createNewGame(nextRoomId(), isBetGame);
+  if (fresh && joinGame(fresh.roomId, playerId, isBetGame, socketId)) {
+    console.log(`Player ${playerId} joined ${fresh.roomId} (bet=${isBetGame})`);
+    return { roomId: fresh.roomId, success: true };
   }
 
-  const success = joinGame(game.roomId, playerId, isBetGame, socketId);
-
-  if (!success) {
-    console.warn(`⚠️ The player ${playerId} could not join the game ${game.roomId}`);
-    return { roomId: "", success: false };
-  }
-
-  console.log(`Player ${playerId} joined the match ${game.roomId} (isBetGame: ${isBetGame})`);
-  return { roomId: game.roomId, success: true };
+  console.warn(`Player ${playerId} could not join (bet=${isBetGame})`);
+  return { roomId: "", success: false };
 };
+
 
 /** Creates a new waiting game. */
 export const createNewGame = (roomId: string, isBetGame: boolean) => {
@@ -103,7 +108,13 @@ export const createNewGame = (roomId: string, isBetGame: boolean) => {
   return newGame;
 };
 
-/** Joins a player into a waiting room. Starts game when MIN_PLAYERS is reached. */
+/** Joins a player into a waiting room.
+ *  For bet games:
+ *   - once MIN_PLAYERS is reached, add SAMI (AI) locally,
+ *   - call the smart contract startGame(address[]) with HUMAN wallet addresses,
+ *   - if some wallets fail, remove those players from the room,
+ *   - if remaining humans < MIN_PLAYERS -> revert to waiting; else start the local game.
+ */
 export const joinGame = (
   roomId: string,
   playerId: string,
@@ -112,32 +123,153 @@ export const joinGame = (
 ): boolean => {
   const game = rooms[roomId];
   if (!game) return false;
-
   if (game.status !== "waiting") return false;
+  const humansNow = game.players.filter(p => !p.isAI).length;
+  if (humansNow >= MIN_PLAYERS) { return false; }
 
   if (game.isBetGame !== isBetGame) {
     console.warn(`Player ${playerId} tried to join a mismatched game type (expected: ${game.isBetGame}, received: ${isBetGame})`);
     return false;
   }
 
-  const existingPlayer = _.find(game.players, { id: playerId });
-  if (existingPlayer) return false;
+  // Disallow duplicate player IDs
+  if (_.find(game.players, { id: playerId })) return false;
 
+  // Create human (wallet comes from session if socketId provided)
   const newPlayer = createPlayer(playerId, socketId);
+
+  // For bet games, require a registered wallet before joining
+  if (isBetGame && (!newPlayer.walletAddress || !newPlayer.walletAddress.trim())) {
+    console.warn(`[${roomId}] player ${playerId} has no wallet registered; cannot join bet game`);
+    return false;
+  }
+
   game.players.push(newPlayer);
 
-  if (game.players.length === MIN_PLAYERS) {
-    const samiID = uuidv4();
-    const samiPlayer = createPlayer(samiID);
-    game.players.push(samiPlayer);
+  // Helper: count humans (exclude SAMI/AI)
+  const countHumans = () => game.players.filter(p => !p.isAI).length;
 
-    startGame(roomId);
-  } else {
-    if (TELEGRAM_BOT_TOKEN) void sendTelegramMessage(isBetGame, game.players.length);
+  // ====== TG CASE #1: joined but still below quorum ======
+  if (countHumans() < MIN_PLAYERS) {
+    gameServiceEmitter.emit("waitingForPlayers", {
+      roomId,
+      players: countHumans(),
+      isBetGame,
+    });
+    // Notify TG only while waiting (below quorum)
+    if (TELEGRAM_BOT_TOKEN) void sendTelegramMessage(isBetGame, countHumans());
+    return true;
   }
+
+  // Prepare SAMI (will be added only right before starting)
+  const samiID = uuidv4();
+  const samiPlayer = createPlayer(samiID); // AI
+
+  if (!isBetGame) {
+    // FREE GAME: add SAMI and start immediately
+    game.players.push(samiPlayer);
+    void startGame(roomId);
+    return true;
+  }
+
+  // BET GAME: on-chain gate before starting locally
+  (async () => {
+    try {
+      const humanWallets = game.players
+        .filter(p => !p.isAI && typeof p.walletAddress === "string" && p.walletAddress.trim().length > 0)
+        .map(p => p.walletAddress!.trim());
+
+      const invalid = humanWallets.filter(a => !isAddress(a));
+      if (invalid.length) console.warn(`[${roomId}] Invalid wallets: ${invalid.join(", ")}`);
+
+      const checksummed = humanWallets.map(a => { try { return getAddress(a); } catch { return a; } });
+
+      const { ok: pfOk, bad, need, spender } = await preflightUSDC(checksummed);
+      if (!pfOk) {
+        const failSet = new Set(bad.map(b => b.owner.toLowerCase()));
+        game.players = game.players.filter(p => {
+          if (p.isAI) return false;
+          const w = (p.walletAddress || "").toLowerCase();
+          return !failSet.has(w);
+        });
+
+        const humansLeft = game.players.filter(p => !p.isAI).length;
+        game.status = "waiting";
+
+        gameServiceEmitter.emit("betApprovalFailed", { roomId, failedWallets: [...failSet] });
+        gameServiceEmitter.emit("waitingForPlayers", { roomId, players: humansLeft, isBetGame: true });
+        if (TELEGRAM_BOT_TOKEN && humansLeft > 0) void sendTelegramMessage(true, humansLeft);
+
+        console.warn(`[${roomId}] preflight failed`, { need: need.toString(), spender, failed: [...failSet] });
+        return;
+      }
+
+      const [ok, failed] = await startGameOnChain(checksummed);
+
+      if (!ok && failed.length) {
+        // Remove failed humans
+        const failedSet = new Set(failed.map(a => a.toLowerCase()));
+        game.players = game.players.filter(p => {
+          if (p.isAI) return false; // ensure no AI lingers here
+          const w = (p.walletAddress || "").toLowerCase();
+          return !failedSet.has(w);
+        });
+
+        const humansLeft = countHumans();
+
+        // Back to waiting; no SAMI while waiting
+        game.status = "waiting";
+
+        gameServiceEmitter.emit("betApprovalFailed", { roomId, failedWallets: failed });
+        gameServiceEmitter.emit("waitingForPlayers", {
+          roomId,
+          players: humansLeft,
+          isBetGame: true,
+        });
+
+        // ====== TG CASE #2: after cleanup, still below quorum ======
+        if (TELEGRAM_BOT_TOKEN) void sendTelegramMessage(true, humansLeft);
+        return;
+      }
+
+      const humansLeft = countHumans();
+      if (humansLeft < MIN_PLAYERS) {
+        // Lost quorum meanwhile -> back to waiting
+        game.status = "waiting";
+        game.players = game.players.filter(p => !p.isAI);
+        gameServiceEmitter.emit("waitingForPlayers", {
+          roomId,
+          players: humansLeft,
+          isBetGame: true,
+        });
+        if (TELEGRAM_BOT_TOKEN) void sendTelegramMessage(true, humansLeft);
+        return;
+      }
+
+      // On-chain OK and quorum intact -> add SAMI and start
+      game.players.push(samiPlayer);
+      void startGame(roomId);
+    } catch (e: any) {
+      console.error(`[${roomId}] on-chain startGame failed`, e);
+      const reason = String(e?.message || "on-chain start failed");
+      gameServiceEmitter.emit("game:startFailed", { roomId, reason });
+
+      game.status = "waiting";
+      game.players = game.players.filter(p => !p.isAI);
+      const humansLeft = countHumans();
+      gameServiceEmitter.emit("waitingForPlayers", {
+        roomId,
+        players: humansLeft,
+        isBetGame: true,
+      });
+      if (TELEGRAM_BOT_TOKEN) void sendTelegramMessage(true, humansLeft);
+    }
+  })();
 
   return true;
 };
+
+
 
 export const startGame = async (roomId: string) => {
   const game = rooms[roomId];
@@ -194,37 +326,54 @@ const sendAIFirstMessage = async (roomId: string) => {
   void sendMessageToAI(roomId);
 };
 
+type GameWithLocks = Game & {
+  __votingClosing?: boolean;
+  __votingClosed?: boolean;
+};
+
 export const recordVote = (roomId: string, voterId: string, votedPlayerId: string): boolean => {
-  const game = rooms[roomId];
+  const game = rooms[roomId] as GameWithLocks;
   if (!game) {
     console.error(`[recordVote] Game not found for room: ${roomId}`);
     return false;
   }
+  if (game.status !== "voting") return false;
 
   const voter = _.find(game.players, { id: voterId });
   const votedPlayer = _.find(game.players, { id: votedPlayerId });
-
   if (!voter || !votedPlayer) {
-    console.warn(`[recordVote]Invalid vote in room : ${roomId}`);
+    console.warn(`[recordVote] Invalid vote in room: ${roomId}`);
     return false;
   }
 
+  if (game.votes[voterId] === votedPlayerId) return true;
+
   game.votes[voterId] = votedPlayerId;
-  console.log(`[${roomId}] ${voterId} Voted for ${votedPlayerId}.`);
+  console.log(`[${roomId}] ${voterId} voted for ${votedPlayerId}`);
   gameServiceEmitter.emit("voteSubmitted", { roomId, voterId, votedId: votedPlayerId });
 
-  const voterPlayerIds = Object.keys(game.votes);
-  const amountOfPlayersWhoLeft = _.filter(
-    game.players,
-    (player) => player.left && !voterPlayerIds.includes(player.id)
-  ).length;
-  const totalAmount = voterPlayerIds.length + amountOfPlayersWhoLeft;
-  if (totalAmount === game.players.length - 1) {
-    endVotingPhase(roomId);
+  const voterIds = Object.keys(game.votes);
+  const leavers = game.players.filter(p => p.left && !voterIds.includes(p.id)).length;
+  const totalCounted = voterIds.length + leavers;
+
+  if (totalCounted === game.players.length - 1 && !game.__votingClosed && !game.__votingClosing) {
+    game.__votingClosing = true;
+
+    setImmediate(async () => {
+      try {
+        await endVotingPhase(roomId);
+      } catch (e) {
+        console.error(`[${roomId}] endVotingPhase failed`, e);
+      } finally {
+        game.__votingClosed = true;
+        game.__votingClosing = false;
+      }
+    });
   }
 
   return true;
 };
+
 
 export const sendMessageToAI = async (roomId: string) => {
   const game = rooms[roomId];
@@ -327,10 +476,10 @@ const endConversationPhase = async (roomId: string) => {
   gameServiceEmitter.emit("conversationEnded", { roomId });
   await new Promise((resolve) => setTimeout(resolve, 100));
   gameServiceEmitter.emit("startVoting", { roomId, timeBeforeEnds, serverTime });
-  setTimeout(() => endVotingPhase(roomId), timeBeforeEnds);
+  setTimeout(async () => await endVotingPhase(roomId), timeBeforeEnds);
 };
 
-export const endVotingPhase = (roomId: string) => {
+export const endVotingPhase = async (roomId: string) => {
   const game = rooms[roomId];
   if (!game || game.status !== "voting") return;
   console.log(`[${roomId}] Ending voting phase...`);
@@ -374,7 +523,7 @@ export const endVotingPhase = (roomId: string) => {
     }
   });
 
-  sendPrizesToWinners(winnerAddresses);
+  await sendPrizesToWinners(winnerAddresses);
 
   gameServiceEmitter.emit("gameOver", { roomId, isBetGame, results });
 
@@ -471,8 +620,9 @@ export const getGameById = (roomId: string) => rooms[roomId] || null;
 export const calculateNumberOfPlayers = ({ roomId }: { roomId: string }) => {
   const game = getGameById(roomId);
   if (!game) return [-1, -1];
-  const amountOfPlayers = game.players.length > MIN_PLAYERS ? MIN_PLAYERS : game.players.length;
-  return [amountOfPlayers, MIN_PLAYERS];
+  const humans = game.players.filter(p => !p.isAI).length;
+  const amountOfPlayers = humans > MIN_PLAYERS ? MIN_PLAYERS : humans;
+  return [amountOfPlayers, MIN_PLAYERS];  
 };
 
 export const getSamiPlayer = (game: Game) => _.find(game.players, { isAI: true });

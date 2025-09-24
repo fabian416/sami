@@ -23,6 +23,7 @@ interface SocketContextType {
   setRoomId: (id: string) => void;
   isPlayerEliminated?: boolean;
   setIsPlayerEliminated: (id: boolean) => void;
+  walletRegistered: boolean;
 }
 
 // Crea el contexto
@@ -44,6 +45,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [roomId, setRoomId] = useState<string | null>(null);
   const [isPlayerEliminated, setIsPlayerEliminated] = useState<boolean | undefined>(false);
   const [connectedAddress, setConnectedAddress] = useState<any>(false);
+  const [walletRegistered, setWalletRegistered] = useState(false);
   const { contracts } = useContracts();
 
   useEffect(() => {
@@ -84,11 +86,24 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }, []);
 
   useEffect(() => {
-    if (socket && connectedAddress) {
-      socket.emit("registerWallet", { walletAddress: connectedAddress });
-      console.log(`Wallet registered: ${connectedAddress}`);
-    }
+    if (!socket || !connectedAddress) return;
+
+    // 1) (Re)register wallet whenever socket or address changes
+    socket.emit("player:registerWallet", { walletAddress: connectedAddress });
+
+    // 2) Set flag based on server acks
+    const onOk = () => setWalletRegistered(true);
+    const onBad = () => setWalletRegistered(false);
+
+    socket.on("player:walletRegistered", onOk);
+    socket.on("player:walletRejected", onBad);
+
+    return () => {
+      socket.off("player:walletRegistered", onOk);
+      socket.off("player:walletRejected", onBad);
+    };
   }, [socket, connectedAddress]);
+
 
   return (
     <SocketContext.Provider
@@ -103,6 +118,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         setPlayerId,
         setPlayerIndex,
         setRoomId,
+        walletRegistered,
       }}
     >
       {children}

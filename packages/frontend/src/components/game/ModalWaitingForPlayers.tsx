@@ -11,7 +11,7 @@ export const ModalWaitingForPlayers = ({ isBetGame }: { isBetGame: boolean }) =>
   useEffect(() => {
     if (!socket) return;
     if (!roomId) {
-      socket.emit("getPlayerRoomId", { playerId });
+      socket.emit("player:getRoom", { playerId });
     }
 
     socket.on("playerRoomId", (data: { roomId: string; playerId: string }) => {
