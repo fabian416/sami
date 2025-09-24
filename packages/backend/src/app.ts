@@ -1,24 +1,15 @@
-import express from 'express';
-import configRoutes from './routes/configRoutes';
-import { allowedOrigins } from "./utils/constants";
-import cors from 'cors';
+import express from "express";
+import cors from "cors";
+import { corsOptions } from "@config/cors";
+import healthRoutes from "@src/routes/config-routes";
+import configRoutes from "@src/routes/config-routes";
 
 const app = express();
 
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true,
-}));
-
-
+app.use(cors(corsOptions));
 app.use(express.json());
 
-app.use('/api/config', configRoutes);
+app.use("/api/health", healthRoutes);
+app.use("/api/config", configRoutes);
 
-export default app; 
+export default app;

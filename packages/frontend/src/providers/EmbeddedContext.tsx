@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { useLocation } from "react-router-dom";
 
 interface ContractsProviderProps {
   children: ReactNode;
@@ -10,13 +11,12 @@ interface ContextType {
 
 const EmbeddedContext = createContext<ContextType | null>(null);
 
-export const EmbeddedProvider: React.FC<ContractsProviderProps> = ({ children }) => {
-  const [isEmbedded, setIsEmbedded] = useState<string | boolean | null>(true);
 
-  useEffect(() => {
-    const embedded = localStorage.getItem("embedded");
-    setIsEmbedded(true);
-  }, []);
+const NOT_EMBEDDED_ROUTES = new Set<string>(["/not-embedded"]);
+
+export const EmbeddedProvider: React.FC<ContractsProviderProps> = ({ children }) => {
+  const { pathname } = useLocation();
+  const isEmbedded = !NOT_EMBEDDED_ROUTES.has(pathname);
 
   return <EmbeddedContext.Provider value={{ isEmbedded }}>{children}</EmbeddedContext.Provider>;
 };

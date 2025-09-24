@@ -1,5 +1,3 @@
-export const DECIMALS = 1e6;
-
 export const COLORS = [
   "!text-pink-400",
   "!text-red-500",
@@ -33,3 +31,8 @@ const getPermutations = (str: string) => {
 };
 
 export const NAMES = getPermutations("SAMI").filter(name => name !== "SAMI");
+
+export const DECIMALS = 1e6;
+export const BET_AMOUNT = BigInt(1 * DECIMALS);
+export const APPROVE_AMOUNT = BigInt(3 * DECIMALS);
+export const MINT_AMOUNT = BigInt(3 * DECIMALS);

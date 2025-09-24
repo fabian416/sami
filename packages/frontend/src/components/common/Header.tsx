@@ -3,15 +3,20 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { usePathname } from "next/navigation";
-import RainbowKitCustomConnectButtonOpaque from "./ConnectButtonOpaque";
 import { Bars3Icon } from "@heroicons/react/20/solid";
+import RainbowKitCustomConnectButtonOpaque from "./ConnectButtonOpaque";
 import { useOutsideClick } from "~~/hooks/useOutsideClick";
 import { useContracts } from "~~/providers/ContractsContext";
 import { useEmbedded } from "~~/providers/EmbeddedContext";
-import { DECIMALS } from "~~/utils/constants";
+import { BET_AMOUNT, MINT_AMOUNT } from "~~/utils/constants";
 import { notification } from "~~/utils/scaffold-eth";
+// If you want to format precisely, prefer formatUnits over Number(...):
+import { formatUnits } from "ethers";
 
 const ENVIRONMENT = process.env.NEXT_PUBLIC_ENVIRONMENT;
+
+// USDC has 6 decimals; change if your token differs.
+const TOKEN_DECIMALS = 6;
 
 type HeaderMenuLink = {
   label: string;
@@ -20,23 +25,11 @@ type HeaderMenuLink = {
 };
 
 export const menuLinks: HeaderMenuLink[] = [
-  {
-    label: "Home",
-    href: "/",
-  } /*
-  {
-    label: "Leaderboard",
-    href: "/leaderboard",
-  },*/,
-  {
-    label: "About",
-    href: "/about",
-  },
+  { label: "Home", href: "/" },
 ];
 
 export const HeaderMenuLinks = () => {
   const pathname = usePathname();
-
   return (
     <>
       {menuLinks?.map(({ label, href, icon }) => {
@@ -45,9 +38,7 @@ export const HeaderMenuLinks = () => {
           <li key={href}>
             <Link
               to={href}
-              className={`${
-                isActive ? "bg-secondary shadow-md" : ""
-              } hover:bg-secondary hover:shadow-md focus:!bg-secondary active:!text-neutral py-1.5 px-3 text-sm rounded-full gap-2 grid grid-flow-col`}
+              className={`${isActive ? "bg-secondary shadow-md" : ""} hover:bg-secondary hover:shadow-md focus:!bg-secondary active:!text-neutral py-1.5 px-3 text-sm rounded-full gap-2 grid grid-flow-col`}
             >
               {icon}
               <span>{label}</span>
@@ -69,37 +60,105 @@ export const HeaderMenuLinks = () => {
 };
 
 /**
- * Site header
+ * Site header with live-updating USDC balance
+ * Strategy:
+ *  - Immediate refresh on ERC20 Transfer events (in/out)
+ *  - Polling every 5s as a fallback
+ *  - Refresh when tab becomes visible again
+ *  - Cleanup listeners on unmount
  */
 export const Header = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [balance, setBalance] = useState<bigint | undefined | null>(undefined);
-  const [connectedAddress, setConnectedAddress] = useState(null);
+  const [balance, setBalance] = useState<bigint | null | undefined>(undefined);
+  const [connectedAddress, setConnectedAddress] = useState<string | null>(null);
+
+  const lastBalanceRef = useRef<bigint | null>(null);
+  const burgerMenuRef = useRef<HTMLDivElement>(null);
 
   const { isEmbedded } = useEmbedded();
   const { contracts } = useContracts();
 
-  const burgerMenuRef = useRef<HTMLDivElement>(null);
   useOutsideClick(
     burgerMenuRef,
     useCallback(() => setIsDrawerOpen(false), []),
   );
 
   useEffect(() => {
+    let intervalId: ReturnType<typeof setInterval> | null = null;
+    let unsubTransfers: (() => void) | null = null;
+
+    // --- Core balance fetcher
     const fetchBalance = async () => {
       try {
         const { usdc, connectedAddress: address } = await contracts();
-        if (!address) return;
+        if (!address || !usdc) return;
+
         setConnectedAddress(address);
-        const result = await usdc.balanceOf(address);
-        setBalance(result);
+        const result: bigint = await usdc.balanceOf(address);
+
+        // Avoid unnecessary re-renders if balance didn't change
+        if (lastBalanceRef.current !== result) {
+          lastBalanceRef.current = result;
+          setBalance(result);
+        }
       } catch (err) {
         console.error("Error fetching USDC balance:", err);
         setBalance(BigInt(0));
       }
     };
 
+    // --- Subscribe to ERC20 Transfer events to refresh instantly
+    const setupEventListeners = async () => {
+      try {
+        const { usdc, connectedAddress: address } = await contracts();
+        if (!usdc || !address) return;
+
+        // Ethers v6: build Transfer filters for "to=address" and "from=address"
+        const inFilter = usdc.filters.Transfer(null, address);
+        const outFilter = usdc.filters.Transfer(address, null);
+
+        const onTransfer = () => {
+          // Refresh immediately on any incoming/outgoing transfer
+          fetchBalance();
+        };
+
+        usdc.on(inFilter, onTransfer);
+        usdc.on(outFilter, onTransfer);
+
+        unsubTransfers = () => {
+          try {
+            usdc.off(inFilter, onTransfer);
+            usdc.off(outFilter, onTransfer);
+          } catch {
+            /* no-op */
+          }
+        };
+      } catch (e) {
+        console.warn("Could not subscribe to Transfer events:", e);
+      }
+    };
+
+    // --- Refresh when tab becomes visible (user returns to the tab)
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") {
+        fetchBalance();
+      }
+    };
+
+    // 1) Initial load
     fetchBalance();
+    // 2) Event listeners
+    setupEventListeners();
+    // 3) Polling every 5 seconds as a fallback
+    intervalId = setInterval(fetchBalance, 5000);
+    // 4) Visibility change listener
+    document.addEventListener("visibilitychange", onVisibility);
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+      if (unsubTransfers) unsubTransfers();
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
   }, [contracts, isEmbedded]);
 
   const handleMint = async () => {
@@ -109,29 +168,30 @@ export const Header = () => {
         notification.error("Please connect your wallet");
         return;
       }
-
-      const tx = await usdc.mint(address, BigInt(3 * DECIMALS));
+      const tx = await usdc.mint(address, MINT_AMOUNT);
       await tx.wait();
       notification.success("Tokens minted successfully!");
+      // Force refresh after mint completes
+      // (balance will also refresh via Transfer event if mint emits one)
     } catch (error) {
       console.error("Error minting tokens:", error);
       notification.error("Minting tokens failed, please try again.");
     }
   };
 
+  const prettyBalance =
+    typeof balance === "bigint"
+      ? parseFloat(formatUnits(balance, TOKEN_DECIMALS)).toFixed(2)
+      : undefined;
+
   return (
     <div className="sticky lg:static top-0 navbar bg-base-100 min-h-0 flex-shrink-0 justify-between z-20 shadow-md shadow-secondary px-0 sm:px-2">
       <div className="navbar-start w-auto lg:w-1/2">
-        <div
-          className="lg:hidden dropdown"
-          //ref={"burgerMenuRef"}
-        >
+        <div className="lg:hidden dropdown" ref={burgerMenuRef}>
           <label
             tabIndex={0}
             className={`ml-1 btn btn-ghost ${isDrawerOpen ? "hover:bg-secondary" : "hover:bg-transparent"}`}
-            onClick={() => {
-              setIsDrawerOpen(prevIsOpenState => !prevIsOpenState);
-            }}
+            onClick={() => setIsDrawerOpen(prev => !prev)}
           >
             <Bars3Icon className="h-1/2" />
           </label>
@@ -139,14 +199,13 @@ export const Header = () => {
             <ul
               tabIndex={0}
               className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52"
-              onClick={() => {
-                setIsDrawerOpen(false);
-              }}
+              onClick={() => setIsDrawerOpen(false)}
             >
               <HeaderMenuLinks />
             </ul>
           )}
         </div>
+
         <Link to="/" className="hidden lg:flex items-center gap-2 ml-2 mr-6 shrink-0">
           <div className="flex relative w-8 h-8">
             <img alt="SE2 logo" className="w-auto h-auto cursor-pointer" src="/logo.png" />
@@ -155,32 +214,35 @@ export const Header = () => {
             <span className="text-2xl font-bold leading-tight">SAMI</span>
           </div>
         </Link>
+
         <ul className="hidden lg:flex lg:flex-nowrap menu menu-horizontal px-1 gap-2">
           <HeaderMenuLinks />
         </ul>
       </div>
-      <div className="navbar-center hidden lg:flex flex-grow justify-center"></div>
+
+      <div className="navbar-center hidden lg:flex flex-grow justify-center" />
+
       <div className="navbar-end flex-grow mr-4">
-        {connectedAddress || isEmbedded &&
+        {(!!connectedAddress || isEmbedded) &&
           typeof balance !== "undefined" &&
           typeof balance === "bigint" &&
           (ENVIRONMENT === "production" ? (
             <span className="flex flex-row bg-[#2672BE] text-white glow-blue px-3 py-1 rounded-lg items-center justify-center gap-1 ml-4 mr-2 text-lg font-bold">
-              <TokenLogo className="" />
-              <span className="ml-1">{(Number(balance) / DECIMALS).toFixed(2)}</span>
+              <TokenLogo />
+              <span className="ml-1">{prettyBalance}</span>
             </span>
-          ) : balance < BigInt(1 * DECIMALS) ? (
+          ) : balance < BET_AMOUNT ? (
             <button
               className="flex flex-row btn btn-primary bg-[#2672BE] hover:bg-[#2672BE] glow-blue mr-2 text-white border-0 shadow-[0_0_10px_#A1CA00] btn-sm text-xl"
               onClick={handleMint}
             >
               <div className="text-sm">Get $USDC</div>
-              <TokenLogo className="" />
+              <TokenLogo />
             </button>
           ) : (
             <span className="flex flex-row bg-[#2672BE] text-white glow-blue px-3 py-1 rounded-lg items-center justify-center gap-1 ml-4 mr-2 text-lg font-bold">
-              <TokenLogo className="" />
-              <span className="ml-1">{(Number(balance) / DECIMALS).toFixed(2)}</span>
+              <TokenLogo />
+              <span className="ml-1">{prettyBalance}</span>
             </span>
           ))}
 
@@ -194,8 +256,7 @@ export const TokenLogo = ({
   width = 25,
   height = 25,
   className = "inline-block align-bottom",
-}: // Add this to align the image with the text
-{
+}: {
   width?: number;
   height?: number;
   className?: string;

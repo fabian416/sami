@@ -1,93 +1,132 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity 0.8.30;
 
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-/// @title SimpleSAMI - A simple contract for managing tickets and prizes
-/// @notice This contract allows users to buy tickets to play SAMI,and allows the owner to send prizes.
+/// @title SimpleSAMI - Manage tickets (USDC) and distribute prizes
 contract USDCSimpleSAMI is Ownable {
+    using SafeERC20 for IERC20;
+
     /*//////////////////////////////////////////////////////////////
                                  ERRORS
     //////////////////////////////////////////////////////////////*/
-
-    error SimpleSAMI__TransferFailed();
+    error NoPlayers();
+    error NoWinners();
+    error InsufficientPot(uint256 want, uint256 have);
+    error GameStartedFailed(address[] players, uint256 timestamp);
 
     /*//////////////////////////////////////////////////////////////
                                  EVENTS
     //////////////////////////////////////////////////////////////*/
-
-    event GameEntered(address indexed player, uint256 timestamp);
+    event GameStarted(address[] players, uint256 timestamp);
     event PrizeSent(address indexed winner, uint256 amount);
-    event ErrorSendingPrize(address indexed winner, uint256 amount);
     event WithdrawFromReserves(uint256 amount);
     event BetAmountChanged(uint256 newBetAmount);
+    event MaxPlayersChanged(uint256 newMaxPlayers);
+    event PrizeFailed(address indexed winner, uint256 amount, bytes data);
 
     /*//////////////////////////////////////////////////////////////
                             STATE VARIABLES
     //////////////////////////////////////////////////////////////*/
-
     IERC20 public immutable USDC_TOKEN;
-    uint256 public constant DECIMALS = 1e6; // USDC decimals
-
+    uint256 public constant DECIMALS = 1e6; // USDC 6 decimals
     uint256 public betAmount;
+    uint256 public maxPlayers;
 
     /*//////////////////////////////////////////////////////////////
                               CONSTRUCTOR
     //////////////////////////////////////////////////////////////*/
-
-    /// @notice Initializes the USDC token address and the deployer as the owner
-    /// @param _usdcTokenAddress The address of the USDC ERC20 token
     constructor(address _usdcTokenAddress) Ownable(msg.sender) {
         USDC_TOKEN = IERC20(_usdcTokenAddress);
         betAmount = 1 * DECIMALS;
+        maxPlayers = 3;
     }
 
     /*//////////////////////////////////////////////////////////////
                                FUNCTIONS
     //////////////////////////////////////////////////////////////*/
 
-    /// @notice Allows a user to enter a SAMI game by transferring the bet amount
-    /// @dev The user must previosly approve the contract to spend the bet amount of tokens
-    function enterGame() external {
-        // Transferir el monto de la apuesta del usuario al contrato
-        bool success = USDC_TOKEN.transferFrom(msg.sender, address(this), betAmount);
-        if (!success) revert SimpleSAMI__TransferFailed();
+    /// @notice Each player must have approved `betAmount` beforehand
+    function startGame(address[] calldata _players) external onlyOwner {
+        uint256 n = _players.length;
+        if (n == 0) revert NoPlayers();
 
-        emit GameEntered(msg.sender, block.timestamp);
+        uint256 _bet = betAmount;
+        address[] memory failed = new address[](n);
+        uint256 f = 0;
+
+        for (uint256 i = 0; i < n; ) {
+            (bool ok, bytes memory ret) = address(USDC_TOKEN).call(
+                abi.encodeWithSelector(IERC20.transferFrom.selector, _players[i], address(this), _bet)
+            );
+            bool success = ok && (ret.length == 0 || (ret.length == 32 && abi.decode(ret, (bool))));
+
+            if (!success) {
+                failed[f] = _players[i];
+                unchecked { ++f; }
+            }
+            unchecked { ++i; }
+        }
+
+        if (f > 0) {
+            address[] memory failedTrim = new address[](f);
+            for (uint256 j = 0; j < f; ) {
+                failedTrim[j] = failed[j];
+                unchecked { ++j; }
+            }
+            revert GameStartedFailed(failedTrim, block.timestamp);
+        }
+
+        emit GameStarted(_players, block.timestamp);
     }
 
-    /// @notice Allows the owner to send the prize.
-    /// @param _winners The addresses of the winners who will receive the prize.
+
+
+    /// @notice Distribute current pot equally among winners
     function sendPrizes(address[] memory _winners) external onlyOwner {
         uint256 numWinners = _winners.length;
-        uint256 totalPot = betAmount * 3;
+        if (numWinners == 0) revert NoWinners();
 
-        // Prize division
-        uint256 individalPayout = totalPot / numWinners;
+        uint256 totalPot = betAmount * maxPlayers;
+        uint256 individualPayout = totalPot / numWinners;
+        uint256 balance = USDC_TOKEN.balanceOf(address(this));
+        if (balance < totalPot) {
+            revert InsufficientPot(totalPot, balance);
+        }
 
-        // Distribute and update liquidity
-        for (uint256 i = 0; i < numWinners; i++) {
-            bool success = USDC_TOKEN.transfer(_winners[i], individalPayout);
+        for (uint256 i = 0; i < numWinners; ) {
+            (bool ok, bytes memory ret) = address(USDC_TOKEN).call(
+                abi.encodeWithSelector(IERC20.transfer.selector, _winners[i], individualPayout)
+            );
+            bool success = ok && (ret.length == 0 || (ret.length == 32 && abi.decode(ret, (bool))));
+
             if (success) {
-                emit PrizeSent(_winners[i], individalPayout);
+                emit PrizeSent(_winners[i], individualPayout);
             } else {
-                emit ErrorSendingPrize(_winners[i], individalPayout);
+                emit PrizeFailed(_winners[i], individualPayout, ret);
             }
+
+            unchecked { ++i; }
         }
     }
 
-    /// @notice Allows the owner to set the bet amount required to buy a ticket
-    /// @param _betAmount The new bet amount
+
+    /// @notice Owner sets the per-player bet amount (in 6 decimals)
     function setBetAmount(uint256 _betAmount) external onlyOwner {
         betAmount = _betAmount;
         emit BetAmountChanged(_betAmount);
     }
 
-    /// @notice Allows the owner to withdraw tokens from the contract
-    /// @param _amount The amount of tokens to withdraw
+    function setMaxPlayers(uint256 _maxPlayers) external onlyOwner {
+        maxPlayers = _maxPlayers;
+        emit MaxPlayersChanged(_maxPlayers);
+    }
+
+    /// @notice Owner can withdraw reserves (in USDC 6 decimals)
     function withdraw(uint256 _amount) external onlyOwner {
-        USDC_TOKEN.transfer(owner(), _amount);
+        USDC_TOKEN.safeTransfer(owner(), _amount);
         emit WithdrawFromReserves(_amount);
     }
 }

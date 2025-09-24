@@ -74,7 +74,7 @@ export const PlayGame = () => {
   useEffect(() => {
     if (!socket) return;
     if (!playerIndex && playerId && roomId) {
-      socket.emit("getPlayerIndex", { roomId, playerId });
+      socket.emit("player:getIndex", { roomId, playerId });
     }
     socket.on("playerIndex", (data: { playerId: string; playerIndex: number }) => {
       playerId === data.playerId && setPlayerIndex(data.playerIndex);
@@ -206,7 +206,7 @@ export const PlayGame = () => {
           </div>
 
           {/* Input messages */}
-          <div className="flex w-full mt-4">
+          <div className={`flex w-full mt-4 ${isDarkMode ? "text-white" : "text-black"}`}>
             <input
               ref={inputRef}
               type="text"
