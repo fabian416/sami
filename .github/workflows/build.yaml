@@ -79,7 +79,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args:
-            NEXT_PUBLIC_ENVIRONMENT=${{ env.NEXT_PUBLIC_ENVIRONMENT }}
+            VITE_PUBLIC_ENVIRONMENT=${{ env.VITE_PUBLIC_ENVIRONMENT }}
 
   build_ai_agent:
     runs-on: ubuntu-latest
