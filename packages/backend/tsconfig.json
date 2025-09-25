@@ -12,6 +12,9 @@
       "@core/*": ["./src/core/*", "./dist/core/*"],
       "@sockets/*": ["./src/sockets/*", "./dist/sockets/*"],
       "@abi/*": ["./src/abi/*", "./dist/abi/*"],
+      "@db/*": ["./src/db/*", "./dist/db/*"],
+      "@domain/*": ["./src/domain/*", "./dist/domain/*"],
+      "@repositories/*": ["./src/repositories/*", "./dist/repositories/*"],
       "@config/*": ["./src/config/*", "./dist/config/*"],
       "@controllers/*": ["./src/controllers/*", "./dist/controllers/*"],
       "@models/*": ["./src/models/*", "./dist/models/*"],
@@ -24,7 +27,7 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "include": ["src"],
+  "include": ["src", "drizzle.config.ts"],
   "exclude": ["node_modules", "dist"]
 }
 

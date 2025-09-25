@@ -4,12 +4,11 @@
  * and centralized env/constants usage.
  */
 
-import { createPlayer, type Player } from "@services/player.service";
+import { createPlayer } from "@services/player.service";
 import { EventEmitter } from "events";
 import { v4 as uuidv4 } from "uuid";
 import _ from "lodash";
 import { preflightUSDC, sendPrizesToWinners, startGameOnChain } from "@src/config/contract-config";
-import supabase from "@src/config/supabase-client";
 import axios from "axios";
 import {
   MIN_PLAYERS,
@@ -20,31 +19,22 @@ import {
   SAMI_URI,
 } from "@utils/constants";
 import { getAddress, isAddress } from "ethers";
+import { Game, MessageCache } from "@domain/game.types";
+import { Player } from "@domain/player.types";
+import { GamePersistenceService } from "./game-persistence-service";
 
 class GameServiceEmitter extends EventEmitter {}
 const gameServiceEmitter = new GameServiceEmitter();
 export default gameServiceEmitter;
 
-export interface Message {
-  roomId: string;
-  playerId: string;
-  playerIndex: number;
-  isPlayerAI: boolean;
-  message: string;
-}
-
-export interface Game {
-  roomId: string;
-  players: Player[];
-  status: "waiting" | "active" | "voting" | "finished";
-  votes: { [playerId: string]: string };
-  isBetGame: boolean;
-}
-
-
 export const rooms: { [key: string]: Game } = {};
-export const roomsMessages: { [key: string]: Message[] } = {};
-export const cachedRoomsMessages: { [key: string]: Message[] } = {};
+export const roomsMessages: { [key: string]: MessageCache[] } = {};
+export const cachedRoomsMessages: { [key: string]: MessageCache[] } = {};
+
+const persistence = new GamePersistenceService(
+  undefined, undefined, undefined, undefined,
+  (tempRoomId) => roomsMessages[tempRoomId]
+);
 
 /** Finds a waiting bet game with available slots. */
 export const findBetGame = (): Game | null =>
@@ -530,88 +520,7 @@ export const endVotingPhase = async (roomId: string) => {
   game.status = "finished";
   const samiIsTheWinner = _.every(results, (r) => r.won === false);
   if (samiIsTheWinner) (samiPlayer as any).winner = true;
-  void saveGameData(game, samiIsTheWinner);
-};
-
-const saveGameData = async (game: Game, samiIsTheWinner: boolean) => {
-  const room = await saveRoom(game, samiIsTheWinner);
-  if (!room) {
-    console.error("[Backend] Error saving room, aborting...");
-    return;
-  }
-  await savePlayers(game.players);
-  await saveVotes(room.id, game.votes);
-  await saveMessages(game.roomId, room.id);
-  console.log(`[${room.id}] Game data saved successfully.`);
-};
-
-const saveRoom = async (game: Game, samiIsTheWinner: boolean) => {
-  const { data, error } = await supabase
-    .from("rooms")
-    .insert([
-      {
-        status: game.status,
-        is_bet_game: game.isBetGame,
-        players: game.players.map((p) => p.id),
-        is_ai_winner: samiIsTheWinner,
-      },
-    ])
-    .select()
-    .single();
-
-  if (error) {
-    console.error("[Backend] Error saving room:", error);
-    return null;
-  }
-  return data;
-};
-
-const savePlayers = async (players: Player[]) => {
-  const playerRecords = players.map((player) => ({
-    id: player.id,
-    index: player.index,
-    is_ai: player.isAI,
-    winner: player.winner,
-    left: player.left,
-    wallet_address: player.walletAddress,
-  }));
-
-  const { error } = await supabase.from("players").upsert(playerRecords);
-  if (error) {
-    console.error("[Backend] Error saving players:", error);
-  } else {
-    console.log("[Backend] Players saved successfully.");
-  }
-};
-
-const saveVotes = async (roomId: string, votes: { [playerId: string]: string }) => {
-  const voteRecords = Object.entries(votes).map(([voter, voted]) => ({
-    room_id: roomId,
-    from_player_id: voter,
-    to_player_id: voted,
-  }));
-
-  const { error } = await supabase.from("votes").upsert(voteRecords);
-  if (error) {
-    console.error("[Backend] Error saving votes:", error);
-  }
-};
-
-const saveMessages = async (tempRoomId: string, roomId: string) => {
-  const messages = roomsMessages[tempRoomId];
-  if (!messages) return;
-
-  const messageRecords = messages.map((m) => ({
-    room_id: roomId,
-    player_id: m.playerId,
-    message: m.message,
-    is_player_ai: m.isPlayerAI,
-  }));
-
-  const { error } = await supabase.from("messages").upsert(messageRecords);
-  if (error) {
-    console.error("[Backend] Error saving messages:", error);
-  }
+  await persistence.saveGameData(game, samiIsTheWinner);
 };
 
 // Helpers

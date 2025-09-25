@@ -1,0 +1,1 @@
+export interface VoteRepository { upsertMany(roomId: string, votes: Record<string,string>, tx?: any): Promise<void>; }

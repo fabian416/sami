@@ -33,10 +33,8 @@ const RawEnvSchema = z.object({
   PRIVATE_KEY_PRODUCTION: z.string().optional(),
 
   // Supabase (service role for backend only)
-  SUPABASE_URL_STAGING: z.string().optional(),
-  SUPABASE_URL_PRODUCTION: z.string().optional(),
-  SUPABASE_SECRET_KEY_STAGING: z.string().optional(),
-  SUPABASE_SECRET_KEY_PRODUCTION: z.string().optional(),
+  DATABASE_URL_STAGING: z.string().optional(),
+  DATABASE_URL_PRODUCTION: z.string().optional(),
 
   // App URLs / integrations
   AGENT_URL: z.string().optional(),      // SAMI_URI fallback
@@ -111,21 +109,13 @@ export const env = {
   ),
 
   // Supabase (service role)
-  SUPABASE_URL: pickByEnv(
+  DATABASE_URL: pickByEnv(
     {
-      development: raw.SUPABASE_URL_STAGING,
-      staging: raw.SUPABASE_URL_STAGING,
-      production: raw.SUPABASE_URL_PRODUCTION,
+      development: raw.DATABASE_URL_STAGING,
+      staging: raw.DATABASE_URL_STAGING,
+      production: raw.DATABASE_URL_PRODUCTION,
     },
-    "SUPABASE_URL"
-  ),
-  SUPABASE_SERVICE_KEY: pickByEnv(
-    {
-      development: raw.SUPABASE_SECRET_KEY_STAGING,
-      staging: raw.SUPABASE_SECRET_KEY_STAGING,
-      production: raw.SUPABASE_SECRET_KEY_PRODUCTION,
-    },
-    "SUPABASE_SERVICE_KEY"
+    "DATABASE_URL"
   ),
 
   // App URLs
