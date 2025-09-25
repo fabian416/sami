@@ -27,7 +27,14 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "include": ["src", "drizzle.config.ts"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src/**/*.ts"],
+  "exclude": [
+    "src/__tests__/**",
+    "**/*.test.ts",
+    "src/db/migrations/**",
+    "drizzle.config.ts",
+    "node_modules",
+    "dist"
+  ]
 }
 
