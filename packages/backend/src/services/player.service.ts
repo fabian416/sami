@@ -4,26 +4,20 @@
  */
 
 import { EventEmitter } from "events";
-import supabase from "@src/config/supabase-client";
-import { rooms, type Game } from "@services/game.service"; // <-- import Game type
+import { rooms } from "@services/game.service"; // <-- import Game type
 import { sessions } from "@src/sockets/session-store";
 import _ from "lodash";
 import logger from "@core/logger";
+import { DrizzleLefterRepository } from "@repositories/impl/drizzle-lefter-repository";
+import { Game } from "@domain/game.types";
+import { Player } from "@domain/player.types";
 
 class PlayerServiceEmitter extends EventEmitter {}
 const playerServiceEmitter = new PlayerServiceEmitter();
 export default playerServiceEmitter;
 
-// Player interface (kept compatible with your logic)
-export interface Player {
-  id: string;
-  socketId?: string;
-  walletAddress?: string;
-  index?: number;
-  isAI: boolean;
-  left: boolean;
-  winner: boolean;
-}
+const leftersRepo = new DrizzleLefterRepository();
+
 
 /**
  * Creates a new player. If socketId is provided, tries to resolve wallet
@@ -96,14 +90,10 @@ export function disconnectPlayer(data: { roomId: string; playerId: string }) {
 }
 
 async function saveLefterPlayer(player: Player) {
-  const { error } = await supabase.from("lefters_before_game_starts").insert({
-    id: player.id,
-    wallet_address: player.walletAddress,
-  });
-
-  if (error) {
-    logger.error({ error }, "[Backend] Error saving players");
-  } else {
-    logger.info("[Backend] Players saved successfully.");
+  try {
+    await leftersRepo.insert(player.id, player.walletAddress);
+    logger.info("[Backend] Lefter saved successfully.");
+  } catch (error) {
+    logger.error({ error }, "[Backend] Error saving lefter");
   }
 }

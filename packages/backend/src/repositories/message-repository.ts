@@ -1,0 +1,2 @@
+export type TempMessage = { playerId?: string; message: string; isPlayerAI: boolean };
+export interface MessageRepository { bulkInsert(roomId: string, messages: TempMessage[], tx?: any): Promise<void>; }

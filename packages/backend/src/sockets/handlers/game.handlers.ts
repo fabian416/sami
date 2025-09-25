@@ -9,9 +9,9 @@ import gameServiceEmitter, {
   rooms,
   cachedRoomsMessages,
   roomsMessages,
-  type Message,
 } from "@services/game.service";
 import { z } from "zod";
+import { MessageCache } from "@src/domain/game.types";
 
 const CreateOrJoinSchema = z.object({
   playerId: z.string().min(1),
@@ -139,7 +139,7 @@ export function register(io: Server, socket: Socket) {
         return;
       }
 
-      const fullMsg: Message = {
+      const fullMsg: MessageCache = {
         roomId: data.roomId,
         playerId: data.playerId,
         playerIndex: resolvedIndex,
