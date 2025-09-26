@@ -113,6 +113,36 @@ yarn vite:dev
 
 ---
 
+
+## 🔌 Beexo Integration
+
+SAMI supports two connection modes to handle on-chain actions:
+
+- **Embedded (Beexo)** — uses **XO Connect** to provide a built-in EIP-1193 provider without requiring a browser wallet.
+- **Normal wallet** — uses the user’s wallet (Wagmi/RainbowKit) and wraps the connected **WalletClient** as an EIP-1193 provider.
+
+Both flows are orchestrated in [`ContractsContext.tsx`](https://github.com/fabian416/sami/blob/main/packages/frontend/src/providers/ContractsContext.tsx). The provider picks the mode via `isEmbedded` and wires up:
+- an **ethers** `BrowserProvider` + `signer`
+- contract instances for **`USDCSimpleSAMI`** and **`USDC`**
+- basic session hygiene (`accountsChanged` / `disconnect` listeners)
+
+**Usage (frontend):**
+```ts
+import { useContracts } from "@/providers/ContractsContext";
+
+const { contracts } = useContracts();
+
+async function placeBet() {
+  const { sami, usdc, connectedAddress } = await contracts();
+  // e.g. ensure allowance, then call the game contract
+  // await usdc.approve(sami.getAddress(), amount);
+}
+```
+
+> In **Embedded** mode the app instantiates an `XOConnectProvider` with the chain’s RPC/chainId; in **Normal** mode it adapts the connected wallet’s `WalletClient` to EIP-1193. Both paths converge on the same contract API so the gameplay UX stays identical.
+
+---
+
 ## 🧾 Project Structure
 
 ```
